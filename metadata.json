@@ -1,0 +1,6 @@
+{
+  "name": "한국어 여정 - Hành trình tiếng Hàn",
+  "description": "Ứng dụng học tiếng Hàn tương tác dành cho người mới bắt đầu với Trò chơi Câu cá Busan & Nông trại K-Farm, Mạng xã hội kết bạn học tập, Sổ tay từ vựng minh họa đáng yêu (그림 단어장), Flashcard thông minh, Trò chơi giải đố vui và Hội thoại AI.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

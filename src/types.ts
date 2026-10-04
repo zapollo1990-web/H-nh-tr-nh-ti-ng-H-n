@@ -364,6 +364,54 @@ export interface RoadmapQuizItem {
   explanation: string;
 }
 
+export interface StageListeningExercise {
+  id: string;
+  title: string;
+  audioKo: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  romanization?: string;
+  meaningVi?: string;
+  explanation: string;
+}
+
+export interface StageSpeakingExercise {
+  id: string;
+  title: string;
+  korean: string;
+  romanization: string;
+  meaningVi: string;
+  tips?: string;
+  targetWords?: string[];
+}
+
+export interface StageReadingExercise {
+  id: string;
+  title: string;
+  passageType?: 'dialogue' | 'notice' | 'diary' | 'message' | 'story';
+  passageKo: string;
+  passageVi?: string;
+  vocabularyNotes?: Array<{ word: string; meaning: string }>;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface StageWritingExercise {
+  id: string;
+  type: 'arrange' | 'fill_blank' | 'translate';
+  promptVi: string;
+  hintKo?: string;
+  correctSentenceKo: string;
+  romanization?: string;
+  scrambleTokens?: string[];
+  blankPrefix?: string;
+  blankSuffix?: string;
+  explanation: string;
+}
+
 export interface RoadmapStage {
   id: string;
   stageNumber: number;
@@ -378,6 +426,10 @@ export interface RoadmapStage {
   checkpointQuiz: RoadmapQuizItem[];
   levelCategory?: 'beginner' | 'intermediate1' | 'intermediate2' | 'advanced';
   levelLabel?: string;
+  listeningExercises?: StageListeningExercise[];
+  speakingExercises?: StageSpeakingExercise[];
+  readingExercises?: StageReadingExercise[];
+  writingExercises?: StageWritingExercise[];
 }
 
 // TOPIK TEST TYPES

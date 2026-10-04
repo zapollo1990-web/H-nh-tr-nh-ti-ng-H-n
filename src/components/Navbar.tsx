@@ -17,6 +17,7 @@ import {
 import { playClickSound } from '../utils/audio';
 import { AppUser } from '../types';
 import { isDesignatedAdminEmail } from '../services/authService';
+import { VoiceGenderToggle } from './VoiceGenderToggle';
 
 export type MainAppTab = 'learning' | 'vocabulary' | 'conversation' | 'profile';
 
@@ -201,6 +202,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <span className="hidden sm:inline">Đăng Nhập</span>
               </button>
             )}
+
+            {/* Voice Gender Switcher (Nam / Nữ) */}
+            <VoiceGenderToggle className="hidden sm:inline-flex" />
 
             {/* Settings button */}
             <button

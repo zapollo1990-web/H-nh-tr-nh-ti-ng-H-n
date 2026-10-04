@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import {
   Award,
@@ -9,15 +9,24 @@ import {
   ArrowRight,
   RotateCcw,
   Sparkles,
-  BookOpen,
   Volume2,
   ChevronRight,
   Check,
-  X
+  X,
+  Zap,
+  CheckCheck
 } from 'lucide-react';
 import { TopikTest, TopikQuestion } from '../types';
 import { TOPIK_TESTS } from '../data/topikTests';
-import { speakKorean, playClickSound, playSuccessSound, playFanfareSound, playIncorrectSound } from '../utils/audio';
+import {
+  speakKorean,
+  playClickSound,
+  playSuccessSound,
+  playFanfareSound,
+  playIncorrectSound,
+  getVoiceGender
+} from '../utils/audio';
+import { VoiceGenderToggle } from './VoiceGenderToggle';
 
 interface TopikMockTestViewProps {
   onAddXp: (amount: number) => void;
@@ -38,6 +47,10 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [timeRemainingSeconds, setTimeRemainingSeconds] = useState<number>(15 * 60);
 
+  // Auto-advance State
+  const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const activeTest = TOPIK_TESTS.find((t) => t.id === selectedTestId) || TOPIK_TESTS[0];
 
   const displayedTests = TOPIK_TESTS.filter((t) => {
@@ -47,6 +60,13 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
     if (filterLevel === 'topik-advanced') return t.level === 'topik-advanced';
     return true;
   });
+
+  // Clean timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    };
+  }, []);
 
   // Timer countdown
   useEffect(() => {
@@ -68,6 +88,7 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
   }, [isTestStarted, isSubmitted, timeRemainingSeconds]);
 
   const handleStartTest = (testId: string) => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
     playClickSound();
     const test = TOPIK_TESTS.find((t) => t.id === testId) || TOPIK_TESTS[0];
     setSelectedTestId(testId);
@@ -75,28 +96,63 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
     setUserAnswers({});
     setCurrentQuestionIndex(0);
     setIsSubmitted(false);
+    setIsAutoAdvancing(false);
     setIsTestStarted(true);
   };
 
+  // Instant answer selection with auto-check & smooth auto-advance
   const handleSelectOption = (optIndex: number) => {
-    if (isSubmitted) return;
-    playClickSound();
+    if (isSubmitted || isAutoAdvancing || userAnswers[currentQuestionIndex] !== undefined) return;
+
+    const currentQ = activeTest.questions[currentQuestionIndex];
+    const isCorrect = optIndex === currentQ.correctIndex;
+
+    // Save user answer
     setUserAnswers((prev) => ({
       ...prev,
       [currentQuestionIndex]: optIndex,
     }));
+
+    onRecordQuizResult(isCorrect);
+
+    // Instant sound
+    if (isCorrect) {
+      playSuccessSound();
+      onAddXp(10);
+    } else {
+      playIncorrectSound();
+    }
+
+    setIsAutoAdvancing(true);
+
+    // Auto-advance to next question after 1.25s
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      goToNextQuestion();
+    }, 1250);
+  };
+
+  const goToNextQuestion = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    setIsAutoAdvancing(false);
+    if (currentQuestionIndex < activeTest.questions.length - 1) {
+      setCurrentQuestionIndex((prev) => prev + 1);
+    } else {
+      // Completed all questions -> finalize test
+      handleSubmitTest();
+    }
   };
 
   const handleSubmitTest = () => {
+    if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+    setIsAutoAdvancing(false);
     playClickSound();
     setIsSubmitted(true);
 
-    // Calculate score
     let correctCount = 0;
     activeTest.questions.forEach((q, idx) => {
       const isCorrect = userAnswers[idx] === q.correctIndex;
       if (isCorrect) correctCount++;
-      onRecordQuizResult(isCorrect);
     });
 
     const scorePercent = Math.round((correctCount / activeTest.questions.length) * 100);
@@ -123,24 +179,50 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // If test has not started yet -> Show test list
+  // 1. IF TEST NOT STARTED -> SHOW STREAMLINED TEST LIST
   if (!isTestStarted) {
     return (
       <div className="space-y-6">
-        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-6 sm:p-8 text-white shadow-md">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-xs font-black uppercase tracking-wider mb-2">
-            <Award className="w-3.5 h-3.5 text-yellow-200" />
-            <span>Phòng Thi Thử TOPIK Chuẩn Quốc Tế</span>
+        {/* Banner with Voice Gender Picker */}
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-xs font-black uppercase tracking-wider">
+              <Award className="w-3.5 h-3.5 text-yellow-200" />
+              <span>Thi Thử TOPIK Tự Chấm Điểm & Tự Chuyển Câu</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black">
+              Luyện Thi TOPIK Sơ Cấp & Trung Cấp
+            </h2>
+            <p className="text-xs sm:text-sm text-orange-100 leading-relaxed font-medium">
+              Chọn đáp án sẽ <strong>tự động hiện kết quả đúng/sai</strong> và <strong>tự chuyển câu mới</strong> mượt mà. Hỗ trợ tùy chỉnh giọng đọc chuẩn Nam/Nữ!
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black">
-            Luyện Thi TOPIK Từ Sơ Cấp Đến Trung Cấp
-          </h2>
-          <p className="text-xs sm:text-sm text-orange-100 mt-2 leading-relaxed max-w-2xl">
-            Các bộ đề thi được biên soạn sát theo cấu trúc đề thi chính thức của Viện Giáo dục Quốc tế Quốc gia Hàn Quốc (NIIED), bao gồm từ vựng, ngữ pháp và đọc hiểu có tính giờ và chấm điểm chi tiết.
-          </p>
+
+          <div className="flex flex-col items-start md:items-end gap-1.5 shrink-0">
+            <span className="text-[11px] font-bold text-amber-100">Tùy chọn giọng đọc:</span>
+            <div className="flex items-center gap-2">
+              <VoiceGenderToggle className="bg-white/95 text-slate-800 shadow-xs" />
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  speakKorean(
+                    getVoiceGender() === 'female'
+                      ? '안녕하세요! 토픽 시험을 준비해 볼까요?'
+                      : '반갑습니다! 토픽 모의고사입니다.'
+                  );
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all flex items-center gap-1 border border-white/30 cursor-pointer shadow-xs active:scale-95"
+                title="Nghe thử giọng đọc đã chọn"
+              >
+                <Volume2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Nghe thử</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* LEVEL FILTER TABS */}
+        {/* Level Filters */}
         <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
           <button
             onClick={() => {
@@ -184,161 +266,140 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
             }`}
           >
             <span>
-              🌿 TOPIK II Trung cấp ({TOPIK_TESTS.filter((t) => t.level === 'topik-intermediate').length} đề)
-            </span>
-          </button>
-
-          <button
-            onClick={() => {
-              playClickSound();
-              setFilterLevel('topik-advanced');
-            }}
-            className={`px-3.5 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
-              filterLevel === 'topik-advanced'
-                ? 'bg-purple-600 text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100'
-            }`}
-          >
-            <span>
-              🌳 TOPIK II Cao cấp ({TOPIK_TESTS.filter((t) => t.level === 'topik-advanced').length} đề)
+              💼 TOPIK II Trung cấp ({TOPIK_TESTS.filter((t) => t.level === 'topik-intermediate').length} đề)
             </span>
           </button>
         </div>
 
-        {/* TOPIK Test Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayedTests.map((test) => {
-            const isTopik1 = test.level === 'topik-1' || test.level === 'topik-2';
-            const isIntermediate = test.level === 'topik-intermediate';
-            const isAdvanced = test.level === 'topik-advanced';
-
-            return (
-              <div
-                key={test.id}
-                className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-slate-200 hover:border-amber-400 hover:shadow-lg transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3 gap-2">
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase ${
-                        isTopik1
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                          : isIntermediate
-                          ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                          : 'bg-purple-100 text-purple-800 border border-purple-200'
-                      }`}
-                    >
-                      {test.levelLabel}
-                    </span>
-                    <div className="flex items-center gap-1 text-xs text-slate-500 font-semibold shrink-0">
-                      <Clock className="w-3.5 h-3.5 text-amber-500" />
-                      <span>{test.durationMinutes} phút</span>
-                    </div>
-                  </div>
-
-                  <h3 className="text-base sm:text-lg font-black text-slate-800 leading-snug">
-                    {test.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                    {test.description}
-                  </p>
-
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600 font-bold">
-                    <span>Số câu hỏi: {test.questions.length} câu</span>
-                    <span>Mục tiêu: {test.targetScore}/100</span>
+        {/* Test Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {displayedTests.map((test) => (
+            <div
+              key={test.id}
+              onClick={() => handleStartTest(test.id)}
+              className="bg-white rounded-3xl p-5 border-2 border-slate-200 hover:border-amber-400 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-black">
+                    {test.levelLabel}
+                  </span>
+                  <div className="flex items-center gap-1 text-slate-500 text-xs font-bold">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{test.durationMinutes} phút</span>
+                    <span>•</span>
+                    <span>{test.questions.length} câu</span>
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleStartTest(test.id)}
-                  className="mt-5 w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs sm:text-sm shadow-md shadow-amber-200 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-95"
-                >
-                  <span>Bắt đầu thi thử</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                <h3 className="text-base sm:text-lg font-black text-slate-800 group-hover:text-amber-600 transition-colors">
+                  {test.title}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                  {test.description}
+                </p>
               </div>
-            );
-          })}
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-black text-emerald-600 flex items-center gap-1">
+                  <Zap className="w-3.5 h-3.5" /> Tự hiện đáp án & tự chuyển câu
+                </span>
+                <span className="px-4 py-1.5 rounded-xl bg-amber-500 group-hover:bg-amber-600 text-white text-xs font-black transition-colors flex items-center gap-1 shadow-xs">
+                  <span>Vào thi</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // TEST IN PROGRESS OR SUBMITTED
+  // 2. TEST IN PROGRESS OR SUBMITTED
   const currentQ = activeTest.questions[currentQuestionIndex];
+  const isCurrentAnswered = userAnswers[currentQuestionIndex] !== undefined;
+  const userChosenOpt = userAnswers[currentQuestionIndex];
   const answeredCount = Object.keys(userAnswers).length;
+
   let correctCount = 0;
-  if (isSubmitted) {
-    activeTest.questions.forEach((q, idx) => {
-      if (userAnswers[idx] === q.correctIndex) correctCount++;
-    });
-  }
+  activeTest.questions.forEach((q, idx) => {
+    if (userAnswers[idx] === q.correctIndex) correctCount++;
+  });
   const scorePercent = Math.round((correctCount / activeTest.questions.length) * 100);
 
   return (
-    <div className="space-y-6">
-      {/* Test Top Sticky Bar */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="space-y-4 max-w-4xl mx-auto">
+      {/* Test Sticky Header */}
+      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-black">
               {activeTest.levelLabel}
             </span>
             <span className="text-xs text-slate-500 font-bold">
-              Đã làm {answeredCount} / {activeTest.questions.length} câu
+              Câu {currentQuestionIndex + 1} / {activeTest.questions.length} • Đúng: <strong className="text-emerald-600">{correctCount}</strong>
             </span>
           </div>
-          <h3 className="text-base sm:text-lg font-black text-slate-800 mt-0.5">{activeTest.title}</h3>
+          <h3 className="text-base sm:text-lg font-black text-slate-800 mt-0.5 truncate max-w-xs sm:max-w-md">
+            {activeTest.title}
+          </h3>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Countdown Clock */}
+        {/* Right tools: Voice Gender Switcher & Timer & Exit */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <VoiceGenderToggle variant="compact" />
+
           <div
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-2xl border font-mono font-bold text-sm ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-mono font-bold text-xs ${
               timeRemainingSeconds < 180
-                ? 'bg-red-50 text-red-600 border-red-200 animate-pulse'
+                ? 'bg-rose-50 text-rose-600 border-rose-200 animate-pulse'
                 : 'bg-slate-50 text-slate-700 border-slate-200'
             }`}
           >
-            <Clock className="w-4 h-4" />
+            <Clock className="w-3.5 h-3.5" />
             <span>{formatTime(timeRemainingSeconds)}</span>
           </div>
 
-          {!isSubmitted ? (
-            <button
-              onClick={handleSubmitTest}
-              className="px-4 py-2 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs sm:text-sm shadow-xs transition-colors cursor-pointer"
-            >
-              Nộp bài thi
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsTestStarted(false)}
-              className="px-4 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs sm:text-sm transition-colors cursor-pointer"
-            >
-              Chọn đề khác
-            </button>
-          )}
+          <button
+            onClick={() => {
+              if (window.confirm('Bạn có muốn dừng bài thi và quay lại danh sách đề thi không?')) {
+                setIsTestStarted(false);
+              }
+            }}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            title="Thoát bài thi"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* RESULT SCORECARD BANNER (When submitted) */}
+      {/* Progress Bar */}
+      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300"
+          style={{ width: `${((currentQuestionIndex + 1) / activeTest.questions.length) * 100}%` }}
+        />
+      </div>
+
+      {/* RESULT SCORECARD (If submitted or all completed) */}
       {isSubmitted && (
         <div
-          className={`rounded-3xl p-6 border-2 text-center animate-fade-in ${
+          className={`rounded-3xl p-6 border-2 text-center animate-fadeIn ${
             scorePercent >= 70
               ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-400'
               : 'bg-gradient-to-r from-amber-500 to-orange-600 text-white border-amber-400'
           }`}
         >
           <div className="text-4xl mb-2">{scorePercent >= 70 ? '🎉' : '📖'}</div>
-          <h3 className="text-2xl font-black">
+          <h3 className="text-xl sm:text-2xl font-black">
             {scorePercent >= 70 ? 'Chúc Mừng! Bạn Đã Đạt Chuẩn TOPIK!' : 'Kết Quả Cần Cố Gắng Thêm!'}
           </h3>
-          <p className="text-sm opacity-90 mt-1 max-w-lg mx-auto">
+          <p className="text-sm opacity-95 mt-1 max-w-lg mx-auto">
             Điểm số: <strong className="text-xl">{scorePercent} / 100 điểm</strong> ({correctCount} / {activeTest.questions.length} câu đúng)
           </p>
-          <div className="mt-3 flex items-center justify-center gap-3">
+          <div className="mt-4 flex items-center justify-center gap-3">
             <button
               onClick={() => handleStartTest(activeTest.id)}
               className="px-4 py-2 rounded-xl bg-white text-slate-900 font-black text-xs shadow-xs hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1.5"
@@ -346,168 +407,185 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Thi lại đề này</span>
             </button>
+            <button
+              onClick={() => setIsTestStarted(false)}
+              className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs transition-colors cursor-pointer"
+            >
+              Chọn đề thi khác
+            </button>
           </div>
         </div>
       )}
 
-      {/* MAIN TEST QUESTION CONTAINER */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Question Details Column */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-black">
-                Câu {currentQuestionIndex + 1}: {currentQ.category}
-              </span>
-              <button
-                onClick={() => speakKorean(currentQ.questionKo)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-sky-50 text-sky-600 hover:bg-sky-100 text-xs font-bold transition-colors cursor-pointer"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Đọc đề bài</span>
-              </button>
-            </div>
+      {/* MAIN QUESTION CARD */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-4">
+        {/* Header Question info & Audio reader */}
+        <div className="flex items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <span className="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 text-xs font-black">
+            Câu {currentQuestionIndex + 1}: {currentQ.category}
+          </span>
 
-            {/* Passage if any */}
-            {currentQ.passageKo && (
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm font-sans font-medium text-slate-800 leading-relaxed whitespace-pre-line">
-                {currentQ.passageKo}
-              </div>
-            )}
-
-            {/* Question prompt */}
-            <div className="text-base sm:text-lg font-bold text-slate-900 whitespace-pre-line leading-relaxed">
-              {currentQ.questionKo}
-            </div>
-            {currentQ.questionVi && (
-              <div className="text-xs text-slate-500 italic">
-                Dịch: {currentQ.questionVi}
-              </div>
-            )}
-
-            {/* 4 Multiple choices */}
-            <div className="grid grid-cols-1 gap-3 pt-2">
-              {currentQ.options.map((opt, optIdx) => {
-                const isSelected = userAnswers[currentQuestionIndex] === optIdx;
-                const isCorrect = optIdx === currentQ.correctIndex;
-
-                let optStyle = 'border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/20 text-slate-800';
-                if (isSubmitted) {
-                  if (isCorrect) {
-                    optStyle = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold';
-                  } else if (isSelected && !isCorrect) {
-                    optStyle = 'border-red-500 bg-red-50 text-red-900 font-bold';
-                  } else {
-                    optStyle = 'border-slate-200 opacity-60';
-                  }
-                } else if (isSelected) {
-                  optStyle = 'border-amber-500 bg-amber-50/60 text-amber-900 font-bold ring-2 ring-amber-200';
-                }
-
-                return (
-                  <button
-                    key={optIdx}
-                    disabled={isSubmitted}
-                    onClick={() => handleSelectOption(optIdx)}
-                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${optStyle}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
-                        {optIdx + 1}
-                      </span>
-                      <span className="text-sm font-medium">{opt}</span>
-                    </div>
-
-                    {isSubmitted && isCorrect && (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                    )}
-                    {isSubmitted && isSelected && !isCorrect && (
-                      <X className="w-5 h-5 text-red-500 shrink-0" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Explanation when submitted */}
-            {isSubmitted && (
-              <div className="mt-4 p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-xs text-amber-950 leading-relaxed animate-fade-in">
-                <span className="font-black text-amber-900">💡 Giải thích chi tiết: </span>
-                {currentQ.explanationVi}
-              </div>
-            )}
-
-            {/* Pagination between questions */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <button
-                disabled={currentQuestionIndex === 0}
-                onClick={() => {
-                  playClickSound();
-                  setCurrentQuestionIndex((prev) => prev - 1);
-                }}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                Câu trước
-              </button>
-
-              <span className="text-xs font-bold text-slate-500">
-                Câu {currentQuestionIndex + 1} / {activeTest.questions.length}
-              </span>
-
-              <button
-                disabled={currentQuestionIndex === activeTest.questions.length - 1}
-                onClick={() => {
-                  playClickSound();
-                  setCurrentQuestionIndex((prev) => prev + 1);
-                }}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-black transition-colors cursor-pointer"
-              >
-                Câu sau
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={() => {
+              playClickSound();
+              speakKorean(currentQ.questionKo);
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 text-xs font-bold transition-colors cursor-pointer"
+            title="Nghe đọc đề bài bằng giọng đang chọn"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>Nghe đọc đề 🔊</span>
+          </button>
         </div>
 
-        {/* Question Navigator Grid (Right Column) */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-xs">
-            <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider mb-3">
-              Bảng câu hỏi ({activeTest.questions.length} câu)
-            </h4>
-
-            <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-3 gap-2">
-              {activeTest.questions.map((q, idx) => {
-                const isAnswered = userAnswers[idx] !== undefined;
-                const isCurrent = currentQuestionIndex === idx;
-                const isCorrect = isSubmitted && userAnswers[idx] === q.correctIndex;
-                const isWrong = isSubmitted && isAnswered && !isCorrect;
-
-                let btnClass = 'bg-slate-100 text-slate-600 hover:bg-slate-200';
-                if (isSubmitted) {
-                  if (isCorrect) btnClass = 'bg-emerald-500 text-white font-bold';
-                  else if (isWrong) btnClass = 'bg-red-500 text-white font-bold';
-                  else btnClass = 'bg-slate-200 text-slate-400';
-                } else if (isCurrent) {
-                  btnClass = 'bg-amber-500 text-white font-black ring-2 ring-amber-300';
-                } else if (isAnswered) {
-                  btnClass = 'bg-amber-100 text-amber-800 font-bold';
-                }
-
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      playClickSound();
-                      setCurrentQuestionIndex(idx);
-                    }}
-                    className={`h-9 rounded-xl text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${btnClass}`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
+        {/* Reading Passage if any */}
+        {currentQ.passageKo && (
+          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm font-sans font-medium text-slate-800 leading-relaxed whitespace-pre-line shadow-2xs space-y-2">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-200/60">
+              <span className="text-[11px] font-black text-slate-500 uppercase tracking-wide">
+                Đoạn văn đọc hiểu:
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  playClickSound();
+                  speakKorean(currentQ.passageKo!);
+                }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-sky-50 hover:text-sky-700 text-xs font-bold text-slate-700 transition-colors cursor-pointer shadow-2xs"
+                title="Nghe đọc đoạn văn bằng giọng đang chọn"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-sky-500" />
+                <span>Nghe đoạn văn 🔊</span>
+              </button>
             </div>
+            <div className="leading-relaxed">{currentQ.passageKo}</div>
           </div>
+        )}
+
+        {/* Question Prompt */}
+        <h4 className="text-base sm:text-lg font-bold text-slate-900 whitespace-pre-line leading-relaxed">
+          {currentQ.questionKo}
+        </h4>
+
+        {/* 4 Answer Options (Instant check on click & auto-advance) */}
+        <div className="grid grid-cols-1 gap-2.5 pt-1">
+          {currentQ.options.map((opt, optIdx) => {
+            const isThisChosen = userChosenOpt === optIdx;
+            const isThisCorrect = optIdx === currentQ.correctIndex;
+
+            let btnStyle =
+              'border-slate-200 bg-white hover:border-amber-400 hover:bg-amber-50/20 text-slate-800';
+
+            // Instant auto-check styles:
+            if (isCurrentAnswered) {
+              if (isThisCorrect) {
+                btnStyle =
+                  'border-emerald-500 bg-emerald-50 text-emerald-950 font-black shadow-sm ring-2 ring-emerald-200';
+              } else if (isThisChosen && !isThisCorrect) {
+                btnStyle = 'border-rose-500 bg-rose-50 text-rose-950 font-bold';
+              } else {
+                btnStyle = 'border-slate-100 bg-slate-50 text-slate-400 opacity-60';
+              }
+            }
+
+            return (
+              <button
+                key={optIdx}
+                disabled={isCurrentAnswered || isSubmitted}
+                onClick={() => handleSelectOption(optIdx)}
+                className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all flex items-center justify-between cursor-pointer ${btnStyle}`}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={`w-7 h-7 rounded-xl text-xs font-black flex items-center justify-center shrink-0 ${
+                      isCurrentAnswered && isThisCorrect
+                        ? 'bg-emerald-500 text-white'
+                        : isCurrentAnswered && isThisChosen && !isThisCorrect
+                        ? 'bg-rose-500 text-white'
+                        : 'bg-slate-100 text-slate-700'
+                    }`}
+                  >
+                    {String.fromCharCode(65 + optIdx)}
+                  </span>
+                  <span className="text-xs sm:text-sm font-medium">{opt}</span>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Option Audio button */}
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playClickSound();
+                      speakKorean(opt);
+                    }}
+                    className="p-1.5 rounded-lg hover:bg-slate-200/80 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    title="Nghe phát âm đáp án này"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </span>
+
+                  {/* Instant visual indicators with text badges */}
+                  {isCurrentAnswered && isThisCorrect && (
+                    <span className="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1 shadow-xs">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Đáp án đúng</span>
+                    </span>
+                  )}
+                  {isCurrentAnswered && isThisChosen && !isThisCorrect && (
+                    <span className="px-2.5 py-1 rounded-xl bg-rose-600 text-white text-xs font-black flex items-center gap-1 shadow-xs">
+                      <X className="w-4 h-4" />
+                      <span>Bạn đã chọn</span>
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Instant Explanation & Auto-advance Bar */}
+        {isCurrentAnswered && (
+          <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1.5 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <span className="font-black text-amber-900 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>Giải thích:</span>
+              </span>
+              {isAutoAdvancing && (
+                <span className="text-[11px] font-bold text-amber-700 animate-pulse">
+                  ⚡ Đang tự chuyển sang câu tiếp theo...
+                </span>
+              )}
+            </div>
+            <p className="leading-relaxed">{currentQ.explanationVi}</p>
+          </div>
+        )}
+
+        {/* Footer controls: Next / Skip button */}
+        <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+          <button
+            disabled={currentQuestionIndex === 0}
+            onClick={() => {
+              if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+              setIsAutoAdvancing(false);
+              playClickSound();
+              setCurrentQuestionIndex((prev) => prev - 1);
+            }}
+            className="px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 transition-colors cursor-pointer"
+          >
+            ← Câu trước
+          </button>
+
+          <button
+            onClick={() => {
+              playClickSound();
+              goToNextQuestion();
+            }}
+            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+          >
+            <span>{currentQuestionIndex < activeTest.questions.length - 1 ? 'Câu tiếp theo' : 'Nộp bài thi'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </div>

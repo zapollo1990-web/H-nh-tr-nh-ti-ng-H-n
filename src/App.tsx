@@ -5,7 +5,7 @@ import { VocabularyHubView } from './components/VocabularyHubView';
 import { ProfileHubView } from './components/ProfileHubView';
 import { StreakModal } from './components/StreakModal';
 import { SettingsModal } from './components/SettingsModal';
-import { AuthModal } from './components/AuthModal';
+import { AuthModal, AuthModalMode } from './components/AuthModal';
 import { PlayerManagementModal } from './components/PlayerManagementModal';
 import { AiConversationView } from './components/AiConversationView';
 import { INITIAL_FLASHCARDS } from './data/flashcards';
@@ -29,7 +29,13 @@ export default function App() {
   const [isStreakModalOpen, setIsStreakModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<AuthModalMode>('login');
   const [isPlayerManagementOpen, setIsPlayerManagementOpen] = useState(false);
+
+  const handleOpenAuthModal = (mode: AuthModalMode = 'login') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
 
   // User State: Persisted in localStorage via authService so user doesn't need to log in again on return
   const [currentUser, setCurrentUser] = useState<AppUser | null>(() => {
@@ -319,7 +325,7 @@ export default function App() {
         onOpenStreakModal={() => setIsStreakModalOpen(true)}
         onOpenSettingsModal={() => setIsSettingsModalOpen(true)}
         currentUser={currentUser}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAuthModal={() => handleOpenAuthModal('login')}
         onOpenPlayerManagement={() => setIsPlayerManagementOpen(true)}
         isAdminLoggedIn={isAuthorizedAdmin}
         accuracyPercent={accuracyPercent}
@@ -382,16 +388,17 @@ export default function App() {
             onUnlockBadge={handleUnlockBadge}
             masteredCardsCount={progress.masteredCards.length}
             onOpenPlayerManagement={() => setIsPlayerManagementOpen(true)}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenAuthModal={(m) => handleOpenAuthModal(m || 'login')}
           />
         )}
       </main>
 
-      {/* Auth Modal (Tạo tài khoản / Đăng nhập: Tên, Gmail, không trùng lặp, ghi nhớ đăng nhập) */}
+      {/* Auth Modal (Tạo tài khoản / Đăng nhập / Quên MK OTP / Đổi mật khẩu) */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginSuccess={handleUserLoginSuccess}
+        initialMode={authModalMode}
       />
 
       {/* Player Management Modal (Dành riêng cho 4 Quản trị viên chỉ định) */}

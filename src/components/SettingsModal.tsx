@@ -23,7 +23,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { Flashcard, AppUser, SocialAuthProvider, VocabCategory } from '../types';
-import { speakKorean, playClickSound, playSuccessSound } from '../utils/audio';
+import { speakKorean, playClickSound, playSuccessSound, getVoiceGender } from '../utils/audio';
+import { VoiceGenderToggle } from './VoiceGenderToggle';
 import { DESIGNATED_ADMINS, isDesignatedAdminEmail, isMainAdminEmail, isSubAdminEmail } from '../services/authService';
 
 interface SettingsModalProps {
@@ -286,6 +287,38 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </h4>
 
                 <div className="space-y-4">
+                  {/* Voice Gender Setting */}
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 flex-wrap gap-2">
+                    <div>
+                      <div className="text-xs font-bold text-slate-800">
+                        Giới tính giọng đọc tiếng Hàn
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Áp dụng cho bài nghe, lộ trình chặng, từ vựng và bài thi TOPIK
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <VoiceGenderToggle className="bg-white border-slate-200 shadow-2xs" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playClickSound();
+                          speakKorean(
+                            getVoiceGender() === 'female'
+                              ? '안녕하세요! 한국어 여정에 오신 것을 환영합니다.'
+                              : '반갑습니다! 오늘도 열심히 한국어를 공부해 봅시다.',
+                            voiceSpeed
+                          );
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold transition-all flex items-center gap-1 border border-sky-200 cursor-pointer shadow-2xs"
+                        title="Nghe thử giọng đọc"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                        <span>Nghe thử</span>
+                      </button>
+                    </div>
+                  </div>
+
                   <div>
                     <div className="flex justify-between text-xs font-bold text-slate-700 mb-1.5">
                       <span>Tốc độ phát âm: {voiceSpeed}x</span>
@@ -293,7 +326,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClick={() => speakKorean('안녕하세요! 한국어 공부를 시작해 볼까요?', voiceSpeed)}
                         className="text-sky-600 hover:text-sky-700 text-xs font-semibold flex items-center gap-1 cursor-pointer"
                       >
-                        <Volume2 className="w-3.5 h-3.5" /> Nghe thử
+                        <Volume2 className="w-3.5 h-3.5" /> Nghe thử tốc độ
                       </button>
                     </div>
                     <input

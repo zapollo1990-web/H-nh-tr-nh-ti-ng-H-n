@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Volume2, Check, X, RotateCcw, Award, Flame, HelpCircle, ArrowRight, Sparkles } from 'lucide-react';
+import { Volume2, Check, X, RotateCcw, Award, Flame, HelpCircle, ArrowRight, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
 import { QuizQuestion, MatchPair } from '../types';
 import { PRACTICE_QUIZZES, MATCH_PAIRS_SETS } from '../data/quizzes';
 import { speakKorean, playClickSound, playSuccessSound, playIncorrectSound, playFanfareSound } from '../utils/audio';
+import { VoiceGenderToggle } from './VoiceGenderToggle';
 
 interface PracticeViewProps {
   onAddXp: (amount: number) => void;
@@ -18,15 +19,17 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 }) => {
   const [activeMode, setActiveMode] = useState<'quiz' | 'arrange' | 'match'>('quiz');
 
-  // QUIZ MODE STATE
+  // QUIZ MODE STATE (Instant auto-check & auto-advance)
   const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>(
     PRACTICE_QUIZZES.filter((q) => q.type === 'choice')
   );
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswerSubmitted, setIsAnswerSubmitted] = useState(false);
+  const [isQuizAutoAdvancing, setIsQuizAutoAdvancing] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
+  const quizAutoTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ARRANGE MODE STATE
   const [arrangeQuestions, setArrangeQuestions] = useState<QuizQuestion[]>(
@@ -79,22 +82,28 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
     setSelectedMatchCard(null);
   }, [matchSetIndex]);
 
-  // --- QUIZ HANDLERS ---
+  // Clean timer on unmount
+  useEffect(() => {
+    return () => {
+      if (quizAutoTimerRef.current) clearTimeout(quizAutoTimerRef.current);
+    };
+  }, []);
+
+  // --- QUIZ HANDLERS (Instant check & Auto-advance) ---
   const handleSelectOption = (option: string) => {
-    if (isAnswerSubmitted) return;
+    if (isAnswerSubmitted || isQuizAutoAdvancing) return;
+
+    const currentQ = quizQuestions[currentQuizIndex];
+    const isCorrect = option === currentQ.answer;
+
     playClickSound();
     setSelectedOption(option);
-  };
-
-  const handleSubmitQuizAnswer = () => {
-    if (!selectedOption || isAnswerSubmitted) return;
-    const currentQ = quizQuestions[currentQuizIndex];
-    const isCorrect = selectedOption === currentQ.answer;
-
     setIsAnswerSubmitted(true);
+
     if (onRecordQuizResult) {
       onRecordQuizResult(isCorrect);
     }
+
     if (isCorrect) {
       playSuccessSound();
       setQuizScore((prev) => prev + 1);
@@ -102,9 +111,18 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
     } else {
       playIncorrectSound();
     }
+
+    setIsQuizAutoAdvancing(true);
+
+    if (quizAutoTimerRef.current) clearTimeout(quizAutoTimerRef.current);
+    quizAutoTimerRef.current = setTimeout(() => {
+      handleNextQuizQuestion();
+    }, 1250);
   };
 
   const handleNextQuizQuestion = () => {
+    if (quizAutoTimerRef.current) clearTimeout(quizAutoTimerRef.current);
+    setIsQuizAutoAdvancing(false);
     playClickSound();
     if (currentQuizIndex + 1 < quizQuestions.length) {
       setCurrentQuizIndex((prev) => prev + 1);
@@ -118,6 +136,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   };
 
   const handleResetQuiz = () => {
+    if (quizAutoTimerRef.current) clearTimeout(quizAutoTimerRef.current);
+    setIsQuizAutoAdvancing(false);
     setCurrentQuizIndex(0);
     setSelectedOption(null);
     setIsAnswerSubmitted(false);
@@ -288,19 +308,30 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
       {activeMode === 'quiz' && (
         <div className="space-y-4">
           {!quizFinished && currentQ ? (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky-100 shadow-md">
-              {/* Progress and category */}
-              <div className="flex items-center justify-between mb-4">
-                <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-bold">
-                  {currentQ.category}
-                </span>
-                <span className="text-xs font-bold text-slate-400">
-                  Câu hỏi {currentQuizIndex + 1} / {quizQuestions.length}
-                </span>
+            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-sky-100 shadow-md">
+              {/* Header: Progress, Category & Voice Gender Switcher */}
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-black">
+                    {currentQ.category}
+                  </span>
+                  <span className="text-xs font-bold text-slate-500">
+                    Câu {currentQuizIndex + 1} / {quizQuestions.length} • Đúng: <strong className="text-emerald-600">{quizScore}</strong>
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {isQuizAutoAdvancing && (
+                    <span className="text-xs font-black text-sky-600 flex items-center gap-1 animate-pulse">
+                      <Zap className="w-3.5 h-3.5 text-amber-500" /> Tự chuyển câu...
+                    </span>
+                  )}
+                  <VoiceGenderToggle variant="compact" />
+                </div>
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-2 bg-slate-100 rounded-full mb-6 overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 rounded-full mb-5 overflow-hidden">
                 <div
                   className="h-full bg-sky-500 transition-all duration-300"
                   style={{ width: `${((currentQuizIndex + 1) / quizQuestions.length) * 100}%` }}
@@ -308,106 +339,125 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               </div>
 
               {/* Question prompt */}
-              <div className="mb-6">
+              <div className="mb-5">
                 <h3 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight leading-snug">
                   {currentQ.prompt}
                 </h3>
                 {currentQ.audioText && (
                   <button
                     onClick={() => speakKorean(currentQ.audioText!)}
-                    className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold transition-colors cursor-pointer"
+                    title="Nghe phát âm bằng giọng đang chọn"
                   >
                     <Volume2 className="w-4 h-4 text-sky-500" />
-                    <span>Nghe câu tiếng Hàn</span>
+                    <span>Nghe câu tiếng Hàn 🔊</span>
                   </button>
                 )}
               </div>
 
-              {/* Multiple Choice Options */}
-              <div className="grid grid-cols-1 gap-3 mb-6">
+              {/* Multiple Choice Options (Instant check on click & auto-advance) */}
+              <div className="grid grid-cols-1 gap-2.5 mb-4">
                 {currentQ.options?.map((option, idx) => {
                   const isSelected = selectedOption === option;
                   const isCorrect = option === currentQ.answer;
 
                   let btnStyle =
-                    'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:border-slate-300';
-                  if (isSelected && !isAnswerSubmitted) {
-                    btnStyle = 'bg-sky-50 border-sky-400 text-sky-800 shadow-xs';
-                  } else if (isAnswerSubmitted) {
+                    'bg-white border-slate-200 text-slate-800 hover:border-sky-400 hover:bg-sky-50/20';
+                  if (isAnswerSubmitted) {
                     if (isCorrect) {
-                      btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-800 font-bold';
+                      btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-black shadow-sm ring-2 ring-emerald-200';
                     } else if (isSelected && !isCorrect) {
-                      btnStyle = 'bg-rose-50 border-rose-400 text-rose-800 line-through';
+                      btnStyle = 'bg-rose-50 border-rose-400 text-rose-900 font-bold';
                     } else {
-                      btnStyle = 'opacity-60 bg-slate-50 border-slate-200 text-slate-400';
+                      btnStyle = 'opacity-50 bg-slate-50 border-slate-200 text-slate-400';
                     }
                   }
 
                   return (
                     <button
                       key={idx}
+                      disabled={isAnswerSubmitted}
                       onClick={() => handleSelectOption(option)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border-2 text-left font-semibold text-sm sm:text-base transition-all cursor-pointer ${btnStyle}`}
+                      className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 text-left text-sm sm:text-base transition-all cursor-pointer ${btnStyle}`}
                     >
-                      <span>{option}</span>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`w-7 h-7 rounded-xl text-xs font-black flex items-center justify-center shrink-0 ${
+                            isAnswerSubmitted && isCorrect
+                              ? 'bg-emerald-500 text-white'
+                              : isAnswerSubmitted && isSelected && !isCorrect
+                              ? 'bg-rose-500 text-white'
+                              : 'bg-slate-100 text-slate-700'
+                          }`}
+                        >
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span className="font-medium">{option}</span>
+                      </div>
+
+                      {/* Visual indicator badges */}
                       {isAnswerSubmitted && isCorrect && (
-                        <Check className="w-5 h-5 text-emerald-600 shrink-0 ml-2" />
+                        <span className="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1 shadow-xs shrink-0">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Đáp án đúng</span>
+                        </span>
                       )}
                       {isAnswerSubmitted && isSelected && !isCorrect && (
-                        <X className="w-5 h-5 text-rose-600 shrink-0 ml-2" />
+                        <span className="px-2.5 py-1 rounded-xl bg-rose-600 text-white text-xs font-black flex items-center gap-1 shadow-xs shrink-0">
+                          <X className="w-4 h-4" />
+                          <span>Bạn đã chọn</span>
+                        </span>
                       )}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Explanation box after submit */}
+              {/* Explanation box after answer */}
               {isAnswerSubmitted && (
                 <div
-                  className={`p-4 rounded-2xl mb-6 border ${
+                  className={`p-4 rounded-2xl mb-4 border ${
                     selectedOption === currentQ.answer
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                      : 'bg-amber-50 border-amber-200 text-amber-900'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
+                      : 'bg-amber-50 border-amber-200 text-amber-950'
                   }`}
                 >
-                  <div className="flex items-center gap-2 font-black text-sm mb-1">
-                    {selectedOption === currentQ.answer ? (
-                      <>
-                        <Check className="w-4 h-4 text-emerald-600" />
-                        <span>Chính xác! (+10 XP)</span>
-                      </>
-                    ) : (
-                      <>
-                        <HelpCircle className="w-4 h-4 text-amber-600" />
-                        <span>Chưa đúng rồi! Cùng xem giải thích nhé:</span>
-                      </>
+                  <div className="flex items-center justify-between mb-1 gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 font-black text-sm">
+                      {selectedOption === currentQ.answer ? (
+                        <>
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <span>Chính xác! (+10 XP)</span>
+                        </>
+                      ) : (
+                        <>
+                          <HelpCircle className="w-4 h-4 text-amber-600" />
+                          <span>Chưa đúng rồi! Đáp án chuẩn: {currentQ.answer}</span>
+                        </>
+                      )}
+                    </div>
+                    {isQuizAutoAdvancing && (
+                      <span className="text-xs font-bold text-amber-700 animate-pulse flex items-center gap-1">
+                        <Zap className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Đang tự chuyển câu tiếp theo...</span>
+                      </span>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm font-medium">{currentQ.explanation}</p>
+                  <p className="text-xs sm:text-sm font-medium leading-relaxed">{currentQ.explanation}</p>
                 </div>
               )}
 
-              {/* Action button */}
-              <div className="flex justify-end">
-                {!isAnswerSubmitted ? (
-                  <button
-                    onClick={handleSubmitQuizAnswer}
-                    disabled={!selectedOption}
-                    className="px-6 py-3 bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold rounded-2xl shadow-xs transition-all cursor-pointer"
-                  >
-                    Kiểm tra đáp án
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleNextQuizQuestion}
-                    className="flex items-center gap-2 px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-xs transition-all cursor-pointer"
-                  >
-                    <span>
-                      {currentQuizIndex + 1 < quizQuestions.length ? 'Câu tiếp theo' : 'Xem kết quả'}
-                    </span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                )}
+              {/* Minimal Skip / Next immediately button */}
+              <div className="flex justify-end pt-1">
+                <button
+                  onClick={handleNextQuizQuestion}
+                  className="flex items-center gap-1.5 px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>
+                    {currentQuizIndex + 1 < quizQuestions.length ? 'Câu tiếp theo' : 'Xem kết quả'}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ) : (

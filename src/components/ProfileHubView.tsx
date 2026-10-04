@@ -47,7 +47,7 @@ interface ProfileHubViewProps {
   onUnlockBadge: (badgeId: string) => void;
   masteredCardsCount: number;
   onOpenPlayerManagement?: () => void;
-  onOpenAuthModal?: () => void;
+  onOpenAuthModal?: (initialMode?: 'login' | 'register' | 'change_password' | 'forgot_password') => void;
 }
 
 export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
@@ -255,13 +255,28 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
                 <span>Đăng nhập / Đăng ký</span>
               </button>
             ) : (
-              <button
-                onClick={onLogout}
-                className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Đổi tài khoản / Đăng xuất</span>
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    playClickSound();
+                    if (onOpenAuthModal) {
+                      onOpenAuthModal('change_password');
+                    }
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-black shadow-xs transition-all cursor-pointer"
+                  title="Tự đổi và đặt lại mật khẩu cá nhân của bạn"
+                >
+                  <KeyRound className="w-4 h-4 text-amber-600" />
+                  <span>Đổi mật khẩu</span>
+                </button>
+                <button
+                  onClick={onLogout}
+                  className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Đăng xuất</span>
+                </button>
+              </>
             )}
           </div>
         </div>

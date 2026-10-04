@@ -1,13 +1,37 @@
 /**
  * Audio synthesis & sound effects for Korean Learning App
+ * Supports Voice Gender Customization (Female 👩 / Male 👨)
  */
+
+export type VoiceGender = 'female' | 'male';
+
+const VOICE_GENDER_STORAGE_KEY = 'korean_voice_gender_pref';
+
+export function getVoiceGender(): VoiceGender {
+  if (typeof window === 'undefined') return 'female';
+  try {
+    const saved = localStorage.getItem(VOICE_GENDER_STORAGE_KEY);
+    if (saved === 'male' || saved === 'female') return saved;
+  } catch (_) {}
+  return 'female';
+}
+
+export function setVoiceGender(gender: VoiceGender): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(VOICE_GENDER_STORAGE_KEY, gender);
+    window.dispatchEvent(new CustomEvent('voice-gender-changed', { detail: gender }));
+  } catch (_) {}
+}
 
 let audioCtx: AudioContext | null = null;
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   if (!audioCtx) {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (AudioContextClass) {
       audioCtx = new AudioContextClass();
     }
@@ -18,8 +42,8 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-// Korean Text-to-Speech using Web Speech API
-export function speakKorean(text: string, rate = 0.85) {
+// Korean Text-to-Speech using Web Speech API with gender adaptation
+export function speakKorean(text: string, rate = 0.85, genderOverride?: VoiceGender) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     console.warn('Speech synthesis not supported');
     return;
@@ -28,16 +52,43 @@ export function speakKorean(text: string, rate = 0.85) {
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
 
+  const gender = genderOverride || getVoiceGender();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';
-  utterance.rate = rate; // Slightly slower for language learners
-  utterance.pitch = 1.0;
+  utterance.rate = rate;
 
-  // Try to find a Korean voice if available
+  // Modulate pitch according to gender preference
+  if (gender === 'male') {
+    utterance.pitch = 0.78; // Deep, clear masculine pitch
+  } else {
+    utterance.pitch = 1.12; // Bright, natural feminine pitch
+  }
+
+  // Pick suitable Korean voice if available
   const voices = window.speechSynthesis.getVoices();
-  const koVoice = voices.find((v) => v.lang === 'ko-KR' || v.lang.startsWith('ko'));
-  if (koVoice) {
-    utterance.voice = koVoice;
+  const koVoices = voices.filter((v) => v.lang === 'ko-KR' || v.lang.startsWith('ko'));
+
+  if (koVoices.length > 0) {
+    if (gender === 'male') {
+      const maleVoice = koVoices.find(
+        (v) =>
+          v.name.toLowerCase().includes('male') ||
+          v.name.toLowerCase().includes('injoon') ||
+          v.name.toLowerCase().includes('minho') ||
+          v.name.toLowerCase().includes('man')
+      );
+      utterance.voice = maleVoice || koVoices[koVoices.length - 1];
+    } else {
+      const femaleVoice = koVoices.find(
+        (v) =>
+          v.name.toLowerCase().includes('female') ||
+          v.name.toLowerCase().includes('yuna') ||
+          v.name.toLowerCase().includes('heami') ||
+          v.name.toLowerCase().includes('sunhi') ||
+          v.name.toLowerCase().includes('woman')
+      );
+      utterance.voice = femaleVoice || koVoices[0];
+    }
   }
 
   window.speechSynthesis.speak(utterance);

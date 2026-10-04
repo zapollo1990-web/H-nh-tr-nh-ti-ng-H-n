@@ -1,45 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   X,
   User,
   Mail,
-  ShieldCheck,
   CheckCircle2,
   AlertCircle,
   LogIn,
   UserPlus,
-  Crown,
   Sparkles,
-  ArrowRight,
   Lock,
   KeyRound,
   Eye,
   EyeOff,
-  Shield,
-  RotateCcw
+  RotateCcw,
+  Send,
+  ShieldCheck,
+  Dices
 } from 'lucide-react';
 import { AppUser } from '../types';
 import {
   registerUser,
   loginUser,
+  generateRandomPassword,
+  sendOtpToGmail,
+  verifyOtpCode,
+  resetPasswordWithOtp,
   setPersonalPassword,
-  DESIGNATED_ADMINS,
-  isDesignatedAdminEmail,
-  isMainAdminEmail,
-  MAIN_ADMIN_EMAIL,
-  MAIN_ADMIN_DEFAULT_PASSWORD,
-  SUB_ADMIN_MASTER_PASSWORD,
-  SHARED_ADMIN_PASSWORD,
-  quickLoginAdmin,
-  sendAdminCredentialsToGmail
+  normalizeEmail
 } from '../services/authService';
 import { playClickSound, playSuccessSound } from '../utils/audio';
+
+export type AuthModalMode = 'login' | 'register' | 'change_password' | 'forgot_password';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: (user: AppUser) => void;
-  initialMode?: 'login' | 'register' | 'change_password';
+  initialMode?: AuthModalMode;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -48,9 +45,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onLoginSuccess,
   initialMode = 'login',
 }) => {
-  const [mode, setMode] = useState<'login' | 'register' | 'change_password'>(initialMode);
-  
-  // Registration & Login fields
+  const [mode, setMode] = useState<AuthModalMode>(initialMode);
+
+  // Form Fields
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,18 +55,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Admin selected login state
-  const [selectedAdminName, setSelectedAdminName] = useState<string | null>(null);
-  const [selectedAdminEmail, setSelectedAdminEmail] = useState<string | null>(null);
-  const [adminPasswordInput, setAdminPasswordInput] = useState('');
-  const [showAdminPassword, setShowAdminPassword] = useState(false);
+  // OTP State for Forgot Password
+  const [otpCode, setOtpCode] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [otpCooldown, setOtpCooldown] = useState(0);
+  const [previewOtp, setPreviewOtp] = useState<string | null>(null);
 
   // Status notifications
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    setMode(initialMode);
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsOtpSent(false);
+    setOtpCode('');
+  }, [initialMode, isOpen]);
+
+  // Countdown for OTP resend
+  useEffect(() => {
+    if (otpCooldown > 0) {
+      const timer = setTimeout(() => setOtpCooldown((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [otpCooldown]);
+
   if (!isOpen) return null;
+
+  // Generate and set a random strong password
+  const handleGenerateStrongPassword = () => {
+    playClickSound();
+    const suggested = generateRandomPassword();
+    setPassword(suggested);
+    setConfirmPassword(suggested);
+    setShowPassword(true);
+    setShowConfirmPassword(true);
+    setSuccessMsg('Đã tạo mật khẩu mạnh ngẫu nhiên! Bạn có thể lưu lại mật khẩu này.');
+    setTimeout(() => setSuccessMsg(''), 3500);
+  };
 
   // Handle Registration: User self-creates personal password
   const handleRegister = (e: React.FormEvent) => {
@@ -98,7 +123,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     if (password !== confirmPassword) {
-      setErrorMsg('Mật khẩu xác nhận không khớp! Vui lòng nhập lại.');
+      setErrorMsg('Mật khẩu xác nhận không khớp! Vui lòng kiểm tra lại.');
       return;
     }
 
@@ -112,11 +137,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setTimeout(() => {
           onLoginSuccess(res.user!);
           onClose();
-        }, 800);
+        }, 700);
       } else {
         setErrorMsg(res.error || 'Đăng ký không thành công!');
       }
-    }, 300);
+    }, 250);
   };
 
   // Handle Login: User inputs personal password
@@ -131,7 +156,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     if (!password.trim()) {
-      setErrorMsg('Vui lòng nhập mật khẩu tài khoản cá nhân của bạn!');
+      setErrorMsg('Vui lòng nhập mật khẩu tài khoản cá nhân!');
       return;
     }
 
@@ -145,64 +170,92 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setTimeout(() => {
           onLoginSuccess(res.user!);
           onClose();
-        }, 800);
-      } else {
-        setErrorMsg(res.error || 'Đăng nhập thất bại! Vui lòng kiểm tra lại mật khẩu cá nhân.');
-      }
-    }, 300);
-  };
-
-  // Handle Direct Admin Access without typing password (Admin không cần đăng nhập / 1-chạm)
-  const handleDirectAdminLogin = (adminEmail: string) => {
-    setIsLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-
-    setTimeout(() => {
-      const res = quickLoginAdmin(adminEmail, SHARED_ADMIN_PASSWORD);
-      setIsLoading(false);
-      if (res.success && res.user) {
-        playSuccessSound();
-        setSuccessMsg(`Truy cập Quản Trị Viên thành công! Chào mừng ${res.user.name}.`);
-        setTimeout(() => {
-          onLoginSuccess(res.user!);
-          onClose();
-        }, 600);
-      } else {
-        setErrorMsg(res.error || 'Không thể đăng nhập Quản trị viên!');
-      }
-    }, 200);
-  };
-
-  // Handle Admin Selected Login: Admin inputs password or uses shared 123456
-  const handleAdminLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedAdminEmail) return;
-
-    const pwd = adminPasswordInput.trim() || SHARED_ADMIN_PASSWORD;
-
-    setIsLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
-
-    setTimeout(() => {
-      const res = loginUser(selectedAdminEmail, pwd);
-      setIsLoading(false);
-      if (res.success && res.user) {
-        playSuccessSound();
-        setSuccessMsg(`Xác thực Ban Quản Trị thành công! Chào mừng ${res.user.name}.`);
-        setTimeout(() => {
-          onLoginSuccess(res.user!);
-          onClose();
         }, 700);
       } else {
-        setErrorMsg('Mật khẩu Quản trị viên không chính xác! Mật khẩu chung của tất cả Admin là: 123456');
+        setErrorMsg(res.error || 'Mật khẩu hoặc Gmail không chính xác! Nếu quên, bạn có thể chọn "Quên mật khẩu?" bên dưới.');
       }
     }, 250);
   };
 
-  // Handle Self-setting / Changing Personal Password
-  const handleChangePassword = (e: React.FormEvent) => {
+  // Step 1 of Forgot Password: Send OTP to Gmail
+  const handleSendOtp = async () => {
+    if (!email.trim() || !email.includes('@')) {
+      setErrorMsg('Vui lòng nhập chính xác Gmail cá nhân của bạn để nhận mã OTP!');
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    try {
+      const res = await sendOtpToGmail(email);
+      setIsLoading(false);
+      setIsOtpSent(true);
+      setOtpCooldown(60);
+      if (res.otp) {
+        setPreviewOtp(res.otp);
+      }
+      playSuccessSound();
+      setSuccessMsg(`Đã gửi mã OTP 6 chữ số tới Gmail "${email}"! Vui lòng kiểm tra hộp thư.`);
+    } catch (err: any) {
+      setIsLoading(false);
+      setErrorMsg(err.message || 'Không thể gửi mã OTP tới Gmail!');
+    }
+  };
+
+  // Step 2 & 3 of Forgot Password: Verify OTP & Set New Password & Log in
+  const handleVerifyOtpAndResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
+
+    if (!otpCode.trim() || otpCode.trim().length !== 6) {
+      setErrorMsg('Vui lòng nhập đúng 6 chữ số mã OTP nhận được qua Gmail!');
+      return;
+    }
+
+    if (!password.trim() || password.length < 6) {
+      setErrorMsg('Mật khẩu mới phải có ít nhất 6 ký tự!');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMsg('Mật khẩu xác nhận không khớp! Vui lòng nhập lại.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const verifyRes = await verifyOtpCode(email, otpCode);
+      if (!verifyRes.success) {
+        setIsLoading(false);
+        setErrorMsg(verifyRes.error || 'Mã OTP không chính xác hoặc đã hết hạn!');
+        return;
+      }
+
+      // Reset password and log student in automatically
+      const resetRes = resetPasswordWithOtp(email, password);
+      setIsLoading(false);
+
+      if (resetRes.success && resetRes.user) {
+        playSuccessSound();
+        setSuccessMsg('Xác thực OTP & Đổi mật khẩu thành công! Đang đăng nhập...');
+        setTimeout(() => {
+          onLoginSuccess(resetRes.user!);
+          onClose();
+        }, 800);
+      } else {
+        setErrorMsg(resetRes.error || 'Không thể cập nhật mật khẩu mới!');
+      }
+    } catch (err: any) {
+      setIsLoading(false);
+      setErrorMsg(err.message || 'Lỗi xử lý xác thực OTP!');
+    }
+  };
+
+  // Handle Direct Change Password
+  const handleChangePasswordDirect = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
@@ -240,7 +293,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       } else {
         setErrorMsg(res.error || 'Không thể cập nhật mật khẩu!');
       }
-    }, 300);
+    }, 250);
   };
 
   return (
@@ -260,22 +313,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
 
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/40 shadow-inner text-2xl">
-            {mode === 'register' ? '✨' : mode === 'change_password' ? '🔑' : '🔐'}
+            {mode === 'register'
+              ? '✨'
+              : mode === 'forgot_password'
+              ? '📧'
+              : mode === 'change_password'
+              ? '🔑'
+              : '🔐'}
           </div>
 
           <h3 className="text-xl sm:text-2xl font-black tracking-tight">
             {mode === 'register'
               ? 'Tạo Tài Khoản Học Viên'
+              : mode === 'forgot_password'
+              ? 'Quên Mật Khẩu (Nhận OTP Gmail)'
               : mode === 'change_password'
-              ? 'Tự Đặt / Đổi Mật Khẩu Cá Nhân'
+              ? 'Đổi Mật Khẩu Cá Nhân'
               : 'Đăng Nhập Tài Khoản'}
           </h3>
           <p className="text-xs sm:text-sm text-sky-100 mt-1 max-w-xs mx-auto">
             {mode === 'register'
-              ? 'Tự đặt mật khẩu tài khoản cá nhân để bảo vệ tiến độ học tập'
+              ? 'Tự đặt mật khẩu của riêng bạn để bảo vệ kết quả học tập'
+              : mode === 'forgot_password'
+              ? 'Gửi mã OTP 6 số qua Gmail cá nhân để đăng nhập và đặt lại mật khẩu'
               : mode === 'change_password'
-              ? 'Nhập Gmail và thiết lập mật khẩu cá nhân mới của riêng bạn'
-              : 'Nhập Gmail và Mật khẩu cá nhân bạn đã đặt'}
+              ? 'Học viên có toàn quyền tự do đổi và đặt lại mật khẩu mới'
+              : 'Nhập Gmail và Mật khẩu cá nhân của bạn'}
           </p>
 
           {/* Mode Switch Tabs */}
@@ -284,8 +347,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => {
                 playClickSound();
                 setMode('login');
-                setSelectedAdminName(null);
-                setSelectedAdminEmail(null);
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
@@ -302,8 +363,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => {
                 playClickSound();
                 setMode('register');
-                setSelectedAdminName(null);
-                setSelectedAdminEmail(null);
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
@@ -319,9 +378,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               onClick={() => {
                 playClickSound();
+                setMode('forgot_password');
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                mode === 'forgot_password'
+                  ? 'bg-white text-sky-700 shadow-sm'
+                  : 'text-white/80 hover:text-white'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>OTP Gmail</span>
+            </button>
+            <button
+              onClick={() => {
+                playClickSound();
                 setMode('change_password');
-                setSelectedAdminName(null);
-                setSelectedAdminEmail(null);
                 setErrorMsg('');
                 setSuccessMsg('');
               }}
@@ -354,9 +427,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* Form Controls based on Mode */}
-          {mode === 'register' ? (
-            /* REGISTRATION FORM */
+          {/* MODE 1: REGISTRATION (TỰ TẠO MẬT KHẨU) */}
+          {mode === 'register' && (
             <form onSubmit={handleRegister} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -379,7 +451,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Địa chỉ Gmail cá nhân <span className="text-rose-500">*</span>
                   <span className="text-[11px] font-normal text-slate-500 ml-1">
-                    (Không trùng lặp, dùng để đăng nhập)
+                    (Dùng để đăng nhập & nhận mã OTP khi quên mật khẩu)
                   </span>
                 </label>
                 <div className="relative">
@@ -395,21 +467,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              {/* Password Input */}
+              {/* Self-create Password with Random Generator Helper */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tự đặt Mật khẩu tài khoản <span className="text-rose-500">*</span>
-                  <span className="text-[11px] font-normal text-slate-500 ml-1">
-                    (Tối thiểu 6 ký tự)
-                  </span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Tự đặt Mật khẩu tài khoản <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateStrongPassword}
+                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded-md transition-colors"
+                    title="Gợi ý tạo mật khẩu mạnh ngẫu nhiên"
+                  >
+                    <Dices className="w-3.5 h-3.5" />
+                    <span>Tạo mật khẩu mạnh</span>
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Tự nhập mật khẩu riêng của bạn..."
+                    placeholder="Tự gõ mật khẩu của bạn..."
                     required
                     minLength={6}
                     className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium font-mono"
@@ -453,7 +533,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div className="p-3 bg-sky-50 rounded-xl border border-sky-100 text-[11px] text-sky-800 flex items-start gap-2">
                 <Sparkles className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong>Bảo mật tài khoản cá nhân:</strong> Bạn tự đặt và ghi nhớ mật khẩu của riêng mình để đăng nhập mọi lúc.
+                  <strong>Quyền riêng tư:</strong> Học viên có quyền tự do đặt và đổi mật khẩu bất kỳ lúc nào. Nếu quên, bạn chỉ cần yêu cầu mã OTP gửi qua Gmail cá nhân.
                 </div>
               </div>
 
@@ -472,9 +552,165 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 )}
               </button>
             </form>
-          ) : mode === 'change_password' ? (
-            /* CHANGE PASSWORD FORM */
-            <form onSubmit={handleChangePassword} className="space-y-3.5">
+          )}
+
+          {/* MODE 2: FORGOT PASSWORD VIA GMAIL OTP (QUÊN MẬT KHẨU NHẬN MÃ OTP) */}
+          {mode === 'forgot_password' && (
+            <form onSubmit={handleVerifyOtpAndResetPassword} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Gmail cá nhân của học viên <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="tenban@gmail.com"
+                      required
+                      className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isLoading || otpCooldown > 0 || !email.trim()}
+                    onClick={handleSendOtp}
+                    className="px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shrink-0 cursor-pointer disabled:opacity-50 shadow-xs flex items-center gap-1.5"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{otpCooldown > 0 ? `Gửi lại (${otpCooldown}s)` : 'Gửi mã OTP'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Informative OTP Prompt Box */}
+              {isOtpSent && previewOtp && (
+                <div className="p-3 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-xs animate-fadeIn flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">📩</span>
+                    <div>
+                      <div className="font-bold">Mã OTP đã gửi về Gmail:</div>
+                      <div className="text-[11px] text-amber-800">
+                        Kiểm tra hộp thư hoặc dùng mã OTP nhanh: <strong className="font-mono text-sm bg-white px-1.5 py-0.5 rounded border border-amber-300 text-amber-950">{previewOtp}</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOtpCode(previewOtp);
+                      playClickSound();
+                    }}
+                    className="text-[10px] font-black bg-amber-200 hover:bg-amber-300 text-amber-900 px-2 py-1 rounded-lg cursor-pointer transition-all"
+                  >
+                    Điền mã
+                  </button>
+                </div>
+              )}
+
+              {/* 6-digit OTP code input */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Nhập mã OTP 6 chữ số từ Gmail <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="Ví dụ: 123456"
+                    required
+                    maxLength={6}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm text-slate-900 font-mono tracking-widest font-black"
+                  />
+                </div>
+              </div>
+
+              {/* New Password input */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Tự đặt Mật khẩu mới <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateStrongPassword}
+                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded-md"
+                  >
+                    <Dices className="w-3.5 h-3.5" />
+                    <span>Tạo mật khẩu mạnh</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Nhập mật khẩu mới bạn muốn đặt..."
+                    required
+                    minLength={6}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Xác nhận lại Mật khẩu mới <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Nhập lại mật khẩu mới..."
+                    required
+                    minLength={6}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading || !isOtpSent || otpCode.length < 6}
+                className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-sm shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <span>Đang xác thực mã OTP & cập nhật...</span>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Xác Nhận OTP & Đăng Nhập Ngay</span>
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+
+          {/* MODE 3: DIRECT CHANGE PASSWORD */}
+          {mode === 'change_password' && (
+            <form onSubmit={handleChangePasswordDirect} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Địa chỉ Gmail tài khoản <span className="text-rose-500">*</span>
@@ -485,7 +721,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Nhập Gmail tài khoản của bạn..."
+                    placeholder="Nhập Gmail của bạn..."
                     required
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium"
                   />
@@ -493,19 +729,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Tự đặt Mật khẩu mới <span className="text-rose-500">*</span>
-                  <span className="text-[11px] font-normal text-slate-500 ml-1">
-                    (Tối thiểu 6 ký tự)
-                  </span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Tự đặt Mật khẩu mới <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateStrongPassword}
+                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded-md"
+                  >
+                    <Dices className="w-3.5 h-3.5" />
+                    <span>Tạo mật khẩu mạnh</span>
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu mới..."
+                    placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)..."
                     required
                     minLength={6}
                     className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium font-mono"
@@ -522,7 +765,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Xác nhận Mật khẩu mới <span className="text-rose-500">*</span>
+                  Xác nhận lại Mật khẩu mới <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -545,6 +788,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
+              <div className="flex items-center justify-between text-xs pt-1">
+                <span className="text-slate-500">Quên mật khẩu cũ?</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setMode('forgot_password');
+                    setErrorMsg('');
+                  }}
+                  className="text-sky-600 font-bold hover:underline cursor-pointer"
+                >
+                  Nhận mã OTP qua Gmail
+                </button>
+              </div>
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -560,8 +818,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 )}
               </button>
             </form>
-          ) : (
-            /* STANDARD LOGIN FORM */
+          )}
+
+          {/* MODE 4: STANDARD LOGIN */}
+          {mode === 'login' && (
             <form onSubmit={handleLogin} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -589,12 +849,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setMode('change_password');
+                      playClickSound();
+                      setMode('forgot_password');
                       setErrorMsg('');
                     }}
                     className="text-[11px] text-sky-600 font-bold hover:underline cursor-pointer"
                   >
-                    Quên / Tự đặt lại MK?
+                    Quên mật khẩu? (Gửi OTP)
                   </button>
                 </div>
                 <div className="relative">
@@ -603,7 +864,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu tài khoản của bạn..."
+                    placeholder="Nhập mật khẩu cá nhân..."
                     required
                     className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm text-slate-800 font-medium font-mono"
                   />
@@ -623,253 +884,66 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 className="w-full py-3 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-bold text-sm shadow-md shadow-sky-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? (
-                  <span>Đang xác thực tài khoản...</span>
+                  <span>Đang kiểm tra đăng nhập...</span>
                 ) : (
                   <>
                     <LogIn className="w-4 h-4" />
-                    <span>Đăng Nhập Tài Khoản</span>
+                    <span>Đăng Nhập Với Mật Khẩu Cá Nhân</span>
                   </>
                 )}
               </button>
             </form>
           )}
 
-          {/* ADMIN PORTAL LOGIN SECTION - ALL ADMIN EMAILS ARE COMPLETELY HIDDEN */}
-          <div className="pt-4 border-t border-slate-200 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-1.5">
-              <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                <Crown className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0" />
-                <span>Khu Vực Ban Quản Trị</span>
-              </span>
-              <div className="flex items-center gap-1 text-[10px] font-bold">
-                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  ⚡ Vào ngay không cần MK
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                  MK chung: 123456
-                </span>
-              </div>
-            </div>
-
-            {/* If an Admin is selected */}
-            {selectedAdminName && selectedAdminEmail ? (
-              <form onSubmit={handleAdminLoginSubmit} className="p-3.5 rounded-2xl bg-amber-50 border-2 border-amber-400 space-y-3 animate-fadeIn">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0 pr-1">
-                    <span className="text-xl shrink-0">👑</span>
-                    <div className="min-w-0">
-                      <div className="text-xs font-black text-amber-950 truncate">
-                        {selectedAdminName}
-                      </div>
-                      <div className="text-[10px] text-amber-800 font-bold truncate">
-                        🔒 Gmail Quản Trị Viên (Đã ẩn bảo mật toàn hệ thống)
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedAdminName(null);
-                      setSelectedAdminEmail(null);
-                      setAdminPasswordInput('');
-                    }}
-                    className="text-xs font-bold text-slate-500 hover:text-slate-700 px-2 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 cursor-pointer shrink-0 transition-colors"
-                  >
-                    Đổi Admin
-                  </button>
-                </div>
-
-                {/* Option 1: VÀO NGAY KHÔNG CẦN MẬT KHẨU (1-Chạm) */}
+          {/* Bottom Switcher Helper */}
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            {mode === 'login' ? (
+              <>
+                <span>Chưa có tài khoản học viên?</span>
                 <button
                   type="button"
-                  disabled={isLoading}
-                  onClick={() => handleDirectAdminLogin(selectedAdminEmail)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 hover:scale-[1.01] active:scale-95"
+                  onClick={() => {
+                    playClickSound();
+                    setMode('register');
+                    setErrorMsg('');
+                  }}
+                  className="font-bold text-sky-600 hover:underline cursor-pointer"
                 >
-                  <Sparkles className="w-4 h-4 text-emerald-100" />
-                  <span>🚀 Vào Ngay Không Cần Mật Khẩu (1-Chạm)</span>
+                  Đăng ký ngay
                 </button>
-
-                <div className="relative flex py-1 items-center">
-                  <div className="flex-grow border-t border-amber-300"></div>
-                  <span className="shrink-0 mx-2 text-[10px] font-bold text-amber-800 uppercase">
-                    hoặc đăng nhập bằng mật khẩu chung
-                  </span>
-                  <div className="flex-grow border-t border-amber-300"></div>
-                </div>
-
-                {/* Option 2: MẬT KHẨU CHUNG 123456 */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-bold text-amber-900">
-                      Mật Khẩu Chung Admin:
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setAdminPasswordInput('123456')}
-                      className="text-[10px] text-amber-900 font-bold bg-amber-200/90 hover:bg-amber-300 px-2 py-0.5 rounded-md cursor-pointer transition-all"
-                    >
-                      ⚡ Điền nhanh: 123456
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <input
-                      type={showAdminPassword ? 'text' : 'password'}
-                      value={adminPasswordInput}
-                      onChange={(e) => setAdminPasswordInput(e.target.value)}
-                      placeholder="Nhập 123456..."
-                      className="w-full pl-3 pr-10 py-2 rounded-xl border border-amber-300 text-xs font-bold text-slate-800 bg-white font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowAdminPassword(!showAdminPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
-                    >
-                      {showAdminPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-1.5 text-[10px] text-amber-900/90 bg-amber-100/70 p-1.5 rounded-lg border border-amber-200">
-                    <span className="truncate">
-                      🔑 <strong>Mật khẩu chung tất cả Admin:</strong> <code className="font-mono bg-white/90 px-1 py-0.2 rounded font-black text-amber-950">123456</code>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setIsLoading(true);
-                        await sendAdminCredentialsToGmail();
-                        setIsLoading(false);
-                        setSuccessMsg(`Đã gửi thông tin mật khẩu Admin (123456) về Gmail ${MAIN_ADMIN_EMAIL}!`);
-                        setTimeout(() => setSuccessMsg(''), 4000);
-                      }}
-                      className="text-amber-950 font-bold underline hover:text-amber-800 shrink-0 cursor-pointer ml-1"
-                    >
-                      Gửi về Gmail
-                    </button>
-                  </div>
-                </div>
-
+              </>
+            ) : mode === 'register' ? (
+              <>
+                <span>Đã có tài khoản?</span>
                 <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setMode('login');
+                    setErrorMsg('');
+                  }}
+                  className="font-bold text-sky-600 hover:underline cursor-pointer"
                 >
-                  {isLoading ? (
-                    <span>Đang xác thực tài khoản...</span>
-                  ) : (
-                    <>
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Đăng Nhập Với Mật Khẩu (123456)</span>
-                    </>
-                  )}
+                  Đăng nhập
                 </button>
-              </form>
+              </>
             ) : (
-              <div className="space-y-2">
-                {/* Admin Chính Highlighted Card - NO EMAIL EXPOSED */}
-                {DESIGNATED_ADMINS.filter((a) => a.adminLevel === 'main').map((admin) => (
-                  <div
-                    key={admin.name}
-                    className="p-3 rounded-2xl border-2 border-amber-400 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100 transition-all flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xs"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-amber-400 text-amber-950 flex items-center justify-center text-lg font-black shrink-0 shadow-xs">
-                        👑
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-black text-amber-950 truncate">
-                            {admin.name}
-                          </span>
-                          <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[9px] font-black uppercase">
-                            Admin Chính
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-amber-800 font-semibold truncate">
-                          🔒 Gmail Đã Bảo Mật • MK chung: 123456
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0 justify-end">
-                      <button
-                        type="button"
-                        onClick={() => handleDirectAdminLogin(admin.email)}
-                        className="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-black transition-all cursor-pointer flex items-center gap-1 shadow-xs hover:scale-102 active:scale-95"
-                        title="Vào ngay không cần gõ mật khẩu"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Vào ngay</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedAdminName(`${admin.name} (Admin Chính)`);
-                          setSelectedAdminEmail(admin.email);
-                          setAdminPasswordInput('123456');
-                        }}
-                        className="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-black transition-all cursor-pointer flex items-center gap-1 shadow-xs"
-                        title="Đăng nhập với mật khẩu"
-                      >
-                        <Lock className="w-3 h-3" />
-                        <span>MK: 123456</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Admin Phụ Buttons - NO EMAIL EXPOSED */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {DESIGNATED_ADMINS.filter((a) => a.adminLevel === 'sub').map((admin) => (
-                    <div
-                      key={admin.name}
-                      className="p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100/70 transition-all flex flex-col justify-between gap-1.5 shadow-2xs"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className="text-xs">🛡️</span>
-                          <span className="text-xs font-black text-slate-800 truncate">
-                            {admin.name}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-slate-500 truncate">
-                          🔒 Gmail Đã Bảo Mật
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 pt-1 border-t border-indigo-100 justify-between">
-                        <button
-                          type="button"
-                          onClick={() => handleDirectAdminLogin(admin.email)}
-                          className="flex-1 py-1 px-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black transition-all cursor-pointer flex items-center justify-center gap-0.5 shadow-2xs"
-                          title="Vào ngay không cần mật khẩu"
-                        >
-                          <Sparkles className="w-3 h-3" />
-                          <span>Vào ngay</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedAdminName(`${admin.name} (Admin Phụ)`);
-                            setSelectedAdminEmail(admin.email);
-                            setAdminPasswordInput('123456');
-                          }}
-                          className="flex-1 py-1 px-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black transition-all cursor-pointer flex items-center justify-center gap-0.5 shadow-2xs"
-                          title="Đăng nhập mật khẩu 123456"
-                        >
-                          <Lock className="w-3 h-3" />
-                          <span>123456</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <>
+                <span>Quay lại đăng nhập</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playClickSound();
+                    setMode('login');
+                    setErrorMsg('');
+                  }}
+                  className="font-bold text-sky-600 hover:underline cursor-pointer"
+                >
+                  Đăng nhập
+                </button>
+              </>
             )}
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="bg-slate-50 px-6 py-3 border-t border-slate-200 text-center text-xs text-slate-500">
-          🔒 Bảo mật: Gmail tất cả Quản trị viên được ẩn hoàn toàn trên toàn hệ thống • Mỗi cá nhân tự đặt và quản lý mật khẩu của mình.
         </div>
       </div>
     </div>

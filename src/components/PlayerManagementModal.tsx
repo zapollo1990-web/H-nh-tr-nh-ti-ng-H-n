@@ -46,7 +46,8 @@ import {
   SUB_ADMIN_MASTER_PASSWORD,
   getAdminCredentialsReport,
   formatCredentialsEmailText,
-  sendAdminCredentialsToGmail
+  sendAdminCredentialsToGmail,
+  generateRandomPassword
 } from '../services/authService';
 import { playClickSound, playSuccessSound } from '../utils/audio';
 
@@ -498,249 +499,27 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
           </div>
         </div>
 
-        {/* BẢO MẬT MẬT KHẨU RIÊNG ADMIN CHÍNH & PHỤ - GỬI GMAIL (zApollo1990@gmail.com) */}
-        {(() => {
-          const adminReport = getAdminCredentialsReport();
-          return (
-            <div className="bg-gradient-to-r from-amber-50/90 via-orange-50/40 to-indigo-50/50 p-4 border-b border-amber-200">
-              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-black shadow-xs text-lg">
-                    👑
-                  </div>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-2 flex-wrap">
-                      <span>Mật Khẩu Chung Ban Quản Trị: 123456</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                        Đăng Nhập Chung 123456
-                      </span>
-                    </h4>
-                    <p className="text-[11px] text-slate-600">
-                      Tất cả các Admin (cả Admin Chính & 3 Admin Phụ) đều sử dụng chung mật khẩu: <strong>123456</strong>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playClickSound();
-                      setShowAdminPasswords(!showAdminPasswords);
-                    }}
-                    className="px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
-                    title={showAdminPasswords ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                  >
-                    {showAdminPasswords ? <EyeOff className="w-3.5 h-3.5 text-slate-500" /> : <Eye className="w-3.5 h-3.5 text-slate-500" />}
-                    <span>{showAdminPasswords ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playClickSound();
-                      setIsAdminCredsOpen(!isAdminCredsOpen);
-                    }}
-                    className="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
-                  >
-                    {isAdminCredsOpen ? 'Thu gọn' : 'Chi tiết mật khẩu'}
-                  </button>
-                </div>
+        {/* BẢO MẬT & QUẢN TRỊ TÀI KHOẢN (ĐÃ TẮT GHIM MẬT KHẨU THEO YÊU CẦU BẢO MẬT) */}
+        <div className="bg-gradient-to-r from-slate-50 via-sky-50/40 to-slate-50 p-4 border-b border-slate-200">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-sky-500 text-white flex items-center justify-center font-black shadow-xs text-base">
+                🛡️
               </div>
-
-              {isAdminCredsOpen && (
-                <div className="space-y-3 animate-fadeIn">
-                  {/* Master Banner Mật Khẩu Chung 123456 */}
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-sm flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl border border-white/30">
-                        🔑
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-amber-100 uppercase tracking-wider">
-                          Mật khẩu đăng nhập chung cho TẤT CẢ các Admin:
-                        </div>
-                        <div className="text-xl sm:text-2xl font-black font-mono tracking-widest text-white">
-                          {showAdminPasswords ? '123456' : '••••••'}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopySingle('123456', 'shared_master')}
-                      className="px-3.5 py-2 rounded-xl bg-white text-amber-900 hover:bg-amber-50 text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-xs shrink-0"
-                    >
-                      {copiedTarget === 'shared_master' ? (
-                        <Check className="w-4 h-4 text-emerald-600" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-amber-900" />
-                      )}
-                      <span>{copiedTarget === 'shared_master' ? 'Đã sao chép 123456!' : 'Sao chép: 123456'}</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {/* Admin Chính Card */}
-                    <div className="p-3.5 rounded-2xl bg-white border-2 border-amber-400 shadow-xs relative overflow-hidden">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">👑</span>
-                          <div>
-                            <div className="text-xs font-black text-amber-950 flex items-center gap-1.5">
-                              <span>Trần Bảo Ngọc</span>
-                              <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[9px] font-black uppercase">
-                                Admin Chính
-                              </span>
-                            </div>
-                            <div className="text-[10px] text-amber-800 font-semibold">
-                              Tổng Quản Trị • Toàn quyền tối cao
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300">
-                          Toàn quyền
-                        </span>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 mt-2 space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-[11px] font-bold text-amber-900">Mật khẩu đăng nhập:</span>
-                          <span className="font-mono font-black text-sm text-amber-950">
-                            {showAdminPasswords ? '123456' : '••••••'}
-                          </span>
-                        </div>
-                        <div className="text-[10px] text-amber-800/80 font-medium">
-                          🔒 Tài khoản Gmail: {MAIN_ADMIN_EMAIL} (Đã ẩn bảo mật)
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Admin Phụ Card */}
-                    <div className="p-3.5 rounded-2xl bg-white border border-indigo-200 shadow-xs space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">🛡️</span>
-                          <div>
-                            <div className="text-xs font-black text-indigo-950 flex items-center gap-1.5">
-                              <span>3 Admin Phụ (Phó Quản Trị)</span>
-                              <span className="px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800 text-[9px] font-bold">
-                                Đồng Quản Trị
-                              </span>
-                            </div>
-                            <div className="text-[10px] text-slate-500 font-medium">
-                              Đăng nhập chung mật khẩu: <strong>123456</strong>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5 pt-1">
-                        {adminReport.subAdmins.map((adm, idx) => (
-                          <div
-                            key={adm.email}
-                            className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs"
-                          >
-                            <div className="flex items-center gap-2 min-w-0 pr-2">
-                              <span className="text-xs">🛡️</span>
-                              <div className="min-w-0">
-                                <span className="font-bold text-slate-800 text-[11px] block truncate">
-                                  {adm.name}
-                                </span>
-                                <span className="font-mono text-[11px] font-semibold text-indigo-700">
-                                  {showAdminPasswords ? '123456' : '••••••'}
-                                </span>
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => handleCopySingle('123456', `sub_pass_${idx}`)}
-                              className="text-[10px] font-bold text-slate-600 hover:text-indigo-600 flex items-center gap-1 px-2 py-1 rounded-lg bg-white border border-slate-200 shrink-0 cursor-pointer"
-                            >
-                              {copiedTarget === `sub_pass_${idx}` ? (
-                                <Check className="w-3 h-3 text-emerald-600" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                              <span>{copiedTarget === `sub_pass_${idx}` ? 'Đã chép' : 'Sao chép'}</span>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Gửi Gmail Action Bar */}
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0 border border-white/20">
-                        <Mail className="w-5 h-5 text-amber-400" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-black flex items-center gap-2 flex-wrap">
-                          <span>Gửi Báo Cáo Mật Khẩu Tới Gmail:</span>
-                          <span className="font-mono font-bold text-amber-300 underline decoration-amber-400/50">
-                            {MAIN_ADMIN_EMAIL}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-300 mt-0.5">
-                          Đầy đủ danh sách tài khoản, vai trò và mật khẩu riêng bảo mật để lưu trữ an toàn.
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 w-full sm:w-auto shrink-0 flex-wrap justify-end">
-                      <button
-                        type="button"
-                        disabled={isSendingGmail}
-                        onClick={handleSendAdminPasswordsToGmail}
-                        className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>{isSendingGmail ? 'Đang gửi...' : 'Gửi Đến Gmail Ngay'}</span>
-                      </button>
-
-                      <a
-                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
-                          MAIN_ADMIN_EMAIL
-                        )}&su=${encodeURIComponent(
-                          `[한국어 여정] BÁO CÁO MẬT KHẨU BAN QUẢN TRỊ (ADMIN CHÍNH & PHỤ)`
-                        )}&body=${encodeURIComponent(formatCredentialsEmailText(adminReport).body)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border border-white/20"
-                        title="Mở ứng dụng Gmail trực tiếp với bản thảo đã điền sẵn"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Mở Gmail</span>
-                      </a>
-
-                      <button
-                        type="button"
-                        onClick={handleCopyReport}
-                        className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border border-white/20"
-                        title="Sao chép toàn bộ nội dung báo cáo mật khẩu"
-                      >
-                        {copiedTarget === 'full_report' ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
-                        )}
-                        <span>{copiedTarget === 'full_report' ? 'Đã chép!' : 'Sao Chép Báo Cáo'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {gmailSendResult && (
-                    <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2 animate-fadeIn">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{gmailSendResult}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-2 flex-wrap">
+                  <span>Bảo Mật Tài Khoản Cá Nhân & Quản Trị</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                    Xác Thực OTP Qua Gmail
+                  </span>
+                </h4>
+                <p className="text-[11px] text-slate-600">
+                  Mật khẩu được học viên và quản trị viên tự do thiết lập & bảo mật riêng tư. Khi quên mật khẩu, học viên sử dụng tính năng nhận mã OTP qua Gmail cá nhân để đăng nhập và tự đặt lại mật khẩu mới.
+                </p>
+              </div>
             </div>
-          );
-        })()}
+          </div>
+        </div>
 
         {/* Collapsible Add Form */}
         {isAddOpen && (
@@ -801,14 +580,26 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                  Mật khẩu khởi tạo <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700">
+                    Mật khẩu cá nhân khởi tạo <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickSound();
+                      setAddPassword(generateRandomPassword());
+                    }}
+                    className="text-[10px] text-emerald-700 font-bold hover:underline cursor-pointer bg-emerald-100/80 px-2 py-0.5 rounded-md"
+                  >
+                    🎲 Tạo mật khẩu mạnh
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={addPassword}
                   onChange={(e) => setAddPassword(e.target.value)}
-                  placeholder="Tối thiểu 6 ký tự (mặc định: 123456)"
+                  placeholder="Tự nhập hoặc bấm tạo mật khẩu mạnh..."
                   required
                   minLength={6}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 bg-white font-mono"

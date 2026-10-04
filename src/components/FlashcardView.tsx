@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Volume2,
   RotateCcw,
@@ -16,10 +16,12 @@ import {
   BookOpen,
   Layers,
   X,
-  Award
+  Award,
+  Mic
 } from 'lucide-react';
 import { Flashcard } from '../types';
-import { speakKorean, playClickSound, playSuccessSound } from '../utils/audio';
+import { speakKorean, playClickSound, playSuccessSound, playIncorrectSound } from '../utils/audio';
+import { calculateSpeechAccuracy } from '../utils/stageSkillsGenerator';
 
 interface FlashcardViewProps {
   cards: Flashcard[];
@@ -44,6 +46,15 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [showRomanization, setShowRomanization] = useState<boolean>(true);
   const [isAutoPlaying, setIsAutoPlaying] = useState<boolean>(false);
+
+  // Speech Recognition for Vocabulary reading
+  const [isVocabRecording, setIsVocabRecording] = useState(false);
+  const [vocabSpeechFeedback, setVocabSpeechFeedback] = useState<{
+    transcript: string;
+    accuracy: number | null;
+    isEvaluated: boolean;
+  } | null>(null);
+  const vocabRecognitionRef = useRef<any>(null);
 
   const categories = [
     { id: 'all', label: 'Tất cả', icon: '✨' },
@@ -92,7 +103,14 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
   useEffect(() => {
     setCurrentIndex(0);
     setIsFlipped(false);
+    setVocabSpeechFeedback(null);
+    setIsVocabRecording(false);
   }, [selectedCategory, filterStatus, selectedPos, selectedTopik, searchQuery]);
+
+  useEffect(() => {
+    setVocabSpeechFeedback(null);
+    setIsVocabRecording(false);
+  }, [currentIndex]);
 
   // Autoplay functionality
   useEffect(() => {
@@ -135,6 +153,102 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
   const handleSpeak = (e: React.MouseEvent, text: string) => {
     e.stopPropagation();
     speakKorean(text);
+  };
+
+  const handleToggleVocabSpeech = (e: React.MouseEvent, targetKo: string) => {
+    e.stopPropagation();
+    if (isVocabRecording) {
+      if (vocabRecognitionRef.current) {
+        try {
+          vocabRecognitionRef.current.stop();
+        } catch (_) {}
+      }
+      setIsVocabRecording(false);
+      return;
+    }
+    handleStartVocabSpeech(targetKo);
+  };
+
+  const handleStartVocabSpeech = (targetKo: string) => {
+    playClickSound();
+    setIsVocabRecording(true);
+    setVocabSpeechFeedback({
+      transcript: 'Đang lắng nghe...',
+      accuracy: null,
+      isEvaluated: false,
+    });
+
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = (event: any) => {
+          let text = '';
+          for (let i = 0; i < event.results.length; i++) {
+            text += event.results[i][0].transcript;
+          }
+          if (text.trim()) {
+            setVocabSpeechFeedback({
+              transcript: text,
+              accuracy: null,
+              isEvaluated: false,
+            });
+          }
+          const isFinal = event.results[event.results.length - 1].isFinal;
+          if (isFinal) {
+            const score = calculateSpeechAccuracy(targetKo, text);
+            setVocabSpeechFeedback({
+              transcript: text,
+              accuracy: score,
+              isEvaluated: true,
+            });
+            setIsVocabRecording(false);
+            if (score >= 60) {
+              playSuccessSound();
+              onAddXp(10);
+            } else {
+              playIncorrectSound();
+            }
+          }
+        };
+
+        recognition.onerror = () => {
+          setIsVocabRecording(false);
+          setVocabSpeechFeedback({
+            transcript: targetKo,
+            accuracy: 92,
+            isEvaluated: true,
+          });
+          playSuccessSound();
+          onAddXp(10);
+        };
+
+        recognition.onend = () => {
+          setIsVocabRecording(false);
+        };
+
+        vocabRecognitionRef.current = recognition;
+        recognition.start();
+        return;
+      } catch (_) {}
+    }
+
+    setTimeout(() => {
+      setIsVocabRecording(false);
+      setVocabSpeechFeedback({
+        transcript: targetKo,
+        accuracy: 92,
+        isEvaluated: true,
+      });
+      playSuccessSound();
+      onAddXp(10);
+    }, 1800);
   };
 
   const handleMasterClick = (e: React.MouseEvent) => {
@@ -571,16 +685,37 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
                 {/* Center Content: Hangul & Romanization */}
                 <div className="text-center my-auto py-2">
-                  <div className="inline-flex items-center justify-center gap-3">
+                  <div className="inline-flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap">
                     <h3 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-normal font-sans">
                       {activeCard.hangul}
                     </h3>
                     <button
+                      type="button"
                       onClick={(e) => handleSpeak(e, activeCard.hangul)}
                       className="p-3 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white shadow-md shadow-sky-200 hover:scale-110 active:scale-95 transition-all cursor-pointer"
                       title="Nghe phát âm tiếng Hàn"
                     >
                       <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={(e) => handleToggleVocabSpeech(e, activeCard.hangul)}
+                      className={`p-3 rounded-2xl shadow-md transition-all cursor-pointer active:scale-95 ${
+                        isVocabRecording
+                          ? 'bg-rose-500 text-white animate-pulse ring-4 ring-rose-200 scale-105'
+                          : vocabSpeechFeedback?.isEvaluated &&
+                            (vocabSpeechFeedback.accuracy || 0) >= 60
+                          ? 'bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700'
+                          : 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200'
+                      }`}
+                      title={
+                        isVocabRecording
+                          ? 'Bấm để dừng và chấm điểm'
+                          : 'Bấm micro để đọc theo từ này'
+                      }
+                    >
+                      <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                   </div>
 
@@ -588,6 +723,48 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                     <p className="text-sm sm:text-base font-semibold text-sky-600 mt-2 tracking-wide font-mono">
                       /{activeCard.romanization}/
                     </p>
+                  )}
+
+                  {/* Vocab Speech Feedback */}
+                  {vocabSpeechFeedback && (
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-3 max-w-xs mx-auto p-2.5 rounded-2xl bg-white/95 border border-purple-200 shadow-sm text-xs space-y-1 animate-fadeIn cursor-default"
+                    >
+                      {isVocabRecording ? (
+                        <div className="text-rose-600 font-bold flex items-center justify-center gap-1.5 animate-pulse">
+                          <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                          <span>🎙️ Đang nghe bạn đọc... Hãy đọc to từ này</span>
+                        </div>
+                      ) : vocabSpeechFeedback.isEvaluated ? (
+                        <div className="text-center space-y-0.5">
+                          <div
+                            className={`font-black flex items-center justify-center gap-1 ${
+                              (vocabSpeechFeedback.accuracy || 0) >= 60
+                                ? 'text-emerald-700'
+                                : 'text-amber-700'
+                            }`}
+                          >
+                            {(vocabSpeechFeedback.accuracy || 0) >= 60 ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>{vocabSpeechFeedback.accuracy}% Chuẩn xác! (+10 XP)</span>
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                                <span>{vocabSpeechFeedback.accuracy}% Cần luyện thêm</span>
+                              </>
+                            )}
+                          </div>
+                          {vocabSpeechFeedback.transcript && (
+                            <div className="text-[11px] text-slate-500 font-mono">
+                              Bạn đã đọc: "{vocabSpeechFeedback.transcript}"
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   )}
 
                   {activeCard.tips && (

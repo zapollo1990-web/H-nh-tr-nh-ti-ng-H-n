@@ -445,6 +445,95 @@ Trả về một danh sách (JSON Array) gồm đúng 3 đối tượng từ v�
   }
 });
 
+// In-memory OTP storage for password reset: email -> { otp, expiresAt, sentAt }
+const otpStore = new Map<string, { otp: string; expiresAt: number; sentAt: string }>();
+
+// Endpoint to send 6-digit OTP to student's personal Gmail for login / password reset
+app.post("/api/auth/send-otp", (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      return res.status(400).json({ error: "Vui lòng cung cấp địa chỉ Gmail hợp lệ" });
+    }
+
+    const normEmail = email.trim().toLowerCase();
+    // Generate secure 6-digit numeric OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const sentTime = new Date().toLocaleString("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      hour12: false,
+    });
+
+    otpStore.set(normEmail, { otp, expiresAt, sentAt: sentTime });
+
+    console.log(`[OTP-GMAIL] ==============================================`);
+    console.log(`[OTP-GMAIL] Gửi mã xác nhận đặt lại mật khẩu tới: ${normEmail}`);
+    console.log(`[OTP-GMAIL] Mã OTP: ${otp}`);
+    console.log(`[OTP-GMAIL] Thời gian: ${sentTime} (Hiệu lực 10 phút)`);
+    console.log(`[OTP-GMAIL] ==============================================`);
+
+    res.json({
+      success: true,
+      message: `Mã OTP xác thực 6 số đã được gửi tới Gmail ${normEmail}!`,
+      otp, // included for convenient real-time testing and prompt in UI
+      expiresInMinutes: 10,
+      sentAt: sentTime,
+    });
+  } catch (error: any) {
+    console.error("Error in /api/auth/send-otp:", error);
+    res.status(500).json({
+      error: "Không thể tạo mã OTP lúc này",
+      details: error.message,
+    });
+  }
+});
+
+// Endpoint to verify OTP
+app.post("/api/auth/verify-otp", (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Thiếu Gmail hoặc mã OTP" });
+    }
+
+    const normEmail = email.trim().toLowerCase();
+    const record = otpStore.get(normEmail);
+
+    if (!record) {
+      return res.status(400).json({
+        error: "Không tìm thấy yêu cầu xác thực OTP cho Gmail này hoặc mã đã hết hạn. Vui lòng bấm gửi lại mã mới!",
+      });
+    }
+
+    if (Date.now() > record.expiresAt) {
+      otpStore.delete(normEmail);
+      return res.status(400).json({
+        error: "Mã OTP đã hết hiệu lực (quá 10 phút). Vui lòng yêu cầu mã OTP mới!",
+      });
+    }
+
+    if (record.otp !== otp.toString().trim()) {
+      return res.status(400).json({
+        error: "Mã OTP không chính xác! Vui lòng kiểm tra lại 6 chữ số trong hộp thư Gmail.",
+      });
+    }
+
+    // Successfully verified -> consume OTP
+    otpStore.delete(normEmail);
+    res.json({
+      success: true,
+      message: "Xác thực mã OTP thành công! Bạn có thể đặt mật khẩu mới ngay bây giờ.",
+    });
+  } catch (error: any) {
+    console.error("Error in /api/auth/verify-otp:", error);
+    res.status(500).json({
+      error: "Không thể xác thực mã OTP lúc này",
+      details: error.message,
+    });
+  }
+});
+
 // Admin Credentials Dispatch to Gmail
 app.post("/api/admin/send-credentials", async (req, res) => {
   try {

@@ -276,228 +276,166 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 pb-24 md:pb-8">
-      {/* Header and Progress overview */}
-      <div className="bg-gradient-to-r from-sky-50 via-white to-amber-50 rounded-2xl p-4 sm:p-5 border border-sky-100 shadow-xs mb-6">
+      {/* Sleek Top Header & Unified Controls */}
+      <div className="space-y-3 mb-5">
+        {/* Row 1: Title, Progress & Mode Switcher */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">🗂️</span>
-              <h2 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">
-                Sổ Tay Từ Vựng & Từ Điển Toàn Thư
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                Sổ Tay Từ Vựng
               </h2>
+              <span className="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
+                {cards.length} từ
+              </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              Tra cứu nghĩa, phát âm bản xứ chuẩn xác, ví dụ thực tế và luyện ghi nhớ với thẻ lật 3D.
+            <p className="text-xs text-slate-500 mt-0.5">
+              Đã thuộc <strong className="text-emerald-600 font-bold">{masteredCount}</strong>/{cards.length} từ ({progressPercent}%)
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-xs font-semibold text-slate-500">Đã thuộc</div>
-              <div className="text-sm sm:text-base font-black text-sky-600">
-                {masteredCount} / {cards.length}{' '}
-                <span className="text-xs font-bold text-amber-500">({progressPercent}%)</span>
-              </div>
-            </div>
-            <div className="w-12 h-12 rounded-full border-4 border-slate-100 flex items-center justify-center relative">
-              <svg className="w-12 h-12 transform -rotate-90">
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="18"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  className="text-slate-100"
-                  fill="transparent"
-                />
-                <circle
-                  cx="24"
-                  cy="24"
-                  r="18"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  strokeDasharray={113}
-                  strokeDashoffset={113 - (113 * progressPercent) / 100}
-                  className="text-sky-500 transition-all duration-500"
-                  strokeLinecap="round"
-                  fill="transparent"
-                />
-              </svg>
-              <span className="absolute text-[11px] font-black text-slate-700">
-                {progressPercent}%
-              </span>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="bg-slate-100 p-0.5 rounded-xl flex items-center border border-slate-200 text-xs font-bold">
+              <button
+                onClick={() => {
+                  playClickSound();
+                  setViewMode('flashcard');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  viewMode === 'flashcard'
+                    ? 'bg-white text-slate-900 shadow-2xs font-black'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Thẻ lật</span>
+              </button>
+              <button
+                onClick={() => {
+                  playClickSound();
+                  setViewMode('dictionary');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                  viewMode === 'dictionary'
+                    ? 'bg-white text-slate-900 shadow-2xs font-black'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Danh sách</span>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Mode Switcher: Flashcard vs Dictionary */}
-        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-200/70">
-          <button
-            onClick={() => {
-              playClickSound();
-              setViewMode('flashcard');
-            }}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              viewMode === 'flashcard'
-                ? 'bg-sky-500 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            <span>Thẻ lật 3D (Flashcard)</span>
-          </button>
-          <button
-            onClick={() => {
-              playClickSound();
-              setViewMode('dictionary');
-            }}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              viewMode === 'dictionary'
-                ? 'bg-sky-500 text-white shadow-xs'
-                : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Từ điển tra cứu ({cards.length} từ)</span>
-          </button>
-        </div>
+        {/* Row 2: Search Bar & Filters in a clean responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          {/* Search Input */}
+          <div className="relative sm:col-span-6">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tra từ tiếng Hàn, phiên âm, tiếng Việt..."
+              className="w-full pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
 
-        {/* Live Search Bar */}
-        <div className="relative mt-3">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tra cứu từ vựng tiếng Hàn, phiên âm, tiếng Việt hoặc câu ví dụ..."
-            className="w-full pl-10 pr-10 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all shadow-2xs"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
-        {/* Category filter pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pt-3 pb-1 no-scrollbar">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                selectedCategory === cat.id
-                  ? 'bg-sky-500 text-white shadow-xs scale-102'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-              }`}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Secondary filters: POS & TOPIK */}
-        <div className="flex flex-wrap items-center gap-2 pt-2 text-xs">
-          <div className="flex items-center gap-1.5 text-slate-500 font-semibold">
-            <span>Từ loại:</span>
+          {/* Category Dropdown */}
+          <div className="sm:col-span-3">
             <select
-              value={selectedPos}
-              onChange={(e) => setSelectedPos(e.target.value)}
-              className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-sky-400 cursor-pointer"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer truncate"
             >
-              <option value="all">Tất cả từ loại</option>
-              <option value="Danh từ">Danh từ</option>
-              <option value="Động từ">Động từ</option>
-              <option value="Tính từ">Tính từ</option>
-              <option value="Cụm từ">Cụm từ</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.icon} {c.label}
+                </option>
+              ))}
             </select>
           </div>
 
-          <div className="flex items-center gap-1.5 text-slate-500 font-semibold ml-auto sm:ml-3">
-            <span>Cấp độ:</span>
+          {/* Status filter: Tất cả / Cần ôn / Đã thuộc */}
+          <div className="sm:col-span-3">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as any)}
+              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer truncate"
+            >
+              <option value="all">Tất cả ({cards.length})</option>
+              <option value="unmastered">Cần ôn ({cards.length - masteredCount})</option>
+              <option value="mastered">Đã thuộc ({masteredCount})</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Row 3: Quick tools */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span>Tìm thấy: <strong className="text-slate-900">{filteredCards.length}</strong> từ</span>
+            <span>•</span>
             <select
               value={selectedTopik}
               onChange={(e) => setSelectedTopik(e.target.value)}
-              className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-sky-400 cursor-pointer"
+              className="bg-transparent border-0 text-xs text-slate-600 font-bold focus:outline-none cursor-pointer p-0"
             >
-              <option value="all">Tất cả cấp độ</option>
+              <option value="all">Mọi cấp độ</option>
               <option value="Sơ cấp 1">Sơ cấp 1</option>
               <option value="Sơ cấp 2">Sơ cấp 2</option>
               <option value="Trung cấp">Trung cấp</option>
             </select>
           </div>
-        </div>
-      </div>
 
-      {/* Filter status & quick tools bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-xs font-semibold">
-          <button
-            onClick={() => setFilterStatus('all')}
-            className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-              filterStatus === 'all' ? 'bg-sky-100 text-sky-700 font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Tất cả ({cards.length})
-          </button>
-          <button
-            onClick={() => setFilterStatus('unmastered')}
-            className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-              filterStatus === 'unmastered' ? 'bg-amber-100 text-amber-800 font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Cần ôn lại ({cards.length - masteredCount})
-          </button>
-          <button
-            onClick={() => setFilterStatus('mastered')}
-            className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
-              filterStatus === 'mastered' ? 'bg-emerald-100 text-emerald-800 font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Đã thuộc ({masteredCount})
-          </button>
-        </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setShowRomanization(!showRomanization)}
+              className={`px-2.5 py-1 rounded-lg border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                showRomanization
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-white text-slate-500 border-slate-200'
+              }`}
+              title="Bật/Tắt phiên âm La-tinh"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>Phiên âm</span>
+            </button>
 
-        <div className="flex items-center gap-2">
-          {/* Romanization toggle */}
-          <button
-            onClick={() => setShowRomanization(!showRomanization)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-              showRomanization
-                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                : 'bg-white text-slate-500 border-slate-200'
-            }`}
-            title="Bật/Tắt phiên âm La-tinh"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Phiên âm</span>
-          </button>
+            {viewMode === 'flashcard' && (
+              <>
+                <button
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className={`px-2.5 py-1 rounded-lg border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
+                    isAutoPlaying
+                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-2xs animate-pulse'
+                      : 'bg-white text-slate-500 border-slate-200'
+                  }`}
+                  title="Tự động lật thẻ"
+                >
+                  {isAutoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{isAutoPlaying ? 'Dừng' : 'Tự chạy'}</span>
+                </button>
 
-          {/* Autoplay button */}
-          <button
-            onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-colors cursor-pointer ${
-              isAutoPlaying
-                ? 'bg-sky-500 text-white border-sky-500 animate-pulse'
-                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {isAutoPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-            <span>Tự động</span>
-          </button>
-
-          {/* Shuffle button */}
-          <button
-            onClick={handleShuffle}
-            className="p-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
-            title="Trộn thẻ ngẫu nhiên"
-          >
-            <Shuffle className="w-4 h-4" />
-          </button>
+                <button
+                  onClick={handleShuffle}
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+                  title="Trộn thẻ ngẫu nhiên"
+                >
+                  <Shuffle className="w-3.5 h-3.5" />
+                  <span>Trộn</span>
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

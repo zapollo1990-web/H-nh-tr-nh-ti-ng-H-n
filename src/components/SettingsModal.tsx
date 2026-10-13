@@ -20,7 +20,13 @@ import {
   Crown,
   Award,
   Eye,
-  EyeOff
+  EyeOff,
+  Sun,
+  Moon,
+  Smartphone,
+  Laptop,
+  Check,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Flashcard, AppUser, SocialAuthProvider, VocabCategory } from '../types';
 import { speakKorean, playClickSound, playSuccessSound, getVoiceGender } from '../utils/audio';
@@ -40,6 +46,8 @@ interface SettingsModalProps {
   onLogout: () => void;
   onOpenPlayerManagement?: () => void;
   onOpenAuthModal?: () => void;
+  theme?: 'light' | 'dark';
+  onToggleTheme?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -55,6 +63,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onLogout,
   onOpenPlayerManagement,
   onOpenAuthModal,
+  theme = 'light',
+  onToggleTheme,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'general' | 'vocab_admin'>('vocab_admin');
   const [showLoginModal, setShowLoginModal] = useState<SocialAuthProvider | null>(null);
@@ -86,6 +96,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   // General settings state
   const [voiceSpeed, setVoiceSpeed] = useState<number>(0.85);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [showFullAvatarModal, setShowFullAvatarModal] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
@@ -205,7 +216,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Header */}
         <div className="relative bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-5 sm:p-6 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20 shadow-inner">
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-inner shrink-0">
               ⚙️
             </div>
             <div>
@@ -294,7 +305,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         Giới tính giọng đọc tiếng Hàn
                       </div>
                       <div className="text-[11px] text-slate-500">
-                        Áp dụng cho bài nghe, lộ trình chặng, từ vựng và bài thi TOPIK
+                        Giọng nam bản xứ chuẩn (Seoul) • Áp dụng cho bài nghe, chặng học, từ vựng và TOPIK
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -304,9 +315,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClick={() => {
                           playClickSound();
                           speakKorean(
-                            getVoiceGender() === 'female'
-                              ? '안녕하세요! 한국어 여정에 오신 것을 환영합니다.'
-                              : '반갑습니다! 오늘도 열심히 한국어를 공부해 봅시다.',
+                            '반갑습니다! 오늘도 열심히 한국어를 공부해 봅시다.',
                             voiceSpeed
                           );
                         }}
@@ -360,17 +369,143 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
               </div>
 
-              <div className="bg-sky-50/50 rounded-2xl p-4 border border-sky-100">
-                <h4 className="text-sm font-black text-slate-800 mb-2">Thông tin phiên bản & Kho dữ liệu</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Ứng dụng 한국어 여정 (Korean Journey) tích hợp hơn 1,000 từ vựng tiếng Hàn phân loại theo chuẩn TOPIK I & II, bảng chữ cái Hangeul, lộ trình chặng đường RPG, minigame giải đố và quản trị người chơi đa cấp.
-                </p>
-                <div className="mt-3 flex items-center gap-3 text-[11px] text-slate-500 font-medium flex-wrap">
-                  <span>Phiên bản: 2.5.0-Pro</span>
-                  <span>•</span>
-                  <span>Tổng từ vựng: {cards.length} từ (hơn 1000 từ)</span>
-                  <span>•</span>
-                  <span>Quản trị: 4 Quản trị viên chỉ định</span>
+              {/* Chuyển đổi màu nền Trắng / Đen theo yêu cầu */}
+              <div className="bg-slate-50 dark:bg-neutral-800/80 rounded-3xl p-4 sm:p-5 border border-slate-200 dark:border-neutral-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-sm font-black text-slate-800 dark:text-neutral-100 flex items-center gap-2">
+                    {theme === 'dark' ? <Moon className="w-4 h-4 text-purple-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                    <span>Màu nền ứng dụng: {theme === 'dark' ? 'Đen (Dark Mode)' : 'Trắng (Light Mode)'}</span>
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
+                    Tùy chọn nền trắng tinh khôi hoặc nền đen dịu mắt khi học ban đêm.
+                  </p>
+                </div>
+                {onToggleTheme && (
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      onToggleTheme();
+                    }}
+                    className="px-4 py-2 rounded-xl bg-white dark:bg-neutral-700 border border-slate-200 dark:border-neutral-600 text-xs font-black text-slate-800 dark:text-neutral-100 shadow-xs hover:scale-102 transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    {theme === 'dark' ? 'Đổi sang Trắng ☀️' : 'Đổi sang Đen 🌙'}
+                  </button>
+                )}
+              </div>
+
+              {/* AVATAR & TẤM BÌA ỨNG DỤNG (THEO YÊU CẦU CỦA BẠN) */}
+              <div className="bg-gradient-to-br from-purple-50/70 via-sky-50/50 to-pink-50/70 dark:from-purple-950/30 dark:via-neutral-800/60 dark:to-pink-950/30 rounded-3xl p-4 sm:p-6 border border-purple-200/80 dark:border-purple-900/50 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-purple-200/60 dark:border-purple-900/40">
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-xl bg-purple-500 text-white text-xs">
+                      <ImageIcon className="w-4 h-4" />
+                    </span>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Avatar & Tấm Bìa Ứng Dụng</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                          Đã Áp Dụng ✓
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-500 dark:text-neutral-400">
+                        Hình ảnh này là Avatar ứng dụng & Tấm bìa cài đặt ngoài màn hình ĐT / Laptop
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      setShowFullAvatarModal(true);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold hover:bg-purple-50 dark:hover:bg-purple-950/50 transition-all cursor-pointer shadow-2xs"
+                  >
+                    Xem ảnh đầy đủ 🔍
+                  </button>
+                </div>
+
+                {/* Avatar Preview Display on Devices */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                  {/* Left: Main Avatar Art Thumbnail */}
+                  <div className="md:col-span-5 flex flex-col items-center justify-center p-3 rounded-2xl bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 shadow-inner text-center">
+                    <div className="relative group cursor-pointer" onClick={() => setShowFullAvatarModal(true)}>
+                      <img
+                        src="/logo.jpg"
+                        alt="Avatar Ứng Dụng - 한국어 여정"
+                        referrerPolicy="no-referrer"
+                        className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl object-cover shadow-lg border-2 border-white dark:border-neutral-800 group-hover:scale-103 transition-transform"
+                      />
+                      <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded-md backdrop-blur-xs font-bold">
+                        1024×1024
+                      </span>
+                    </div>
+                    <span className="text-xs font-black text-slate-800 dark:text-neutral-100 mt-2">
+                      한국어 여정 - Hành trình tiếng Hàn
+                    </span>
+                    <span className="text-[10px] text-slate-500 dark:text-neutral-400">
+                      Avatar ứng dụng chính thức
+                    </span>
+                  </div>
+
+                  {/* Right: Where it shows (Mobile, Laptop, Favicon) */}
+                  <div className="md:col-span-7 space-y-2.5">
+                    <div className="text-xs font-bold text-slate-700 dark:text-neutral-200 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Vị trí hiển thị của Avatar ứng dụng:</span>
+                    </div>
+
+                    {/* Mobile Screen Mockup item */}
+                    <div className="p-2.5 rounded-xl bg-white/80 dark:bg-neutral-900/80 border border-slate-200/80 dark:border-neutral-700 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-900 p-0.5 flex items-center justify-center shadow-xs shrink-0">
+                        <img
+                          src="/favicon.png"
+                          alt="Mobile App Icon"
+                          className="w-full h-full object-cover rounded-[9px]"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 text-xs font-bold text-slate-800 dark:text-neutral-100">
+                          <Smartphone className="w-3.5 h-3.5 text-sky-500" />
+                          <span>Màn hình chính Điện thoại (Android / iPhone)</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-neutral-400 truncate">
+                          Tấm bìa biểu tượng icon ứng dụng sau khi cài đặt ra màn hình.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Laptop Screen Mockup item */}
+                    <div className="p-2.5 rounded-xl bg-white/80 dark:bg-neutral-900/80 border border-slate-200/80 dark:border-neutral-700 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-neutral-800 p-0.5 flex items-center justify-center shadow-xs shrink-0 border border-slate-200 dark:border-neutral-700">
+                        <img
+                          src="/favicon.png"
+                          alt="Laptop Desktop Icon"
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1 text-xs font-bold text-slate-800 dark:text-neutral-100">
+                          <Laptop className="w-3.5 h-3.5 text-indigo-500" />
+                          <span>Màn hình Máy tính / Laptop (Desktop shortcut)</span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 dark:text-neutral-400 truncate">
+                          Biểu tượng phần mềm trên Desktop và thanh Taskbar / Dock.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Clear confirmation badge aligned with user prompt */}
+                <div className="p-3 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/40 text-[11px] leading-relaxed text-amber-900 dark:text-amber-200 space-y-0.5">
+                  <div className="font-bold flex items-center gap-1 text-amber-800 dark:text-amber-300">
+                    <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                    <span>Đúng yêu cầu thiết kế của bạn:</span>
+                  </div>
+                  <p>
+                    • <strong>Bên ngoài:</strong> Hình ảnh này là Tấm bìa & Avatar đại diện khi cài đặt ứng dụng lên màn hình điện thoại, máy tính.<br />
+                    • <strong>Bên trong:</strong> Logo được ẩn hoàn toàn; thay vào đó, 5 bạn nhân vật chủ đạo (Na, Min, Sora, Rin, Lumi) sẽ đồng hành cùng bạn học tập và làm việc suốt chặng đường!
+                  </p>
                 </div>
               </div>
             </div>
@@ -501,8 +636,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
-                      <div className="w-13 h-13 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-3xl border border-white/30 shadow-inner">
-                        {adminUser.avatar || (isAuthorizedAdmin ? '👑' : '🎓')}
+                      <div className="w-13 h-13 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-3xl border border-white/30 shadow-inner overflow-hidden">
+                        {adminUser.avatar ? (
+                          adminUser.avatar.startsWith('/') || adminUser.avatar.startsWith('http') ? (
+                            <img
+                              src={adminUser.avatar}
+                              alt="Avatar"
+                              className="w-full h-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            adminUser.avatar
+                          )
+                        ) : (isAuthorizedAdmin ? '👑' : '🎓')}
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -1050,6 +1196,56 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 Đăng nhập Admin
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Avatar Modal View */}
+      {showFullAvatarModal && (
+        <div
+          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in cursor-pointer"
+          onClick={() => setShowFullAvatarModal(false)}
+        >
+          <div
+            className="bg-white dark:bg-neutral-900 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-white/20 flex flex-col items-center text-center space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between w-full">
+              <span className="text-xs font-black uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                Avatar Ứng Dụng Chính Thức
+              </span>
+              <button
+                onClick={() => setShowFullAvatarModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 flex items-center justify-center cursor-pointer hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-neutral-800">
+              <img
+                src="/logo.jpg"
+                alt="Avatar Ứng Dụng"
+                className="w-72 h-72 sm:w-80 sm:h-80 object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-slate-900 dark:text-white">
+                한국어 여정 - Hành trình tiếng Hàn
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-neutral-400">
+                Tấm bìa biểu tượng ứng dụng hiển thị trên màn hình điện thoại & laptop khi cài đặt.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowFullAvatarModal(false)}
+              className="w-full py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              Đóng xem ảnh
+            </button>
           </div>
         </div>
       )}

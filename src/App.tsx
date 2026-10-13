@@ -8,6 +8,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { AuthModal, AuthModalMode } from './components/AuthModal';
 import { PlayerManagementModal } from './components/PlayerManagementModal';
 import { AiConversationView } from './components/AiConversationView';
+import { CompanionSquadModal } from './components/CompanionSquadModal';
+import { getActiveCompanionId, CompanionId } from './data/companionCharacters';
 import { INITIAL_FLASHCARDS } from './data/flashcards';
 import { UserProgress, Flashcard, AppUser, SocialAuthProvider } from './types';
 import {
@@ -31,6 +33,32 @@ export default function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<AuthModalMode>('login');
   const [isPlayerManagementOpen, setIsPlayerManagementOpen] = useState(false);
+  const [isCompanionSquadOpen, setIsCompanionSquadOpen] = useState(false);
+  const [activeCompanionId, setActiveCompanionId] = useState<CompanionId>(() => getActiveCompanionId());
+
+  // App Background Theme (Trắng hoặc Đen)
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('korean_journey_theme');
+      if (saved === 'dark' || saved === 'light') return saved;
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('korean_journey_theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [theme]);
+
+  const handleToggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   const handleOpenAuthModal = (mode: AuthModalMode = 'login') => {
     setAuthModalMode(mode);
@@ -315,7 +343,13 @@ export default function App() {
   const accuracyPercent = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 100;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col selection:bg-sky-200 selection:text-sky-900">
+    <div
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        theme === 'dark'
+          ? 'dark bg-neutral-950 text-neutral-100 selection:bg-purple-900 selection:text-white'
+          : 'bg-[#F8FAFC] text-slate-800 selection:bg-sky-200 selection:text-sky-900'
+      }`}
+    >
       {/* Top Navigation Bar with 3 Main Tabs: Học tập, Từ vựng & ngữ pháp, Tôi */}
       <Navbar
         activeTab={activeTab}
@@ -329,6 +363,10 @@ export default function App() {
         onOpenPlayerManagement={() => setIsPlayerManagementOpen(true)}
         isAdminLoggedIn={isAuthorizedAdmin}
         accuracyPercent={accuracyPercent}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+        onOpenCompanionSquad={() => setIsCompanionSquadOpen(true)}
+        activeCompanionId={activeCompanionId}
       />
 
       {/* Main Content Area: Responsive layout compatible with phone, tablet (iPad), and laptop */}
@@ -434,6 +472,15 @@ export default function App() {
         onLogout={handleUserLogout}
         onOpenPlayerManagement={() => setIsPlayerManagementOpen(true)}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+
+      {/* 5-Companion Penguin Characters Squad Modal */}
+      <CompanionSquadModal
+        isOpen={isCompanionSquadOpen}
+        onClose={() => setIsCompanionSquadOpen(false)}
+        onSelectCompanion={(id) => setActiveCompanionId(id)}
       />
     </div>
   );

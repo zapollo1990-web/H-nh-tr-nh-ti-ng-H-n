@@ -708,7 +708,18 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
                             : 'bg-gradient-to-tr from-slate-100 to-slate-200 border-slate-200'
                         }`}
                       >
-                        {user.avatar || (isMainAdmin ? '👑' : isSubAdmin ? '🛡️' : '🎓')}
+                        {user.avatar ? (
+                          user.avatar.startsWith('/') || user.avatar.startsWith('http') ? (
+                            <img
+                              src={user.avatar}
+                              alt="Avatar"
+                              className="w-full h-full object-cover rounded-xl"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            user.avatar
+                          )
+                        ) : (isMainAdmin ? '👑' : isSubAdmin ? '🛡️' : '🎓')}
                         {isMainAdmin && (
                           <div className="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center text-[10px] text-white shadow-xs">
                             ★

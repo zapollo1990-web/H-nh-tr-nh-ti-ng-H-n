@@ -244,6 +244,23 @@ export interface WordGuessPuzzle {
   candidateSyllables: string[];
 }
 
+export interface ScramblePuzzle {
+  id: string;
+  type: 'word' | 'sentence';
+  category: string;
+  categoryLabelVi: string;
+  categoryIcon: string;
+  promptVi: string;
+  koreanText: string;
+  romanization: string;
+  meaningVi: string;
+  correctTokens: string[];
+  scrambledTokens: string[];
+  distractors?: string[];
+  exampleSentence?: string;
+  exampleSentenceVi?: string;
+}
+
 // FARMING & FISHING GAME TYPES
 export interface CropType {
   id: string;

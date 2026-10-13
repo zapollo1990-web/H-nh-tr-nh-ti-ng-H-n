@@ -17,10 +17,20 @@ import {
   Loader2,
   Trophy,
   Flame,
-  Shuffle
+  Shuffle,
+  BookOpen,
+  Layers,
+  Award,
+  CheckCircle2
 } from 'lucide-react';
-import { KoreanRiddle, EmojiPuzzle, WordGuessPuzzle } from '../types';
+import { KoreanRiddle, EmojiPuzzle, WordGuessPuzzle, ScramblePuzzle } from '../types';
 import { KOREAN_RIDDLES, EMOJI_PUZZLES, WORD_GUESS_PUZZLES } from '../data/puzzles';
+import {
+  getRandomizedScramblePuzzles,
+  getAvailableCategories,
+  CategoryInfo,
+  MASTER_SCRAMBLE_PUZZLES,
+} from '../data/scramblePuzzles';
 import {
   speakKorean,
   playClickSound,
@@ -28,15 +38,149 @@ import {
   playIncorrectSound,
   playFanfareSound
 } from '../utils/audio';
+import { VoiceGenderToggle } from './VoiceGenderToggle';
 
 interface PuzzleGameViewProps {
   onAddXp: (amount: number) => void;
 }
 
-type PuzzleMode = 'riddles' | 'emoji' | 'secret';
+type PuzzleMode = 'scramble' | 'riddles' | 'emoji' | 'secret';
 
 export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
-  const [activeMode, setActiveMode] = useState<PuzzleMode>('riddles');
+  const [activeMode, setActiveMode] = useState<PuzzleMode>('scramble');
+
+  // ==========================================
+  // MODE 0: 1000+ SCRAMBLE PUZZLES (ĐẢO TỪ ĐỂ CHỌN - THỨ TỰ NGẪU NHIÊN)
+  // ==========================================
+  const categoriesList = getAvailableCategories();
+  const [scrambleCategory, setScrambleCategory] = useState<string>('all');
+  const [scrambleType, setScrambleType] = useState<'all' | 'word' | 'sentence'>('all');
+  const [scrambleQueue, setScrambleQueue] = useState<ScramblePuzzle[]>(() =>
+    getRandomizedScramblePuzzles({ category: 'all', type: 'all' })
+  );
+  const [scrambleIndex, setScrambleIndex] = useState(0);
+  const [selectedTokens, setSelectedTokens] = useState<Array<{ id: string; text: string }>>([]);
+  const [isScrambleSolved, setIsScrambleSolved] = useState(false);
+  const [isScrambleWrong, setIsScrambleWrong] = useState(false);
+  const [showScrambleHint, setShowScrambleHint] = useState(false);
+  const [scrambleStreak, setScrambleStreak] = useState(0);
+  const [scrambleSolvedCount, setScrambleSolvedCount] = useState(0);
+
+  const activeScramblePuzzle = scrambleQueue[scrambleIndex % (scrambleQueue.length || 1)];
+  const targetTokenCount = activeScramblePuzzle?.correctTokens.length || 0;
+
+  // Tile items in candidate pool
+  const [tileItems, setTileItems] = useState<Array<{ id: string; text: string; isUsed: boolean }>>([]);
+
+  // Sync candidate tiles whenever active puzzle changes
+  useEffect(() => {
+    if (!activeScramblePuzzle) return;
+    const items = activeScramblePuzzle.scrambledTokens.map((text, idx) => ({
+      id: `tile-${activeScramblePuzzle.id}-${idx}-${text}`,
+      text,
+      isUsed: false,
+    }));
+    setTileItems(items);
+    setSelectedTokens([]);
+    setIsScrambleSolved(false);
+    setIsScrambleWrong(false);
+    setShowScrambleHint(false);
+  }, [scrambleIndex, scrambleQueue]);
+
+  // Handle changing category or puzzle type (re-randomizes queue with Fisher-Yates)
+  const handleCategoryChange = (catId: string) => {
+    playClickSound();
+    setScrambleCategory(catId);
+    const newQueue = getRandomizedScramblePuzzles({ category: catId, type: scrambleType });
+    setScrambleQueue(newQueue);
+    setScrambleIndex(0);
+  };
+
+  const handleTypeChange = (type: 'all' | 'word' | 'sentence') => {
+    playClickSound();
+    setScrambleType(type);
+    const newQueue = getRandomizedScramblePuzzles({ category: scrambleCategory, type });
+    setScrambleQueue(newQueue);
+    setScrambleIndex(0);
+  };
+
+  // Re-shuffle entire bank randomly (guarantees NO fixed order)
+  const handleReshuffleAll = () => {
+    playClickSound();
+    const newQueue = getRandomizedScramblePuzzles({ category: scrambleCategory, type: scrambleType });
+    setScrambleQueue(newQueue);
+    setScrambleIndex(0);
+  };
+
+  // Advance to next random question
+  const handleNextRandomQuestion = () => {
+    playClickSound();
+    if (scrambleQueue.length <= 1) return;
+    // Jump to another random offset
+    const randomOffset = 1 + Math.floor(Math.random() * Math.min(10, scrambleQueue.length - 1));
+    setScrambleIndex((prev) => (prev + randomOffset) % scrambleQueue.length);
+  };
+
+  // User taps an available tile to pick it
+  const handlePickTile = (tileId: string, text: string) => {
+    if (isScrambleSolved || selectedTokens.length >= targetTokenCount) return;
+    playClickSound();
+
+    const nextSelected = [...selectedTokens, { id: tileId, text }];
+    setSelectedTokens(nextSelected);
+
+    setTileItems((prev) =>
+      prev.map((t) => (t.id === tileId ? { ...t, isUsed: true } : t))
+    );
+
+    // If reached full token count, check answer immediately!
+    if (nextSelected.length === targetTokenCount) {
+      const userTokens = nextSelected.map((t) => t.text);
+      const isCorrect =
+        userTokens.join('') === activeScramblePuzzle.correctTokens.join('') ||
+        userTokens.join(' ') === activeScramblePuzzle.correctTokens.join(' ');
+
+      if (isCorrect) {
+        playSuccessSound();
+        setIsScrambleSolved(true);
+        setIsScrambleWrong(false);
+        setScrambleStreak((prev) => prev + 1);
+        setScrambleSolvedCount((prev) => prev + 1);
+        onAddXp(15);
+        confetti({
+          particleCount: 55,
+          spread: 75,
+          origin: { y: 0.6 },
+        });
+      } else {
+        playIncorrectSound();
+        setIsScrambleWrong(true);
+        setScrambleStreak(0);
+        setTimeout(() => {
+          setIsScrambleWrong(false);
+        }, 850);
+      }
+    }
+  };
+
+  // User taps a selected token to remove it
+  const handleRemoveToken = (tokenObj: { id: string; text: string }) => {
+    if (isScrambleSolved) return;
+    playClickSound();
+    setSelectedTokens((prev) => prev.filter((t) => t.id !== tokenObj.id));
+    setTileItems((prev) =>
+      prev.map((t) => (t.id === tokenObj.id ? { ...t, isUsed: false } : t))
+    );
+    setIsScrambleWrong(false);
+  };
+
+  // Clear all tokens
+  const handleClearTokens = () => {
+    playClickSound();
+    setSelectedTokens([]);
+    setTileItems((prev) => prev.map((t) => ({ ...t, isUsed: false })));
+    setIsScrambleWrong(false);
+  };
 
   // ==========================================
   // MODE 1: KOREAN RIDDLES (수수께끼) STATE
@@ -56,7 +200,6 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
   );
   const activeRiddle = filteredRiddles[currentRiddleIndex] || filteredRiddles[0];
 
-  // Reset answer states when riddle changes
   useEffect(() => {
     setShowRiddleHint(false);
     setShowRiddleAnswer(false);
@@ -72,7 +215,6 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
     const targetKo = activeRiddle.answerKo.toLowerCase();
     const targetVi = activeRiddle.answerVi.toLowerCase();
 
-    // Check if input matches Korean answer or keyword in Vietnamese answer
     const isKoMatch = cleanInput === targetKo || cleanInput.includes(targetKo);
     const isViMatch = targetVi.includes(cleanInput) && cleanInput.length >= 2;
 
@@ -134,7 +276,6 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
   const [isEmojiWrong, setIsEmojiWrong] = useState(false);
   const [emojiStreak, setEmojiStreak] = useState(0);
 
-  // Reset letters when emoji puzzle changes
   useEffect(() => {
     setSelectedLetters([]);
     setIsEmojiSolved(false);
@@ -147,11 +288,9 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
     const updated = [...selectedLetters, letter];
     setSelectedLetters(updated);
 
-    // If filled all slots, evaluate immediately
     if (updated.length === targetWordLength) {
       const userWord = updated.join('');
       if (userWord === activeEmojiPuzzle.wordKo) {
-        // Correct!
         playSuccessSound();
         setIsEmojiSolved(true);
         setIsEmojiWrong(false);
@@ -163,7 +302,6 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
           origin: { y: 0.6 },
         });
       } else {
-        // Wrong
         playIncorrectSound();
         setIsEmojiWrong(true);
         setEmojiStreak(0);
@@ -216,7 +354,6 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
 
     if (isMatch) {
       playSuccessSound();
-      // Check if all syllables in secretWord are guessed
       const allFound = secretWord.split('').every((char) => nextGuessed.includes(char));
       if (allFound) {
         setIsSecretWon(true);
@@ -251,7 +388,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
             <span>🎮 Game Giải Đố Tiếng Hàn</span>
           </h2>
           <p className="text-xs sm:text-sm text-amber-100 max-w-xl">
-            Vừa chơi vừa nhớ từ vựng với câu đố dân gian Hàn Quốc (수수께끼), trò chơi ghép hình Emoji và đoán chữ bí mật!
+            Thử tài ghép từ với kho <strong>1000+ câu đố đảo từ đa chủ đề</strong>, câu đố dân gian Hàn Quốc (수수께끼) và đoán chữ Emoji bí mật!
           </p>
         </div>
 
@@ -262,14 +399,30 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
       </div>
 
       {/* Mode Navigation Tabs */}
-      <div className="flex items-center gap-2 p-1.5 bg-slate-200/70 rounded-2xl">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-slate-200/70 rounded-2xl">
+        <button
+          id="tab-scramble"
+          onClick={() => {
+            playClickSound();
+            setActiveMode('scramble');
+          }}
+          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+            activeMode === 'scramble'
+              ? 'bg-white text-orange-600 shadow-sm ring-2 ring-orange-400/20'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Shuffle className="w-4 h-4 text-orange-500 animate-spin-slow" />
+          <span>Đảo từ 1000+ câu</span>
+        </button>
+
         <button
           id="tab-riddles"
           onClick={() => {
             playClickSound();
             setActiveMode('riddles');
           }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
             activeMode === 'riddles'
               ? 'bg-white text-orange-600 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -285,7 +438,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
             playClickSound();
             setActiveMode('emoji');
           }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
             activeMode === 'emoji'
               ? 'bg-white text-orange-600 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -301,7 +454,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
             playClickSound();
             setActiveMode('secret');
           }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
+          className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
             activeMode === 'secret'
               ? 'bg-white text-orange-600 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -311,6 +464,314 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
           <span>Từ bí mật</span>
         </button>
       </div>
+
+      {/* ========================================================================= */}
+      {/* MODE 0: 1000+ SCRAMBLE PUZZLES (ĐẢO TỪ ĐỂ CHỌN - THỨ TỰ NGẪU NHIÊN)       */}
+      {/* ========================================================================= */}
+      {activeMode === 'scramble' && activeScramblePuzzle && (
+        <div className="space-y-4">
+          {/* Controls Bar: Randomizer, Stats & Gender Toggle */}
+          <div className="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-black shadow-xs flex items-center gap-1.5">
+                <Shuffle className="w-3.5 h-3.5 animate-spin-slow" />
+                <span>🎲 Đố ngẫu nhiên không theo thứ tự</span>
+              </span>
+
+              <div className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                <Flame className="w-4 h-4 text-rose-500" />
+                <span>Chuỗi đúng: <strong className="text-slate-900">{scrambleStreak}</strong></span>
+                <span className="mx-1">•</span>
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Đã giải: <strong className="text-slate-900">{scrambleSolvedCount}</strong></span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <VoiceGenderToggle compact showLabel={false} />
+
+              <button
+                id="btn-reshuffle-bank"
+                onClick={handleReshuffleAll}
+                title="Xáo trộn ngẫu nhiên toàn bộ kho 1000+ câu đố"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold text-xs border border-orange-200 transition-all cursor-pointer shadow-2xs"
+              >
+                <Shuffle className="w-3.5 h-3.5" />
+                <span>Xáo trộn ngẫu nhiên 🎲</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Topic Filters (13 Categories with Real Counts) */}
+          <div className="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
+              <span>Chọn chủ đề ({categoriesList.length} chủ đề đa dạng):</span>
+              <div className="flex items-center gap-1">
+                {(['all', 'word', 'sentence'] as const).map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => handleTypeChange(t)}
+                    className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                      scrambleType === t
+                        ? 'bg-slate-800 text-white shadow-2xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {t === 'all' ? 'Tất cả dạng' : t === 'word' ? '🔤 Từ vựng' : '💬 Ghép câu'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+              {categoriesList.map((cat) => {
+                const isActive = scrambleCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    id={`filter-scramble-${cat.id}`}
+                    onClick={() => handleCategoryChange(cat.id)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-orange-500 text-white border-orange-600 shadow-xs scale-102'
+                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                        isActive ? 'bg-white/30 text-white' : 'bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Main Scramble Puzzle Card */}
+          <div
+            className={`bg-white rounded-3xl p-6 sm:p-8 border shadow-md space-y-6 transition-all duration-300 ${
+              isScrambleWrong
+                ? 'border-rose-400 bg-rose-50/20 ring-4 ring-rose-100 animate-shake'
+                : isScrambleSolved
+                ? 'border-emerald-400 bg-emerald-50/20 ring-4 ring-emerald-100'
+                : 'border-slate-200'
+            }`}
+          >
+            {/* Top Subhead */}
+            <div className="flex items-center justify-between flex-wrap gap-2 text-xs font-bold text-slate-400 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-extrabold flex items-center gap-1">
+                  <span>{activeScramblePuzzle.categoryIcon}</span>
+                  <span>{activeScramblePuzzle.categoryLabelVi}</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[11px] font-bold">
+                  {activeScramblePuzzle.type === 'word' ? 'Đảo âm tiết (Từ vựng)' : 'Đảo từ ngữ (Ghép câu)'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-slate-500">
+                  Câu hỏi #{((scrambleIndex) % scrambleQueue.length) + 1} / {scrambleQueue.length}
+                </span>
+                <button
+                  onClick={() => speakKorean(activeScramblePuzzle.koreanText)}
+                  className="p-1.5 rounded-xl bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-700 transition-colors cursor-pointer"
+                  title="Nghe mẫu câu"
+                >
+                  <Volume2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Prompt & Clue */}
+            <div className="text-center space-y-1.5 max-w-lg mx-auto">
+              <span className="text-xs font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-3 py-1 rounded-full border border-orange-200/60 inline-block">
+                {activeScramblePuzzle.type === 'word' ? '🎯 ĐẢO CHỮ GHÉP TỪ VỰNG' : '🧩 ĐẢO TỪ GHÉP CÂU HOÀN CHỈNH'}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                "{activeScramblePuzzle.meaningVi}"
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                Chọn các ô từ/âm tiết bên dưới theo đúng thứ tự tiếng Hàn để giải đố
+              </p>
+            </div>
+
+            {/* Selected Slots Area (Vị trí các ô đã chọn) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
+                <span>Ô ghép đáp án:</span>
+                <span className="text-orange-600">
+                  {selectedTokens.length} / {targetTokenCount} ô
+                </span>
+              </div>
+
+              <div
+                className={`min-h-20 p-4 rounded-2xl border-2 border-dashed flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 transition-colors ${
+                  isScrambleSolved
+                    ? 'border-emerald-400 bg-emerald-50/70'
+                    : isScrambleWrong
+                    ? 'border-rose-400 bg-rose-50/70'
+                    : 'border-orange-300 bg-orange-50/40'
+                }`}
+              >
+                {selectedTokens.length === 0 ? (
+                  <span className="text-xs sm:text-sm text-slate-400 font-medium italic animate-pulse">
+                    Nhấp vào các ô đảo từ bên dưới để xếp vào đây...
+                  </span>
+                ) : (
+                  selectedTokens.map((t, idx) => (
+                    <button
+                      key={t.id}
+                      onClick={() => handleRemoveToken(t)}
+                      disabled={isScrambleSolved}
+                      className={`px-4 py-2.5 rounded-2xl font-black text-base sm:text-lg shadow-sm transition-all transform hover:scale-105 active:scale-95 cursor-pointer ${
+                        isScrambleSolved
+                          ? 'bg-emerald-600 text-white shadow-emerald-200'
+                          : isScrambleWrong
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-gradient-to-b from-orange-500 to-amber-600 text-white hover:from-rose-500 hover:to-rose-600 shadow-orange-200'
+                      }`}
+                      title="Nhấn để gỡ bỏ khỏi ô"
+                    >
+                      <span>{t.text}</span>
+                    </button>
+                  ))
+                )}
+
+                {/* Show placeholder dashed boxes for remaining tokens */}
+                {!isScrambleSolved &&
+                  Array.from({ length: Math.max(0, targetTokenCount - selectedTokens.length) }).map((_, i) => (
+                    <div
+                      key={`placeholder-${i}`}
+                      className="w-11 h-11 sm:w-14 sm:h-12 rounded-2xl border-2 border-dashed border-orange-200/90 bg-white/70 flex items-center justify-center text-xs font-bold text-orange-300 select-none"
+                    >
+                      {selectedTokens.length + i + 1}
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Candidate Scrambled Tiles Pool (Ngân hàng từ đảo lộn để chọn) */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-500 px-1">
+                <span>Chọn từ/âm tiết bị đảo lộn:</span>
+                {showScrambleHint && (
+                  <span className="text-amber-600 font-extrabold flex items-center gap-1 animate-pulse">
+                    <Lightbulb className="w-3.5 h-3.5" />
+                    <span>Gợi ý: bắt đầu bằng "{activeScramblePuzzle.correctTokens[0]}" ({activeScramblePuzzle.romanization})</span>
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200/70 min-h-16">
+                {tileItems.map((tile) => (
+                  <button
+                    key={tile.id}
+                    id={`tile-${tile.id}`}
+                    disabled={tile.isUsed || isScrambleSolved}
+                    onClick={() => handlePickTile(tile.id, tile.text)}
+                    className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl font-black text-base sm:text-xl transition-all cursor-pointer border-2 ${
+                      tile.isUsed
+                        ? 'opacity-20 bg-slate-200 text-slate-400 border-slate-200 scale-95 cursor-not-allowed'
+                        : 'bg-white hover:bg-orange-50 border-slate-200 hover:border-orange-400 text-slate-800 shadow-xs hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
+                    }`}
+                  >
+                    {tile.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Result / Victory Card */}
+            {isScrambleSolved && (
+              <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 text-white shadow-lg space-y-3 animate-fade-in">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-6 h-6 text-yellow-300 animate-bounce" />
+                    <span className="text-lg font-black">Chính xác xuất sắc! (+15 XP)</span>
+                  </div>
+                  <button
+                    onClick={() => speakKorean(activeScramblePuzzle.koreanText)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-black backdrop-blur-xs transition-colors cursor-pointer"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                    <span>Phát âm chuẩn</span>
+                  </button>
+                </div>
+
+                <div className="bg-black/15 rounded-xl p-3 space-y-1">
+                  <div className="text-xl sm:text-2xl font-black text-yellow-200">
+                    {activeScramblePuzzle.koreanText}
+                  </div>
+                  <div className="text-xs sm:text-sm text-emerald-100 font-medium">
+                    /{activeScramblePuzzle.romanization}/ • {activeScramblePuzzle.meaningVi}
+                  </div>
+                  {activeScramblePuzzle.exampleSentence && (
+                    <div className="text-xs text-white/90 pt-1 border-t border-white/10 italic">
+                      Ví dụ: {activeScramblePuzzle.exampleSentence} ({activeScramblePuzzle.exampleSentenceVi})
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end pt-1">
+                  <button
+                    id="btn-next-scramble-won"
+                    onClick={handleNextRandomQuestion}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-black text-xs sm:text-sm shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                  >
+                    <span>Câu đố ngẫu nhiên tiếp theo 🎲</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom Actions Bar */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <button
+                  id="btn-clear-scramble"
+                  disabled={isScrambleSolved || selectedTokens.length === 0}
+                  onClick={handleClearTokens}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Xóa chọn lại</span>
+                </button>
+
+                <button
+                  id="btn-hint-scramble"
+                  disabled={isScrambleSolved || showScrambleHint}
+                  onClick={() => {
+                    playClickSound();
+                    setShowScrambleHint(true);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold border border-amber-200 transition-colors disabled:opacity-40 cursor-pointer"
+                >
+                  <Lightbulb className="w-3.5 h-3.5" />
+                  <span>Gợi ý</span>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  id="btn-skip-scramble-random"
+                  onClick={handleNextRandomQuestion}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-black shadow-xs transition-transform hover:scale-102 active:scale-98 cursor-pointer"
+                >
+                  <span>Đổi câu khác 🎲</span>
+                  <Shuffle className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* MODE 1: KOREAN RIDDLES (수수께끼) */}
@@ -348,351 +809,330 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
 
             <button
               id="btn-ai-riddle"
-              onClick={handleFetchAiRiddle}
               disabled={isLoadingAiRiddle}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50"
-              title="Nhờ AI Gemini tạo thêm câu đố vui mới"
+              onClick={handleFetchAiRiddle}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs shadow-xs transition-all cursor-pointer disabled:opacity-50"
             >
               {isLoadingAiRiddle ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Đang xin AI câu đố mới...</span>
+                </>
               ) : (
-                <Bot className="w-3.5 h-3.5" />
+                <>
+                  <Bot className="w-3.5 h-3.5" />
+                  <span>AI tạo câu đố độc lạ ✨</span>
+                </>
               )}
-              <span>{isLoadingAiRiddle ? 'Đang tạo câu đố...' : '✨ Tạo câu đố AI mới'}</span>
             </button>
           </div>
 
-          {/* Main Riddle Card */}
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6 relative">
-            {/* Top metadata */}
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-bold">
-                  Câu {currentRiddleIndex + 1} / {filteredRiddles.length}
-                </span>
-                <span className="text-slate-400">
-                  {activeRiddle.category === 'wordplay'
-                    ? 'Chơi chữ'
-                    : activeRiddle.category === 'daily'
-                    ? 'Đời sống'
-                    : activeRiddle.category === 'culture'
-                    ? 'Văn hóa'
-                    : 'Hài hước'}
-                </span>
+          {/* Riddle Card */}
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md space-y-6">
+            {/* Header info */}
+            <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+              <span className="px-2.5 py-1 rounded-lg bg-orange-50 text-orange-700 border border-orange-100">
+                Câu đố {currentRiddleIndex + 1} / {filteredRiddles.length}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span>Đã giải: {solvedRiddles.length} câu</span>
               </div>
+            </div>
 
-              {solvedRiddles.includes(activeRiddle.id) && (
-                <div className="flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Đã giải (+15 XP)</span>
+            {/* Question Text */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="px-3 py-1 rounded-xl bg-orange-500 text-white font-black text-sm shrink-0">
+                  Q
+                </span>
+                <div className="space-y-1">
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-800 leading-snug">
+                    {activeRiddle.questionKo}
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500 italic">
+                    "{activeRiddle.questionVi}"
+                  </p>
                 </div>
-              )}
-            </div>
-
-            {/* Riddle Question Section */}
-            <div className="text-center py-4 space-y-3">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 mb-1">
-                <HelpCircle className="w-7 h-7" />
               </div>
-              <h3 className="text-xl sm:text-2xl font-black text-slate-800 font-serif leading-relaxed px-4">
-                "{activeRiddle.questionKo}"
-              </h3>
-              <p className="text-sm sm:text-base text-slate-600 font-medium max-w-lg mx-auto">
-                {activeRiddle.questionVi}
-              </p>
 
-              {/* Audio Listen */}
-              <button
-                id="btn-speak-riddle"
-                onClick={() => speakKorean(activeRiddle.questionKo)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 hover:bg-sky-100 font-semibold text-xs transition-colors cursor-pointer"
-              >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Nghe câu đố tiếng Hàn</span>
-              </button>
-            </div>
-
-            {/* Clue / Hint Button & Box */}
-            <div className="text-center">
-              {!showRiddleHint ? (
+              {/* TTS Listen Button */}
+              <div className="pl-11">
                 <button
-                  id="btn-show-hint"
-                  onClick={() => {
-                    playClickSound();
-                    setShowRiddleHint(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-700 hover:bg-amber-100 text-xs font-bold transition-all cursor-pointer"
+                  id="btn-listen-riddle"
+                  onClick={() => speakKorean(activeRiddle.questionKo)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold transition-colors cursor-pointer"
                 >
-                  <Lightbulb className="w-3.5 h-3.5" />
-                  <span>Xem gợi ý manh mối</span>
+                  <Volume2 className="w-3.5 h-3.5 text-orange-500" />
+                  <span>Nghe đọc câu đố 🔊</span>
                 </button>
-              ) : (
-                <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 text-xs sm:text-sm text-amber-900 text-left max-w-md mx-auto space-y-1">
-                  <div className="font-bold flex items-center gap-1 text-amber-800">
-                    <Lightbulb className="w-4 h-4 text-amber-600" />
-                    <span>Manh mối gợi ý:</span>
-                  </div>
-                  <p className="pl-5 text-amber-800 font-medium">{activeRiddle.hint}</p>
-                </div>
-              )}
+              </div>
             </div>
 
-            {/* Answer Input & Submission Form */}
+            {/* Hint Box (Collapsible) */}
+            {showRiddleHint && (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs sm:text-sm font-medium flex items-start gap-2.5 animate-fadeIn">
+                <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-amber-800">Manh mối mách nước: </span>
+                  {activeRiddle.hint}
+                </div>
+              </div>
+            )}
+
+            {/* User Input & Answer Checking */}
             {!showRiddleAnswer ? (
-              <div className="max-w-md mx-auto space-y-3 pt-2">
+              <div className="space-y-3">
                 <div className="flex gap-2">
                   <input
-                    id="input-riddle-guess"
+                    id="input-riddle-answer"
                     type="text"
                     value={userRiddleInput}
                     onChange={(e) => setUserRiddleInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleCheckRiddleAnswer()}
-                    placeholder="Gõ đáp án (tiếng Hàn hoặc tiếng Việt)..."
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 outline-hidden text-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCheckRiddleAnswer();
+                    }}
+                    placeholder="Nhập câu trả lời bằng tiếng Hàn hoặc tiếng Việt..."
+                    className="flex-1 px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm font-medium"
                   />
                   <button
-                    id="btn-submit-guess"
+                    id="btn-check-riddle"
                     onClick={handleCheckRiddleAnswer}
-                    className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl transition-colors shadow-xs cursor-pointer"
+                    className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-sm transition-colors shadow-sm cursor-pointer"
                   >
-                    Kiểm tra
+                    Trả lời
                   </button>
                 </div>
 
+                {/* Feedback message */}
                 {riddleFeedback && (
                   <div
-                    className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                    className={`p-3 rounded-xl text-xs font-bold flex items-center gap-2 ${
                       riddleFeedback.isCorrect
                         ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                        : 'bg-rose-50 text-rose-800 border border-rose-200'
+                        : 'bg-rose-50 text-rose-700 border border-rose-200'
                     }`}
                   >
                     {riddleFeedback.isCorrect ? (
                       <Check className="w-4 h-4 text-emerald-600" />
                     ) : (
-                      <X className="w-4 h-4 text-rose-600" />
+                      <X className="w-4 h-4 text-rose-500" />
                     )}
                     <span>{riddleFeedback.message}</span>
                   </div>
                 )}
+              </div>
+            ) : (
+              /* Correct Answer & Pun Explanation Card */
+              <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 space-y-3 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-extrabold px-2 py-0.5 rounded-md bg-emerald-600 text-white">
+                      ĐÁP ÁN CHUẨN
+                    </span>
+                    <h4 className="text-xl font-black text-emerald-900">
+                      {activeRiddle.answerKo}{' '}
+                      <span className="text-xs text-emerald-700 font-semibold">
+                        ({activeRiddle.romanization})
+                      </span>
+                    </h4>
+                  </div>
+                  <button
+                    id="btn-listen-riddle-answer"
+                    onClick={() => speakKorean(activeRiddle.answerKo)}
+                    className="p-2 rounded-xl bg-white shadow-xs hover:bg-emerald-100 text-emerald-700 cursor-pointer"
+                  >
+                    <Volume2 className="w-4 h-4" />
+                  </button>
+                </div>
 
-                <div className="text-center pt-2">
+                <p className="text-sm font-bold text-emerald-800">
+                  {activeRiddle.answerVi}
+                </p>
+
+                <div className="text-xs font-medium text-emerald-900/90 bg-white/70 p-3 rounded-xl border border-emerald-100 leading-relaxed">
+                  <span className="font-bold text-emerald-800">💡 Giải mã thú vị: </span>
+                  {activeRiddle.punExplanation}
+                </div>
+              </div>
+            )}
+
+            {/* Riddle Action Toolbar */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-2">
+                <button
+                  id="btn-toggle-hint"
+                  onClick={() => {
+                    playClickSound();
+                    setShowRiddleHint((prev) => !prev);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-700 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Lightbulb className="w-3.5 h-3.5" />
+                  <span>{showRiddleHint ? 'Ẩn gợi ý' : 'Xem gợi ý'}</span>
+                </button>
+
+                {!showRiddleAnswer && (
                   <button
                     id="btn-reveal-answer"
                     onClick={() => {
                       playClickSound();
                       setShowRiddleAnswer(true);
                     }}
-                    className="text-xs text-slate-500 hover:text-slate-800 underline cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl text-slate-500 hover:text-slate-800 text-xs font-bold cursor-pointer"
                   >
-                    Chưa nghĩ ra? Bấm để lật mở đáp án & giải nghĩa
+                    Xem luôn đáp án
                   </button>
-                </div>
+                )}
               </div>
-            ) : (
-              /* Revealed Answer and Cultural/Pun Explanation */
-              <div className="bg-gradient-to-b from-orange-50/70 to-amber-50/40 rounded-2xl p-5 sm:p-6 border border-orange-200 space-y-4 max-w-lg mx-auto">
-                <div className="text-center space-y-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-orange-600 bg-orange-100 px-2.5 py-0.5 rounded-md">
-                    Đáp án câu đố
-                  </span>
-                  <div className="flex items-center justify-center gap-3">
-                    <h4 className="text-3xl font-black text-slate-900">{activeRiddle.answerKo}</h4>
-                    <button
-                      id="btn-speak-answer"
-                      onClick={() => speakKorean(activeRiddle.answerKo)}
-                      className="p-2 rounded-full bg-white hover:bg-orange-100 text-orange-600 shadow-xs transition-colors cursor-pointer"
-                      title="Nghe phát âm đáp án"
-                    >
-                      <Volume2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <p className="text-xs text-slate-500 font-medium">
-                    /{activeRiddle.romanization}/ • {activeRiddle.answerVi}
-                  </p>
-                </div>
 
-                <div className="bg-white/90 rounded-xl p-4 border border-orange-100 space-y-1.5 text-xs text-slate-700 leading-relaxed">
-                  <div className="font-bold text-orange-800 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-                    <span>Giải thích mẹo chơi chữ & văn hóa:</span>
-                  </div>
-                  <p>{activeRiddle.punExplanation}</p>
-                </div>
+              {/* Next / Previous Riddle */}
+              <div className="flex items-center gap-2">
+                <button
+                  id="btn-prev-riddle"
+                  onClick={() => {
+                    playClickSound();
+                    setCurrentRiddleIndex((prev) => Math.max(0, prev - 1));
+                  }}
+                  disabled={currentRiddleIndex === 0}
+                  className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 disabled:opacity-40 cursor-pointer"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </button>
+                <button
+                  id="btn-next-riddle"
+                  onClick={() => {
+                    playClickSound();
+                    setCurrentRiddleIndex((prev) => (prev + 1) % filteredRiddles.length);
+                  }}
+                  className="flex items-center gap-1 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-xs cursor-pointer"
+                >
+                  <span>Câu tiếp theo</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
-            )}
-
-            {/* Navigation Footer */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <button
-                id="btn-prev-riddle"
-                disabled={currentRiddleIndex === 0}
-                onClick={() => {
-                  playClickSound();
-                  setCurrentRiddleIndex((prev) => Math.max(0, prev - 1));
-                }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Câu trước</span>
-              </button>
-
-              <button
-                id="btn-next-riddle"
-                disabled={currentRiddleIndex >= filteredRiddles.length - 1}
-                onClick={() => {
-                  playClickSound();
-                  setCurrentRiddleIndex((prev) => Math.min(filteredRiddles.length - 1, prev + 1));
-                }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-40 cursor-pointer shadow-xs"
-              >
-                <span>Câu tiếp theo</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* MODE 2: EMOJI WORD PUZZLE (이모지 단어 맞히기) */}
+      {/* MODE 2: EMOJI PUZZLE (이모지 단어 퍼즐) */}
       {/* ========================================================================= */}
-      {activeMode === 'emoji' && activeEmojiPuzzle && (
+      {activeMode === 'emoji' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            {/* Header / Stats */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md space-y-6">
+            {/* Header info */}
+            <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100">
                 Câu {((emojiIndex) % EMOJI_PUZZLES.length) + 1} / {EMOJI_PUZZLES.length} • {activeEmojiPuzzle.category}
               </span>
-              <div className="flex items-center gap-1.5 text-amber-700 bg-amber-50 px-3 py-1 rounded-full font-bold border border-amber-200">
-                <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-                <span>Combo: {emojiStreak}</span>
+              <div className="flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-emerald-500" />
+                <span>Chuỗi đúng: {emojiStreak}</span>
               </div>
             </div>
 
-            {/* Emoji display */}
-            <div className="text-center py-3 space-y-3">
-              <div className="text-5xl sm:text-6xl tracking-widest select-none p-4 rounded-3xl bg-slate-50 inline-block border border-slate-100 shadow-inner">
+            {/* Giant Emoji Display */}
+            <div className="text-center space-y-3 py-4">
+              <div className="text-6xl sm:text-7xl select-none animate-bounce-slow">
                 {activeEmojiPuzzle.emojis}
               </div>
-              <p className="text-sm sm:text-base text-slate-700 font-semibold max-w-md mx-auto">
+              <p className="text-sm sm:text-base font-bold text-slate-700 max-w-md mx-auto">
                 {activeEmojiPuzzle.clueVi}
               </p>
             </div>
 
-            {/* Target Slots (where clicked letters go) */}
+            {/* Target Hangul Slots */}
             <div className="flex items-center justify-center gap-3">
               {Array.from({ length: targetWordLength }).map((_, idx) => {
-                const filledLetter = selectedLetters[idx];
+                const letter = selectedLetters[idx];
                 return (
                   <button
                     key={idx}
-                    id={`target-slot-${idx}`}
-                    onClick={() => handleRemoveEmojiLetter(idx)}
-                    className={`w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 flex items-center justify-center text-2xl sm:text-3xl font-black transition-all cursor-pointer select-none ${
-                      isEmojiSolved
-                        ? 'bg-emerald-500 text-white border-emerald-600 scale-105 shadow-md shadow-emerald-100'
-                        : isEmojiWrong
-                        ? 'bg-rose-100 text-rose-700 border-rose-400 animate-shake'
-                        : filledLetter
-                        ? 'bg-sky-50 text-sky-800 border-sky-400 shadow-sm'
-                        : 'bg-slate-100/70 border-dashed border-slate-300 text-slate-300'
+                    id={`emoji-slot-${idx}`}
+                    onClick={() => letter && handleRemoveEmojiLetter(idx)}
+                    className={`w-14 h-16 sm:w-16 sm:h-20 rounded-2xl border-2 flex items-center justify-center text-2xl sm:text-3xl font-black transition-all select-none cursor-pointer ${
+                      letter
+                        ? isEmojiSolved
+                          ? 'bg-emerald-500 text-white border-emerald-600 shadow-md shadow-emerald-100 scale-105'
+                          : isEmojiWrong
+                          ? 'bg-rose-50 text-rose-700 border-rose-400 animate-shake'
+                          : 'bg-white text-slate-800 border-emerald-400 shadow-xs'
+                        : 'bg-slate-50 border-dashed border-slate-300 text-slate-300'
                     }`}
                   >
-                    {filledLetter || '_'}
+                    {letter || ''}
                   </button>
                 );
               })}
             </div>
 
-            {/* Solved state card with audio & details */}
+            {/* Solved Card Feedback */}
             {isEmojiSolved && (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center space-y-2 animate-fadeIn max-w-md mx-auto">
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-2 max-w-md mx-auto animate-fadeIn">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="text-2xl font-black text-emerald-900">{activeEmojiPuzzle.wordKo}</span>
+                  <span className="text-xl font-black text-emerald-900">
+                    {activeEmojiPuzzle.wordKo}
+                  </span>
                   <button
                     id="btn-speak-emoji-word"
                     onClick={() => speakKorean(activeEmojiPuzzle.wordKo)}
-                    className="p-1.5 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer transition-colors"
-                    title="Phát âm tiếng Hàn"
+                    className="p-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer"
                   >
-                    <Volume2 className="w-4 h-4" />
+                    <Volume2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-                <p className="text-xs text-emerald-800 font-semibold">
+                <p className="text-xs text-emerald-800 font-medium">
                   /{activeEmojiPuzzle.romanization}/ • {activeEmojiPuzzle.meaningVi}
                 </p>
-                <div className="pt-1">
-                  <button
-                    id="btn-next-emoji"
-                    onClick={() => {
-                      playClickSound();
-                      setEmojiIndex((prev) => prev + 1);
-                    }}
-                    className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-xs transition-transform hover:scale-105 cursor-pointer"
-                  >
-                    Câu tiếp theo (+20 XP) ➔
-                  </button>
-                </div>
+                <p className="text-xs font-bold text-emerald-600">
+                  🎉 Chính xác! (+20 XP)
+                </p>
+                <button
+                  id="btn-next-emoji-card"
+                  onClick={() => {
+                    playClickSound();
+                    setEmojiIndex((prev) => prev + 1);
+                  }}
+                  className="mt-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md transition-transform hover:scale-105 cursor-pointer"
+                >
+                  Câu tiếp theo ➔
+                </button>
               </div>
             )}
 
-            {/* Candidate Letter Tiles */}
+            {/* Scrambled Syllable Tiles */}
             {!isEmojiSolved && (
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center justify-center gap-2 max-w-sm mx-auto">
-                  {activeEmojiPuzzle.scrambledLetters.map((letter, idx) => {
-                    const timesUsedInSelection = selectedLetters.filter((l) => l === letter).length;
-                    const timesAvailable = activeEmojiPuzzle.scrambledLetters.filter((l) => l === letter).length;
-                    const isAllUsed = timesUsedInSelection >= timesAvailable;
-
-                    return (
-                      <button
-                        key={`${letter}-${idx}`}
-                        id={`tile-${letter}-${idx}`}
-                        disabled={isAllUsed}
-                        onClick={() => handleSelectEmojiTile(letter)}
-                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl text-xl sm:text-2xl font-extrabold transition-all cursor-pointer border ${
-                          isAllUsed
-                            ? 'opacity-25 bg-slate-200 border-slate-300 text-slate-400 cursor-not-allowed'
-                            : 'bg-white hover:bg-orange-50 border-slate-300 text-slate-800 shadow-xs hover:border-orange-400 active:scale-95'
-                        }`}
-                      >
-                        {letter}
-                      </button>
-                    );
-                  })}
+              <div className="space-y-3 pt-2">
+                <div className="text-center text-xs text-slate-500 font-medium">
+                  Nhấn vào các chữ cái bên dưới theo đúng thứ tự:
                 </div>
-
-                {/* Backspace / Clear button */}
-                <div className="flex justify-center gap-2">
-                  <button
-                    id="btn-clear-emoji"
-                    onClick={handleClearEmojiLetters}
-                    disabled={selectedLetters.length === 0}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-slate-800 disabled:opacity-30 cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Làm lại</span>
-                  </button>
+                <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-sm mx-auto">
+                  {activeEmojiPuzzle.scrambledLetters.map((letter, idx) => (
+                    <button
+                      key={idx}
+                      id={`emoji-tile-${idx}`}
+                      onClick={() => handleSelectEmojiTile(letter)}
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 text-slate-800 font-black text-lg sm:text-xl shadow-xs transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      {letter}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* Footer Navigation */}
+            {/* Action Bar */}
             <div className="flex items-center justify-between pt-4 border-t border-slate-100">
               <button
-                id="btn-prev-emoji-nav"
-                onClick={() => {
-                  playClickSound();
-                  setEmojiIndex((prev) => Math.max(0, prev - 1));
-                }}
-                disabled={emojiIndex === 0}
-                className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 disabled:opacity-40 cursor-pointer"
+                id="btn-clear-emoji"
+                onClick={handleClearEmojiLetters}
+                disabled={selectedLetters.length === 0 || isEmojiSolved}
+                className="flex items-center gap-1 text-xs font-bold text-slate-500 hover:text-slate-800 disabled:opacity-40 cursor-pointer"
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Câu trước</span>
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Xóa chữ</span>
               </button>
 
               <button
@@ -703,7 +1143,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
                 }}
                 className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
               >
-                <span>Bỏ qua / Câu khác</span>
+                <span>Bỏ qua câu này</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -714,36 +1154,34 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
       {/* ========================================================================= */}
       {/* MODE 3: SECRET WORD GUESS (비밀 단어 맞히기) */}
       {/* ========================================================================= */}
-      {activeMode === 'secret' && activeSecretPuzzle && (
+      {activeMode === 'secret' && (
         <div className="space-y-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            {/* Header: Level & Lives */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-800 font-bold">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md space-y-6">
+            {/* Header info */}
+            <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+              <span className="px-2.5 py-1 rounded-lg bg-sky-50 text-sky-700 border border-sky-100">
                 Màn {((secretIndex) % WORD_GUESS_PUZZLES.length) + 1} / {WORD_GUESS_PUZZLES.length} • {activeSecretPuzzle.category}
               </span>
-
-              {/* Lives counter */}
-              <div className="flex items-center gap-1 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
-                <span className="font-bold text-rose-700 mr-1 text-[11px]">Lượt thử:</span>
-                {Array.from({ length: 5 }).map((_, i) => (
+              {/* Hearts / Lives indicator */}
+              <div className="flex items-center gap-1">
+                {Array.from({ length: 5 }).map((_, idx) => (
                   <Heart
-                    key={i}
+                    key={idx}
                     className={`w-4 h-4 ${
-                      i < lives
-                        ? 'text-rose-500 fill-rose-500'
-                        : 'text-slate-300 fill-slate-200'
+                      idx < lives
+                        ? 'text-rose-500 fill-rose-500 animate-pulse'
+                        : 'text-slate-200 fill-slate-200'
                     }`}
                   />
                 ))}
               </div>
             </div>
 
-            {/* Clue Prompt */}
-            <div className="text-center py-2 space-y-2">
-              <span className="text-[11px] font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
-                Manh mối từ vựng
-              </span>
+            {/* Secret Word Clue */}
+            <div className="text-center space-y-2 py-2">
+              <div className="inline-block px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-xs font-extrabold">
+                💡 Manh mối gợi ý
+              </div>
               <p className="text-base sm:text-lg font-bold text-slate-800 max-w-md mx-auto">
                 "{activeSecretPuzzle.clueVi}"
               </p>

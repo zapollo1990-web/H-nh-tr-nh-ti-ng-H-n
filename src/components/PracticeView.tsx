@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
-import { Volume2, Check, X, RotateCcw, Award, Flame, HelpCircle, ArrowRight, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
-import { QuizQuestion, MatchPair } from '../types';
+import { Volume2, Check, X, RotateCcw, Award, Flame, HelpCircle, ArrowRight, Sparkles, Zap, CheckCircle2, Shuffle } from 'lucide-react';
+import { QuizQuestion, MatchPair, ScramblePuzzle } from '../types';
 import { PRACTICE_QUIZZES, MATCH_PAIRS_SETS } from '../data/quizzes';
+import { getRandomizedScramblePuzzles, getAvailableCategories, MASTER_SCRAMBLE_PUZZLES } from '../data/scramblePuzzles';
 import { speakKorean, playClickSound, playSuccessSound, playIncorrectSound, playFanfareSound } from '../utils/audio';
 import { VoiceGenderToggle } from './VoiceGenderToggle';
 
@@ -10,6 +11,21 @@ interface PracticeViewProps {
   onAddXp: (amount: number) => void;
   onNavigateToPuzzles?: () => void;
   onRecordQuizResult?: (isCorrect: boolean) => void;
+}
+
+function convertScrambleToQuizQuestions(scrambles: ScramblePuzzle[]): QuizQuestion[] {
+  return scrambles.map((p) => ({
+    id: p.id,
+    type: 'arrange',
+    category: p.categoryLabelVi,
+    prompt: `Sắp xếp các từ sau thành câu: "${p.meaningVi}"`,
+    audioText: p.koreanText,
+    scrambleWords: p.scrambledTokens,
+    answer: p.correctTokens,
+    explanation: p.exampleSentence
+      ? `Mẫu câu: ${p.exampleSentence} (${p.exampleSentenceVi})`
+      : `Thứ tự ngữ pháp tiếng Hàn: ${p.koreanText}`,
+  }));
 }
 
 export const PracticeView: React.FC<PracticeViewProps> = ({
@@ -31,10 +47,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   const [quizFinished, setQuizFinished] = useState(false);
   const quizAutoTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ARRANGE MODE STATE
-  const [arrangeQuestions, setArrangeQuestions] = useState<QuizQuestion[]>(
-    PRACTICE_QUIZZES.filter((q) => q.type === 'arrange')
-  );
+  // ARRANGE MODE STATE (1000+ questions randomized across multiple categories)
+  const arrangeCategories = getAvailableCategories();
+  const [arrangeCategory, setArrangeCategory] = useState<string>('all');
+  const [arrangeQuestions, setArrangeQuestions] = useState<QuizQuestion[]>(() => {
+    const list = getRandomizedScramblePuzzles({ category: 'all', type: 'sentence' });
+    return convertScrambleToQuizQuestions(list);
+  });
   const [arrangeIndex, setArrangeIndex] = useState(0);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
   const [selectedWords, setSelectedWords] = useState<string[]>([]);
@@ -190,6 +209,28 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
       setArrangeIndex(0);
       playFanfareSound();
     }
+  };
+
+  const handleArrangeCategoryChange = (catId: string) => {
+    playClickSound();
+    setArrangeCategory(catId);
+    const list = getRandomizedScramblePuzzles({ category: catId, type: 'sentence' });
+    setArrangeQuestions(convertScrambleToQuizQuestions(list));
+    setArrangeIndex(0);
+  };
+
+  const handleReshuffleArrange = () => {
+    playClickSound();
+    const list = getRandomizedScramblePuzzles({ category: arrangeCategory, type: 'sentence' });
+    setArrangeQuestions(convertScrambleToQuizQuestions(list));
+    setArrangeIndex(0);
+  };
+
+  const handleNextRandomArrange = () => {
+    playClickSound();
+    if (arrangeQuestions.length <= 1) return;
+    const randomOffset = 1 + Math.floor(Math.random() * Math.min(10, arrangeQuestions.length - 1));
+    setArrangeIndex((prev) => (prev + randomOffset) % arrangeQuestions.length);
   };
 
   // --- MATCHING PAIRS HANDLERS ---
@@ -497,16 +538,60 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         </div>
       )}
 
-      {/* 2. ARRANGE MODE (Ghép từ thành câu) */}
+      {/* 2. ARRANGE MODE (Ghép từ thành câu - 1000+ câu đảo từ ngẫu nhiên) */}
       {activeMode === 'arrange' && currentArrangeQ && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-amber-100 shadow-md space-y-6">
-          <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
-              Ghép câu tiếng Hàn
-            </span>
-            <span className="text-xs font-bold text-slate-400">
-              Câu {arrangeIndex + 1} / {arrangeQuestions.length}
-            </span>
+          {/* Top Bar with Category, Randomizer and Counter */}
+          <div className="space-y-3 border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-black shadow-xs flex items-center gap-1">
+                  <Shuffle className="w-3.5 h-3.5" />
+                  <span>Kho 1000+ câu đảo từ • Thứ tự ngẫu nhiên</span>
+                </span>
+                <span className="text-xs font-bold text-slate-400">
+                  Câu #{arrangeIndex + 1} / {arrangeQuestions.length}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleReshuffleArrange}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-bold border border-orange-200 transition-colors cursor-pointer"
+                  title="Xáo trộn ngẫu nhiên toàn bộ thứ tự câu hỏi"
+                >
+                  <Shuffle className="w-3.5 h-3.5" />
+                  <span>Xáo trộn 🎲</span>
+                </button>
+                <button
+                  onClick={handleNextRandomArrange}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Đổi câu khác 🎲
+                </button>
+              </div>
+            </div>
+
+            {/* Topic Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-thin">
+              {arrangeCategories.map((cat) => {
+                const isActive = arrangeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => handleArrangeCategoryChange(cat.id)}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                      isActive
+                        ? 'bg-amber-500 text-white border-amber-600 shadow-2xs'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div>

@@ -5,6 +5,7 @@ import {
   KOREAN_CHEER_PHRASES,
 } from '../data/socialNetwork';
 import { StudyFriend, SocialPost } from '../types';
+import { speakKorean } from '../utils/audio';
 import {
   Users,
   MessageCircle,
@@ -59,15 +60,9 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
     localStorage.setItem(STORAGE_FRIENDS_KEY, JSON.stringify(friends));
   }, [friends]);
 
-  // Audio helper
+  // Audio helper - Male Korean Voice
   const playAudio = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.85;
-      window.speechSynthesis.speak(utterance);
-    }
+    speakKorean(text, 0.85);
   };
 
   // -------------------------------------------------------------

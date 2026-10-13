@@ -313,13 +313,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </button>
 
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border-2 border-white/40 shadow-inner text-2xl">
-            {mode === 'register'
-              ? '✨'
-              : mode === 'forgot_password'
-              ? '📧'
-              : mode === 'change_password'
-              ? '🔑'
-              : '🔐'}
+            {mode === 'register' ? '✨' : mode === 'forgot_password' ? '📧' : '🎓'}
           </div>
 
           <h3 className="text-xl sm:text-2xl font-black tracking-tight">

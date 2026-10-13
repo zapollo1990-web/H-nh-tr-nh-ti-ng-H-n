@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { IllustratedVocab } from '../types';
 import { INITIAL_ILLUSTRATED_VOCAB } from '../data/illustratedVocab';
+import { speakKorean } from '../utils/audio';
 import {
   Search,
   Volume2,
@@ -64,18 +65,13 @@ export const VocabHandbookView: React.FC<VocabHandbookViewProps> = ({
   const [activeAudioWord, setActiveAudioWord] = useState<string | null>(null);
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
 
-  // Audio pronunciation helper
+  // Audio pronunciation helper - Male Korean Voice
   const handlePronounce = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ko-KR';
-      utterance.rate = 0.85; // Slightly slower for clarity
-      setActiveAudioWord(text);
-      utterance.onend = () => setActiveAudioWord(null);
-      utterance.onerror = () => setActiveAudioWord(null);
-      window.speechSynthesis.speak(utterance);
-    }
+    setActiveAudioWord(text);
+    speakKorean(text, 0.85);
+    setTimeout(() => {
+      setActiveAudioWord(null);
+    }, 1200);
   };
 
   // Toggle Bookmark

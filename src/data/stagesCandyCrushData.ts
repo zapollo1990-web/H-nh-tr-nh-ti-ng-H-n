@@ -1,0 +1,1381 @@
+import { RoadmapQuizItem } from '../types';
+
+export interface StageSubStep {
+  id: string;
+  stepNumber: number; // 1 to 5
+  title: string;
+  shortTitle: string;
+  type: 'lesson' | 'checkpoint'; // 1-4 lesson, 5 checkpoint
+  summaryVi: string;
+  contentKo: string;
+  romanization?: string;
+  meaningVi: string;
+  detailExplanation: string;
+  practiceQuestions: RoadmapQuizItem[];
+}
+
+export interface StageTourMiniGame {
+  locationName: string;
+  locationIcon: string;
+  themePrompt: string;
+  targetWords: Array<{
+    wordKo: string;
+    meaningVi: string;
+    romanization: string;
+    syllables: string[];
+    hint: string;
+  }>;
+}
+
+export interface StageCandyCrushConfig {
+  stageNumber: number;
+  levelCategory: 'foundation_lv1' | 'basic_lv2' | 'advanced_lv3';
+  levelLabel: string; // 'Nền tảng - LV1' | 'Căn bản - LV2' | 'Nâng cao - LV3'
+  title: string;
+  koreanTitle: string;
+  icon: string;
+  themeColor: string;
+  candyColor: 'pink' | 'orange' | 'purple' | 'green' | 'blue' | 'yellow' | 'teal' | 'red';
+  subSteps: StageSubStep[];
+  tourMiniGame: StageTourMiniGame;
+}
+
+export const STAGES_CANDY_CRUSH_DATA: StageCandyCrushConfig[] = [
+  // ============================================================
+  // NỀN TẢNG - LV1 (CHẶNG 1 -> 8)
+  // ============================================================
+  {
+    stageNumber: 1,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Bảng chữ cái & Nguyên âm',
+    koreanTitle: '한글 모음',
+    icon: '🔤',
+    themeColor: 'sky',
+    candyColor: 'blue',
+    tourMiniGame: {
+      locationName: 'Làng Cổ Hanok Bukchon',
+      locationIcon: '🏯',
+      themePrompt: 'Dạo quanh làng cổ ngói lưu ly và tinh mắt tìm các chữ cái tạo nên từ vựng nguyên âm!',
+      targetWords: [
+        { wordKo: '아이', meaningVi: 'Em bé / Trẻ em', romanization: 'a-i', syllables: ['아', '이'], hint: 'Đứa trẻ đáng yêu' },
+        { wordKo: '오이', meaningVi: 'Dưa chuột', romanization: 'o-i', syllables: ['오', '이'], hint: 'Loại quả xanh thanh mát' },
+        { wordKo: '우유', meaningVi: 'Sữa tươi', romanization: 'u-yu', syllables: ['우', '유'], hint: 'Thức uống bổ dưỡng màu trắng' },
+        { wordKo: '여우', meaningVi: 'Con cáo', romanization: 'yeo-u', syllables: ['여', '우'], hint: 'Loài vật thông minh nhanh nhẹn' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's1-step-1',
+        stepNumber: 1,
+        title: 'Nguyên âm dọc cơ bản 1',
+        shortTitle: 'Nguyên âm dọc 1',
+        type: 'lesson',
+        summaryVi: 'Làm quen 5 nguyên âm đứng thẳng: ㅏ, ㅑ, ㅓ, ㅕ, ㅣ',
+        contentKo: 'ㅏ [a], ㅑ [ya], ㅓ [eo], ㅕ [yeo], ㅣ [i]',
+        romanization: 'a - ya - eo - yeo - i',
+        meaningVi: 'a - ya - ơ - yơ - i',
+        detailExplanation: 'Nguyên âm dọc có nét sổ dài thẳng đứng, luôn đứng ở bên PHẢI phụ âm đầu. Khi đứng một mình tạo âm tiết, phụ âm câm ㅇ được thêm vào phía trước: 아, 야, 어, 여, 이.',
+        practiceQuestions: [
+          { question: 'Chữ cái "ㅏ" đọc là gì trong tiếng Hàn?', options: ['Âm [a]', 'Âm [o]', 'Âm [u]', 'Âm [i]'], correctIndex: 0, explanation: 'ㅏ phát âm là [a].' },
+          { question: 'Chữ cái "ㅓ" đọc gần giống âm nào trong tiếng Việt?', options: ['Âm Ô', 'Âm Ơ (mở rộng miệng)', 'Âm U', 'Âm E'], correctIndex: 1, explanation: 'ㅓ phát âm là âm [eo], giống như âm ơ mở rộng miệng.' },
+        ],
+      },
+      {
+        id: 's1-step-2',
+        stepNumber: 2,
+        title: 'Nguyên âm ngang cơ bản 2',
+        shortTitle: 'Nguyên âm ngang 2',
+        type: 'lesson',
+        summaryVi: 'Làm quen 5 nguyên âm nằm ngang: ㅗ, ㅛ, ㅜ, ㅠ, ㅡ',
+        contentKo: 'ㅗ [o], ㅛ [yo], ㅜ [u], ㅠ [yu], ㅡ [eu]',
+        romanization: 'o - yo - u - yu - eu',
+        meaningVi: 'ô - yô - u - yu - ư',
+        detailExplanation: 'Nguyên âm ngang có nét gạch dài nằm ngang, luôn được viết ở PHÍA DƯỚI phụ âm đầu: 오, 요, 우, 유, 으.',
+        practiceQuestions: [
+          { question: 'Chữ cái "ㅗ" nằm ở vị trí nào so với phụ âm?', options: ['Bên phải', 'Bên trái', 'Phía dưới', 'Phía trên'], correctIndex: 2, explanation: 'Nguyên âm ngang luôn nằm phía dưới phụ âm.' },
+          { question: 'Từ "우유" có nghĩa là gì?', options: ['Dưa chuột', 'Sữa tươi', 'Em bé', 'Quả táo'], correctIndex: 1, explanation: '우유 [u-yu] nghĩa là sữa tươi.' },
+        ],
+      },
+      {
+        id: 's1-step-3',
+        stepNumber: 3,
+        title: 'Nguyên âm ghép mở rộng 1',
+        shortTitle: 'Nguyên âm ghép 1',
+        type: 'lesson',
+        summaryVi: 'Khám phá 4 nguyên âm mở rộng: ㅐ, ㅒ, ㅔ, ㅖ',
+        contentKo: 'ㅐ [ae], ㅒ [yae], ㅔ [e], ㅖ [ye]',
+        romanization: 'ae - yae - e - ye',
+        meaningVi: 'e - ye - ê - yê',
+        detailExplanation: 'ㅐ được tạo từ ㅏ + ㅣ (phát âm là e). ㅔ được tạo từ ㅓ + ㅣ (phát âm là ê). Trong đời sống hiện đại, người Hàn phát âm ㅐ và ㅔ tương đương nhau.',
+        practiceQuestions: [
+          { question: 'Chữ "ㅐ" trong từ 배 (quả lê/chiếc thuyền) được đọc là gì?', options: ['Âm [ae/e]', 'Âm [a]', 'Âm [o]', 'Âm [u]'], correctIndex: 0, explanation: 'ㅐ đọc là [ae/e].' },
+          { question: 'Từ "네" (vâng, dạ) chứa nguyên âm nào?', options: ['ㅐ', 'ㅔ', 'ㅖ', 'ㅒ'], correctIndex: 1, explanation: '네 chứa nguyên âm ㅔ.' },
+        ],
+      },
+      {
+        id: 's1-step-4',
+        stepNumber: 4,
+        title: 'Nguyên âm ghép mở rộng 2',
+        shortTitle: 'Nguyên âm ghép 2',
+        type: 'lesson',
+        summaryVi: 'Khám phá 7 nguyên âm đôi đặc biệt: ㅘ, ㅙ, ㅚ, ㅝ, ㅞ, ㅟ, ㅢ',
+        contentKo: 'ㅘ [wa], ㅙ [wae], ㅚ [oe], ㅝ [wo], ㅞ [we], ㅟ [wi], ㅢ [ui]',
+        romanization: 'wa - wae - oe - wo - we - wi - ui',
+        meaningVi: 'oa - oe - uê - uơ - uê - uy - ưi',
+        detailExplanation: 'Nguyên âm đôi kết hợp giữa nguyên âm ngang và nguyên âm dọc: ㅗ + ㅏ = ㅘ, ㅜ + ㅓ = ㅝ, ㅡ + ㅣ = ㅢ.',
+        practiceQuestions: [
+          { question: 'Từ "사과" (quả táo) chứa nguyên âm ghép nào?', options: ['ㅘ [wa]', 'ㅝ [wo]', 'ㅟ [wi]', 'ㅢ [ui]'], correctIndex: 0, explanation: '사과 chứa nguyên âm ㅘ [wa].' },
+          { question: 'Từ "의사" (bác sĩ) bắt đầu bằng nguyên âm nào?', options: ['ㅢ [ui]', 'ㅚ [oe]', 'ㅟ [wi]', 'ㅘ [wa]'], correctIndex: 0, explanation: '의사 bắt đầu bằng chữ 의 chứa nguyên âm ㅢ.' },
+        ],
+      },
+      {
+        id: 's1-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 1',
+        shortTitle: 'Kiểm tra cả chặng 1 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách tổng kết toàn bộ 21 nguyên âm đơn và ghép!',
+        contentKo: '한글 모음 종합 평가',
+        romanization: 'Hangeul moeum jonghap pyeong-ga',
+        meaningVi: 'Đánh giá tổng hợp nguyên âm tiếng Hàn',
+        detailExplanation: 'Chúc mừng bạn đã đến mốc cuối của Chặng 1! Hãy hoàn thành bài kiểm tra tổng kết này để mở khóa huy hiệu và tiến bước sang Chặng 2!',
+        practiceQuestions: [
+          { question: 'Từ "오이" có nghĩa là gì trong tiếng Việt?', audioKo: '오이', options: ['Quả táo', 'Dưa chuột', 'Em bé', 'Con cáo'], correctIndex: 1, explanation: '오이 [o-i] có nghĩa là quả dưa chuột.' },
+          { question: 'Từ "여우" có nghĩa là gì?', audioKo: '여우', options: ['Con mèo', 'Con cáo', 'Con thỏ', 'Con cá'], correctIndex: 1, explanation: '여우 [yeo-u] nghĩa là con cáo.' },
+          { question: 'Chữ nào sau đây là "Em bé"?', audioKo: '아이', options: ['아이', '오이', '우유', '여우'], correctIndex: 0, explanation: '아이 nghĩa là em bé / trẻ em.' },
+          { question: 'Chữ "우유" đọc là gì?', audioKo: '우유', options: ['u-yu', 'o-i', 'a-i', 'yeo-u'], correctIndex: 0, explanation: '우유 đọc là [u-yu].' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 2: PHỤ ÂM CƠ BẢN & QUY TẮC GHÉP VẦN
+  // ============================================================
+  {
+    stageNumber: 2,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Phụ âm cơ bản & Ghép vần',
+    koreanTitle: '한글 자음 & 음절',
+    icon: '🧩',
+    themeColor: 'emerald',
+    candyColor: 'green',
+    tourMiniGame: {
+      locationName: 'Tháp Namsan Seoul N-Tower',
+      locationIcon: '🗼',
+      themePrompt: 'Ngắm toàn cảnh thành phố Seoul từ đài quan sát và tinh mắt tìm chữ ghép từ vựng phụ âm!',
+      targetWords: [
+        { wordKo: '나무', meaningVi: 'Cây cối', romanization: 'na-mu', syllables: ['나', '무'], hint: 'Cây xanh bóng mát' },
+        { wordKo: '모자', meaningVi: 'Cái mũ / nón', romanization: 'mo-ja', syllables: ['모', '자'], hint: 'Vật đội che nắng trên đầu' },
+        { wordKo: '바지', meaningVi: 'Quần áo', romanization: 'ba-ji', syllables: ['바', '지'], hint: 'Trang phục mặc hàng ngày' },
+        { wordKo: '치마', meaningVi: 'Chân váy', romanization: 'chi-ma', syllables: ['치', '마'], hint: 'Trang phục nữ tính duyên dáng' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's2-step-1',
+        stepNumber: 1,
+        title: 'Nhóm phụ âm cơ bản 1: ㄱ, ㄴ, ㄷ, ㄹ, ㅁ',
+        shortTitle: 'Phụ âm cơ bản 1',
+        type: 'lesson',
+        summaryVi: 'Học 5 phụ âm đầu tiên: Giyeok, Nieun, Digeut, Rieul, Mieum',
+        contentKo: 'ㄱ [g/k], ㄴ [n], ㄷ [d/t], ㄹ [r/l], ㅁ [m]',
+        romanization: 'g/k - n - d/t - r/l - m',
+        meaningVi: 'k/g - n - t/đ - r/l - m',
+        detailExplanation: 'ㄱ phát âm là g khi ở giữa từ, k khi ở đầu từ. ㄴ phát âm là n. ㄷ phát âm là d/t. ㄹ phát âm là r/l. ㅁ phát âm là m.',
+        practiceQuestions: [
+          { question: 'Chữ cái "ㄴ" ghép với "ㅏ" tạo thành chữ gì?', options: ['나 [na]', '다 [da]', '마 [ma]', '가 [ga]'], correctIndex: 0, explanation: 'ㄴ + ㅏ = 나 [na].' },
+          { question: 'Từ "나무" (cây) bắt đầu bằng phụ âm nào?', options: ['ㄴ', 'ㄷ', 'ㅁ', 'ㄱ'], correctIndex: 0, explanation: '나무 bắt đầu bằng chữ 나 có phụ âm ㄴ.' },
+        ],
+      },
+      {
+        id: 's2-step-2',
+        stepNumber: 2,
+        title: 'Nhóm phụ âm cơ bản 2: ㅂ, ㅅ, ㅇ, ㅈ, ㅎ',
+        shortTitle: 'Phụ âm cơ bản 2',
+        type: 'lesson',
+        summaryVi: 'Học 5 phụ âm tiếp theo: Bieup, Siot, Ieung, Jieut, Hieut',
+        contentKo: 'ㅂ [b/p], ㅅ [s], ㅇ [ng/câm], ㅈ [j/ch], ㅎ [h]',
+        romanization: 'b/p - s - ng - j - h',
+        meaningVi: 'b/p - s - ng - ch - h',
+        detailExplanation: 'ㅂ phát âm là b/p. ㅅ phát âm là s. ㅇ là phụ âm câm khi đứng đầu, đọc là ng khi làm patchim. ㅈ đọc là ch/j. ㅎ đọc là h.',
+        practiceQuestions: [
+          { question: 'Từ "모자" (cái mũ) chứa phụ âm nào ở âm tiết thứ hai?', options: ['ㅈ', 'ㅅ', 'ㅎ', 'ㅂ'], correctIndex: 0, explanation: '자 chứa phụ âm ㅈ.' },
+          { question: 'Chữ "바지" đọc là gì?', audioKo: '바지', options: ['ba-ji', 'ma-ji', 'na-ji', 'da-ji'], correctIndex: 0, explanation: '바지 đọc là [ba-ji] (cái quần).' },
+        ],
+      },
+      {
+        id: 's2-step-3',
+        stepNumber: 3,
+        title: 'Phụ âm bật hơi: ㅊ, ㅋ, ㅌ, ㅍ',
+        shortTitle: 'Phụ âm bật hơi',
+        type: 'lesson',
+        summaryVi: 'Luyện phát âm bật luồng hơi mạnh mẽ qua miệng',
+        contentKo: 'ㅊ [ch\'], ㅋ [k\'], ㅌ [t\'], ㅍ [p\']',
+        romanization: 'ch\' - k\' - t\' - p\'',
+        meaningVi: 'ch(bật) - kh - th - ph',
+        detailExplanation: 'Khi phát âm các phụ âm này, hãy đặt lòng bàn tay trước miệng: luồng hơi bật ra phải thổi rõ vào lòng bàn tay!',
+        practiceQuestions: [
+          { question: 'Từ "커피" (cà phê) chứa phụ âm bật hơi nào?', options: ['ㅋ và ㅍ', 'ㅊ và ㅌ', 'ㄱ và ㅂ', 'ㄷ và ㅈ'], correctIndex: 0, explanation: '커 có ㅋ, 피 có ㅍ.' },
+          { question: 'Từ "치마" nghĩa là gì?', audioKo: '치마', options: ['Cái váy', 'Cái quần', 'Cái áo', 'Đôi giày'], correctIndex: 0, explanation: '치마 nghĩa là cái váy.' },
+        ],
+      },
+      {
+        id: 's2-step-4',
+        stepNumber: 4,
+        title: 'Phụ âm căng & Patchim (받침)',
+        shortTitle: 'Phụ âm căng & Patchim',
+        type: 'lesson',
+        summaryVi: 'Làm quen 5 phụ âm căng (ㄲ, ㄸ, ㅃ, ㅆ, ㅉ) và phụ âm dưới (Patchim)',
+        contentKo: 'ㄲ [kk], ㄸ [tt], ㅃ [pp], ㅆ [ss], ㅉ [jj] & 받침',
+        romanization: 'kk - tt - pp - ss - jj & Patchim',
+        meaningVi: 'Phụ âm căng gồng giọng & phụ âm cuối',
+        detailExplanation: 'Phụ âm căng phát âm bằng cách gồng nhẹ cơ cổ họng và nén hơi lại. Patchim (받침) là phụ âm nằm ở vị trí đáy của khối âm tiết: ví dụ 산 (san) có ㄴ làm patchim.',
+        practiceQuestions: [
+          { question: 'Chữ "한국" có phụ âm cuối (patchim) của âm tiết "한" là gì?', options: ['ㄴ', 'ㄱ', 'ㅁ', 'ㅇ'], correctIndex: 0, explanation: '한 có patchim là ㄴ.' },
+          { question: 'Từ "빵" (bánh mì) bắt đầu bằng phụ âm căng nào?', options: ['ㅃ', 'ㄲ', 'ㄸ', 'ㅆ'], correctIndex: 0, explanation: '빵 bắt đầu bằng ㅃ.' },
+        ],
+      },
+      {
+        id: 's2-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 2',
+        shortTitle: 'Kiểm tra cả chặng 2 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Đánh giá tổng hợp toàn bộ phụ âm và kỹ năng ghép âm tiết Hangeul',
+        contentKo: '한글 자음 종합 평가',
+        romanization: 'Hangeul ja-eum jonghap pyeong-ga',
+        meaningVi: 'Đánh giá tổng hợp phụ âm tiếng Hàn',
+        detailExplanation: 'Chúc mừng bạn đã hoàn thành hệ thống phụ âm! Hãy vượt qua bài kiểm tra này để nhận 3 sao vàng rực rỡ!',
+        practiceQuestions: [
+          { question: 'Từ nào sau đây có nghĩa là "Cây cối"?', audioKo: '나무', options: ['나무', '모자', '바지', '치마'], correctIndex: 0, explanation: '나무 [na-mu] có nghĩa là cây cối.' },
+          { question: 'Từ nào có nghĩa là "Cái mũ"?', audioKo: '모자', options: ['모자', '바지', '치마', '나무'], correctIndex: 0, explanation: '모자 [mo-ja] có nghĩa là cái mũ.' },
+          { question: 'Từ "치마" đọc là gì?', audioKo: '치마', options: ['chi-ma', 'ba-ji', 'na-mu', 'mo-ja'], correctIndex: 0, explanation: '치마 đọc là [chi-ma] (chân váy).' },
+          { question: 'Từ "바지" có nghĩa là gì?', audioKo: '바지', options: ['Cái quần', 'Cái áo', 'Đôi tất', 'Cái mũ'], correctIndex: 0, explanation: '바지 nghĩa là cái quần.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 3: LỜI CHÀO HỎI & GIỚI THIỆU BẢN THÂN
+  // ============================================================
+  {
+    stageNumber: 3,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Lời chào hỏi & Giới thiệu',
+    koreanTitle: '인사 & 자기소개',
+    icon: '🤝',
+    themeColor: 'purple',
+    candyColor: 'purple',
+    tourMiniGame: {
+      locationName: 'Quảng Trường Gwanghwamun',
+      locationIcon: '🏛️',
+      themePrompt: 'Chiêm ngưỡng tượng Vua Sejong vĩ đại và tinh mắt tìm chữ để chào hỏi & làm quen!',
+      targetWords: [
+        { wordKo: '한국', meaningVi: 'Hàn Quốc', romanization: 'han-guk', syllables: ['한', '국'], hint: 'Đất nước xứ sở kim chi' },
+        { wordKo: '친구', meaningVi: 'Bạn bè', romanization: 'chin-gu', syllables: ['친', '구'], hint: 'Người đồng hành thân thiết' },
+        { wordKo: '학생', meaningVi: 'Học sinh', romanization: 'hak-saeng', syllables: ['학', '생'], hint: 'Người đang đi học' },
+        { wordKo: '감사', meaningVi: 'Cảm ơn / Biết ơn', romanization: 'gam-sa', syllables: ['감', '사'], hint: 'Lời nói lịch sự khi nhận ơn' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's3-step-1',
+        stepNumber: 1,
+        title: 'Câu chào thông dụng hàng ngày',
+        shortTitle: 'Câu chào cơ bản',
+        type: 'lesson',
+        summaryVi: 'Học cách chào lịch sự: 안녕하세요 & 안녕',
+        contentKo: '안녕하세요! / 안녕!',
+        romanization: 'An-nyeong-ha-se-yo / An-nyeong',
+        meaningVi: 'Xin chào! (Lịch sự) / Chào bạn! (Thân mật)',
+        detailExplanation: '안녕하세요 là lời chào chuẩn mực, dùng được mọi lúc sáng, trưa, tối. Khi gặp bạn thân hoặc người nhỏ tuổi hơn, có thể dùng 안녕.',
+        practiceQuestions: [
+          { question: 'Câu chào tiếng Hàn lịch sự phổ biến nhất là gì?', options: ['안녕하세요', '감사합니다', '죄송합니다', '잘 가요'], correctIndex: 0, explanation: '안녕하세요 là câu chào lịch sự phổ biến nhất.' },
+        ],
+      },
+      {
+        id: 's3-step-2',
+        stepNumber: 2,
+        title: 'Giới thiệu tên & Quốc tịch',
+        shortTitle: 'Tên & Quốc tịch',
+        type: 'lesson',
+        summaryVi: 'Mẫu câu: 저는 [Tên / Quốc tịch] + 이에요 / 예요',
+        contentKo: '저는 베트남 사람이에요. / 저는 민호예요.',
+        romanization: 'Jeoneun beteunam saram-ieyo.',
+        meaningVi: 'Tôi là người Việt Nam. / Tôi là Minho.',
+        detailExplanation: 'Nếu danh từ có patchim dùng 이에요 (ví dụ 사람이에요), không có patchim dùng 예요 (ví dụ 민호예요).',
+        practiceQuestions: [
+          { question: 'Để nói "Tôi là người Việt Nam", câu nào sau đây đúng?', options: ['저는 베트남 사람이에요', '저는 한국 사람이에요', '저는 학생이에요', '저는 친구예요'], correctIndex: 0, explanation: '베트남 사람 nghĩa là người Việt Nam.' },
+        ],
+      },
+      {
+        id: 's3-step-3',
+        stepNumber: 3,
+        title: 'Nghề nghiệp & Tuổi tác',
+        shortTitle: 'Nghề nghiệp',
+        type: 'lesson',
+        summaryVi: 'Học từ vựng nghề nghiệp: 학생, 회사원, 선생님, 의사',
+        contentKo: '저는 학생이에요. / 저는 회사원이에요.',
+        romanization: 'Jeoneun haksaeng-ieyo.',
+        meaningVi: 'Tôi là học sinh / Tôi là nhân viên văn phòng.',
+        detailExplanation: '학생 (học sinh), 회사원 (nhân viên công ty), 선생님 (giáo viên), 의사 (bác sĩ).',
+        practiceQuestions: [
+          { question: 'Từ "선생님" có nghĩa là gì?', options: ['Thầy/Cô giáo', 'Bác sĩ', 'Học sinh', 'Kỹ sư'], correctIndex: 0, explanation: '선생님 nghĩa là thầy giáo/cô giáo.' },
+        ],
+      },
+      {
+        id: 's3-step-4',
+        stepNumber: 4,
+        title: 'Chào tạm biệt & Lời cảm ơn',
+        shortTitle: 'Tạm biệt & Cảm ơn',
+        type: 'lesson',
+        summaryVi: 'Phân biệt: 안녕히 가세요 (người đi) & 안녕히 계세요 (người ở lại)',
+        contentKo: '안녕히 가세요! / 안녕히 계세요! / 감사합니다!',
+        romanization: 'An-nyeong-hi ga-se-yo / An-nyeong-hi gye-se-yo',
+        meaningVi: 'Đi về bình an nhé / Ở lại bình an nhé / Xin cảm ơn!',
+        detailExplanation: 'Nếu bạn ở lại chào người ra về: dùng 가세요 (từ đi). Nếu bạn ra về chào người ở lại: dùng 계세요 (từ ở lại).',
+        practiceQuestions: [
+          { question: 'Khi bạn chào người chuẩn bị ra về, bạn nói câu nào?', options: ['안녕히 가세요', '안녕히 계세요', '감사합니다', '안녕하세요'], correctIndex: 0, explanation: 'Chào người đi về: 안녕히 가세요.' },
+        ],
+      },
+      {
+        id: 's3-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 3',
+        shortTitle: 'Kiểm tra cả chặng 3 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách phản xạ giao tiếp chào hỏi và tự giới thiệu bản thân!',
+        contentKo: '자기소개 종합 퀴즈',
+        romanization: 'Jagi-sogae jonghap kwijeu',
+        meaningVi: 'Đánh giá tổng hợp giới thiệu bản thân',
+        detailExplanation: 'Hoàn thành bài kiểm tra để tự tin giới thiệu bản thân bằng tiếng Hàn trôi chảy!',
+        practiceQuestions: [
+          { question: '"안녕하세요" có nghĩa là gì?', audioKo: '안녕하세요', options: ['Xin chào', 'Tạm biệt', 'Cảm ơn', 'Xin lỗi'], correctIndex: 0, explanation: '안녕하세요 nghĩa là xin chào.' },
+          { question: '"감사합니다" có nghĩa là gì?', audioKo: '감사합니다', options: ['Xin cảm ơn', 'Xin chào', 'Tạm biệt', 'Không sao'], correctIndex: 0, explanation: '감사합니다 nghĩa là xin cảm ơn.' },
+          { question: 'Từ "친구" có nghĩa là gì?', audioKo: '친구', options: ['Bạn bè', 'Thầy giáo', 'Bác sĩ', 'Em bé'], correctIndex: 0, explanation: '친구 nghĩa là bạn bè.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 4: SỐ ĐẾM HÀN QUỐC (THUẦN HÀN & HÁN HÀN)
+  // ============================================================
+  {
+    stageNumber: 4,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Số đếm: Hán Hàn & Thuần Hàn',
+    koreanTitle: '한국어 숫자',
+    icon: '🔢',
+    themeColor: 'amber',
+    candyColor: 'yellow',
+    tourMiniGame: {
+      locationName: 'Chợ Truyền Thống Namdaemun',
+      locationIcon: '🏬',
+      themePrompt: 'Ghé thăm khu chợ lâu đời nhất Seoul và tinh mắt tìm các con số đếm giá tiền!',
+      targetWords: [
+        { wordKo: '천원', meaningVi: '1,000 Won', romanization: 'cheon-won', syllables: ['천', '원'], hint: 'Mệnh giá tiền tệ Hàn Quốc' },
+        { wordKo: '사과', meaningVi: 'Quả táo', romanization: 'sa-gwa', syllables: ['사', '과'], hint: 'Loại trái cây đỏ ngọt' },
+        { wordKo: '커피', meaningVi: 'Cà phê', romanization: 'keo-pi', syllables: ['커', '피'], hint: 'Thức uống thơm nồng mỗi sáng' },
+        { wordKo: '시계', meaningVi: 'Đồng hồ', romanization: 'si-gye', syllables: ['시', '계'], hint: 'Vật dụng xem giờ giấc' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's4-step-1',
+        stepNumber: 1,
+        title: 'Số Hán Hàn cơ bản (1 - 10)',
+        shortTitle: 'Số Hán Hàn 1',
+        type: 'lesson',
+        summaryVi: 'Học bảng số: 일, 이, 삼, 사, 오, 육, 칠, 팔, 구, 십',
+        contentKo: '일 (1), 이 (2), 삼 (3), 사 (4), 오 (5), 육 (6), 칠 (7), 팔 (8), 구 (9), 십 (10)',
+        romanization: 'il - i - sam - sa - o - yuk - chil - pal - gu - sip',
+        meaningVi: '1 đến 10 hệ Hán Hàn',
+        detailExplanation: 'Số Hán Hàn có gốc phát âm rất gần tiếng Hán Việt (nhất, nhị, tam, tứ, ngũ, lục, thất, bát, cửu, thập).',
+        practiceQuestions: [
+          { question: 'Số 3 trong hệ Hán Hàn đọc là gì?', options: ['삼', '일', '이', '사'], correctIndex: 0, explanation: '3 đọc là 삼.' },
+        ],
+      },
+      {
+        id: 's4-step-2',
+        stepNumber: 2,
+        title: 'Ứng dụng số Hán Hàn: Tiền, Ngày tháng & Phút',
+        shortTitle: 'Ứng dụng số Hán Hàn',
+        type: 'lesson',
+        summaryVi: 'Học cách đọc giá tiền (Won), ngày tháng (월, 일), và số phút (분)',
+        contentKo: '만 원 (10,000 Won), 5월 5일 (ngày 5 tháng 5), 30분 (30 phút)',
+        romanization: 'man won, o-wol o-il, sam-sip-bun',
+        meaningVi: 'Ứng dụng đọc giá tiền và thời gian',
+        detailExplanation: 'Hệ Hán Hàn dùng để đếm tiền tệ (원), số điện thoại, số tầng lầu, số phòng, ngày tháng năm, và số phút.',
+        practiceQuestions: [
+          { question: 'Đơn vị tiền tệ của Hàn Quốc là gì?', options: ['원 (Won)', '동 (Đồng)', '달러 (Đô la)', '엔 (Yên)'], correctIndex: 0, explanation: 'Tiền Hàn Quốc là 원 (Won).' },
+        ],
+      },
+      {
+        id: 's4-step-3',
+        stepNumber: 3,
+        title: 'Số Thuần Hàn cơ bản (1 - 10)',
+        shortTitle: 'Số Thuần Hàn 1',
+        type: 'lesson',
+        summaryVi: 'Học bảng số: 하나, 둘, 셋, 넷, 다섯, 여섯, 일곱, 여덟, 아홉, 열',
+        contentKo: '하나 (1), 둘 (2), 셋 (3), 넷 (4), 다섯 (5), 여섯 (6), 일곱 (7), 여덟 (8), 아홉 (9), 열 (10)',
+        romanization: 'hana - dul - set - net - daseot - yeoseot - ilgop - yeodeol - ahop - yeol',
+        meaningVi: '1 đến 10 hệ Thuần Hàn',
+        detailExplanation: 'Khi kết hợp với danh từ đếm số lượng, 하나 -> 한, 둘 -> 두, 셋 -> 세, 넷 -> 네.',
+        practiceQuestions: [
+          { question: 'Để nói "1 cái", ta dùng từ nào?', options: ['한 개', '하나 개', '일 개', '둘 개'], correctIndex: 0, explanation: '하나 chuyển thành 한: 한 개.' },
+        ],
+      },
+      {
+        id: 's4-step-4',
+        stepNumber: 4,
+        title: 'Ứng dụng số Thuần Hàn: Giờ giấc & Số lượng',
+        shortTitle: 'Ứng dụng số Thuần Hàn',
+        type: 'lesson',
+        summaryVi: 'Quy tắc vàng xem giờ: Giờ Thuần Hàn + Phút Hán Hàn',
+        contentKo: '두 시 삼십 분 (2 giờ 30 phút), 커피 세 잔 (3 cốc cà phê)',
+        romanization: 'du si sam-sip bun',
+        meaningVi: '2 giờ 30 phút, 3 tách cà phê',
+        detailExplanation: 'Quy tắc bất hủ: GIỜ dùng Thuần Hàn (시), PHÚT dùng Hán Hàn (분).',
+        practiceQuestions: [
+          { question: '3 giờ trong tiếng Hàn nói thế nào?', options: ['세 시', '삼 시', '하나 시', '두 시'], correctIndex: 0, explanation: 'Giờ dùng thuần Hàn: 세 시.' },
+        ],
+      },
+      {
+        id: 's4-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 4',
+        shortTitle: 'Kiểm tra cả chặng 4 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách kết hợp cả 2 hệ số đếm Hán Hàn & Thuần Hàn!',
+        contentKo: '숫자 종합 퀴즈',
+        romanization: 'Sutja jonghap kwijeu',
+        meaningVi: 'Đánh giá tổng hợp số đếm',
+        detailExplanation: 'Vượt qua bài test số đếm để chinh phục kỹ năng tính tiền và hỏi giờ giấc chuẩn bản xứ!',
+        practiceQuestions: [
+          { question: '"천원" nghĩa là bao nhiêu tiền?', audioKo: '천원', options: ['1,000 Won', '10,000 Won', '100 Won', '5,000 Won'], correctIndex: 0, explanation: '천원 là 1,000 Won.' },
+          { question: 'Để nói "2 cốc cà phê", câu nào đúng?', audioKo: '커피 두 잔', options: ['커피 두 잔', '커피 이 잔', '커피 둘 잔', '커피 한 잔'], correctIndex: 0, explanation: '커피 두 잔 nghĩa là 2 cốc cà phê.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 5: ẨM THỰC & GỌI MÓN
+  // ============================================================
+  {
+    stageNumber: 5,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Ẩm thực & Gọi món ăn',
+    koreanTitle: '음식 & 주문',
+    icon: '🍲',
+    themeColor: 'rose',
+    candyColor: 'orange',
+    tourMiniGame: {
+      locationName: 'Phố Ẩm Thực Hongdae',
+      locationIcon: '🥩',
+      themePrompt: 'Khám phá thiên đường ẩm thực nướng K-BBQ Hongdae và tinh mắt tìm món ngon!',
+      targetWords: [
+        { wordKo: '김밥', meaningVi: 'Cơm cuộn Kimbap', romanization: 'gim-bap', syllables: ['김', '밥'], hint: 'Món cơm cuộn lá rong biển' },
+        { wordKo: '라면', meaningVi: 'Mì gói Ramyeon', romanization: 'ra-myeon', syllables: ['라', '면'], hint: 'Món mì cay quốc dân' },
+        { wordKo: '물', meaningVi: 'Nước lọc', romanization: 'mul', syllables: ['물'], hint: 'Nước uống miễn phí tại quán' },
+        { wordKo: '불고기', meaningVi: 'Thịt bò xào Bulgogi', romanization: 'bul-go-gi', syllables: ['불', '고', '기'], hint: 'Món thịt bò nướng tẩm ướp' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's5-step-1',
+        stepNumber: 1,
+        title: 'Thực đơn món ăn Hàn Quốc phổ biến',
+        shortTitle: 'Món ăn phổ biến',
+        type: 'lesson',
+        summaryVi: 'Học tên các món ăn: 김치찌개, 비빔밥, 불고기, 삼겹살',
+        contentKo: '김치찌개 (Canh kim chi), 비빔밥 (Cơm trộn), 삼겹살 (Thịt ba chỉ)',
+        romanization: 'Gimchijjigae, Bibimbap, Samgyeopsal',
+        meaningVi: 'Các món ăn tiêu biểu Hàn Quốc',
+        detailExplanation: 'Nắm vững tên các món kinh điển để tự tin nhìn thực đơn tại bất kỳ quán ăn nào.',
+        practiceQuestions: [
+          { question: '"비빔밥" là món ăn gì?', options: ['Cơm trộn', 'Canh kim chi', 'Mì lạnh', 'Thịt nướng'], correctIndex: 0, explanation: '비빔밥 là cơm trộn.' },
+        ],
+      },
+      {
+        id: 's5-step-2',
+        stepNumber: 2,
+        title: 'Mẫu câu gọi món huyền thoại (~ 주세요)',
+        shortTitle: 'Mẫu câu gọi món',
+        type: 'lesson',
+        summaryVi: 'Công thức: [Tên món / số lượng] + 주세요 (Cho tôi...)',
+        contentKo: '사장님, 김치찌개 하나 주세요! (Cho tôi 1 canh kim chi!)',
+        romanization: 'Sajangnim, gimchijjigae hana juseyo!',
+        meaningVi: 'Bác chủ quán ơi, cho cháu 1 canh kim chi!',
+        detailExplanation: '주세요 bắt nguồn từ động từ 주다 (cho). Đây là cách nói lịch sự và tự nhiên nhất.',
+        practiceQuestions: [
+          { question: 'Để gọi "Cho tôi nước lọc", bạn nói thế nào?', options: ['물 주세요', '밥 주세요', '김치 주세요', '고기 주세요'], correctIndex: 0, explanation: '물 주세요 nghĩa là cho tôi nước lọc.' },
+        ],
+      },
+      {
+        id: 's5-step-3',
+        stepNumber: 3,
+        title: 'Vị món ăn: Ngon, Cay, Ngọt, Mặn',
+        shortTitle: 'Hương vị món ăn',
+        type: 'lesson',
+        summaryVi: 'Học từ tính từ: 맛있다, 맵다, 달다, 짜다',
+        contentKo: '맛있어요 (Ngon), 매워요 (Cay), 달아요 (Ngọt), 짜요 (Mặn)',
+        romanization: 'Masisseoyo, Maewoyo, Darayo, Jjayo',
+        meaningVi: 'Diễn tả cảm nhận hương vị',
+        detailExplanation: 'Muốn dặn quán không làm cay: 안 맵게 해 주세요 (Làm không cay giúp tôi nhé).',
+        practiceQuestions: [
+          { question: '"맛있어요" nghĩa là gì?', options: ['Ngon lắm', 'Cay quá', 'Mặn quá', 'Đắt quá'], correctIndex: 0, explanation: '맛있어요 nghĩa là ngon lắm.' },
+        ],
+      },
+      {
+        id: 's5-step-4',
+        stepNumber: 4,
+        title: 'Món ăn kèm & Thanh toán tiền',
+        shortTitle: 'Món kèm & Tính tiền',
+        type: 'lesson',
+        summaryVi: 'Banchan miễn phí (반찬 더 주세요) & Tính tiền (계산해 주세요)',
+        contentKo: '반찬 더 주세요! / 계산해 주세요!',
+        romanization: 'Banchan deo juseyo! / Gyesanhae juseyo!',
+        meaningVi: 'Cho cháu xin thêm món phụ! / Tính tiền giúp cháu!',
+        detailExplanation: 'Tại Hàn Quốc, các món phụ (반찬) và nước lọc (물) luôn được miễn phí và xin thêm thoải mái!',
+        practiceQuestions: [
+          { question: 'Khi muốn thanh toán bữa ăn, bạn nói câu nào?', options: ['계산해 주세요', '물 주세요', '반찬 주세요', '김치 주세요'], correctIndex: 0, explanation: '계산해 주세요 nghĩa là tính tiền giúp tôi.' },
+        ],
+      },
+      {
+        id: 's5-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 5',
+        shortTitle: 'Kiểm tra cả chặng 5 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách phản xạ gọi món và đàm thoại trọn vẹn tại nhà hàng!',
+        contentKo: '식당 주문 종합 퀴즈',
+        romanization: 'Sikdang jumun jonghap kwijeu',
+        meaningVi: 'Đánh giá tổng hợp gọi món nhà hàng',
+        detailExplanation: 'Chúc mừng bạn! Vượt qua bài kiểm tra để tự tin đi ăn món Hàn tại Seoul!',
+        practiceQuestions: [
+          { question: 'Câu "물 주세요" nghĩa là gì?', audioKo: '물 주세요', options: ['Cho tôi nước lọc', 'Cho tôi cơm', 'Cho tôi trà', 'Tính tiền'], correctIndex: 0, explanation: '물 주세요 nghĩa là cho tôi nước lọc.' },
+          { question: 'Từ "김밥" nghĩa là gì?', audioKo: '김밥', options: ['Cơm cuộn Kimbap', 'Mì xào', 'Thịt nướng', 'Canh sườn'], correctIndex: 0, explanation: '김밥 là cơm cuộn rong biển.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 6: ĐI CHỢ & MUA SẮM
+  // ============================================================
+  {
+    stageNumber: 6,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Đi chợ & Mua sắm',
+    koreanTitle: '쇼핑 & 시장',
+    icon: '🛍️',
+    themeColor: 'teal',
+    candyColor: 'teal',
+    tourMiniGame: {
+      locationName: 'Khu Mua Sắm Myeongdong',
+      locationIcon: '🛒',
+      themePrompt: 'Hòa mình vào thiên đường mỹ phẩm và thời trang Myeongdong, tinh mắt săn hàng hiệu!',
+      targetWords: [
+        { wordKo: '가방', meaningVi: 'Cái túi xách', romanization: 'ga-bang', syllables: ['가', '방'], hint: 'Đựng đồ đạc mang theo' },
+        { wordKo: '신발', meaningVi: 'Đôi giày', romanization: 'sin-bal', syllables: ['신', '발'], hint: 'Mang ở chân đi lại' },
+        { wordKo: '옷', meaningVi: 'Quần áo', romanization: 'ot', syllables: ['옷'], hint: 'Trang phục may mặc' },
+        { wordKo: '카드', meaningVi: 'Thẻ ngân hàng', romanization: 'ka-deu', syllables: ['카', '드'], hint: 'Thanh toán quẹt thẻ' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's6-step-1',
+        stepNumber: 1,
+        title: 'Mẫu câu hỏi giá (이거 얼마예요?)',
+        shortTitle: 'Hỏi giá tiền',
+        type: 'lesson',
+        summaryVi: 'Hỏi giá mọi món đồ: 이거 얼마예요? (Cái này bao nhiêu tiền?)',
+        contentKo: '이거 얼마예요? / 저거 얼마예요?',
+        romanization: 'Igeo eolmayeyo? / Jeogeo eolmayeyo?',
+        meaningVi: 'Cái này bao nhiêu tiền? / Cái kia bao nhiêu tiền?',
+        detailExplanation: '이거 (cái này - gần người nói), 그거 (cái đó - gần người nghe), 저거 (cái kia - xa cả hai).',
+        practiceQuestions: [
+          { question: 'Để hỏi giá "Cái này bao nhiêu tiền?", câu nào đúng?', options: ['이거 얼마예요?', '이거 뭐예요?', '어디예요?', '누구예요?'], correctIndex: 0, explanation: '이거 얼마예요? nghĩa là cái này bao nhiêu tiền.' },
+        ],
+      },
+      {
+        id: 's6-step-2',
+        stepNumber: 2,
+        title: 'Bí kíp xin giảm giá ở chợ truyền thống',
+        shortTitle: 'Xin giảm giá',
+        type: 'lesson',
+        summaryVi: 'Mẫu câu mặc cả dễ thương: 비싸요, 조금만 깎아 주세요!',
+        contentKo: '너무 비싸요! 조금만 깎아 주세요~',
+        romanization: 'Neomu bissayo! Jogeumman kkakka juseyo~',
+        meaningVi: 'Đắt quá ạ! Bác bớt cho cháu một chút nhé~',
+        detailExplanation: '깍다 (gọt, cắt bớt) -> 깎아 주세요. Dùng kèm nụ cười thân thiện sẽ rất dễ được giảm giá!',
+        practiceQuestions: [
+          { question: '"비싸요" có nghĩa là gì?', options: ['Đắt quá', 'Rẻ quá', 'Đẹp quá', 'Xấu quá'], correctIndex: 0, explanation: '비싸요 nghĩa là đắt.' },
+        ],
+      },
+      {
+        id: 's6-step-3',
+        stepNumber: 3,
+        title: 'Thử quần áo & Kích cỡ (입어 봐도 돼요?)',
+        shortTitle: 'Thử đồ & Size',
+        type: 'lesson',
+        summaryVi: 'Xin phép thử đồ và chọn size vừa vặn',
+        contentKo: '입어 봐도 돼요? (Tôi mặc thử được không?) / 큰 사이즈 있어요?',
+        romanization: 'Ibeo bwado dwaeyo? / Keun sa-i-jeu isseoyo?',
+        meaningVi: 'Tôi thử được không? / Có size lớn hơn không?',
+        detailExplanation: 'Động từ + -아/어 봐도 돼요 nghĩa là "Được phép làm việc gì đó không?".',
+        practiceQuestions: [
+          { question: 'Khi muốn xin thử quần áo, bạn nói câu nào?', options: ['입어 봐도 돼요?', '얼마예요?', '계산해 주세요', '물 주세요'], correctIndex: 0, explanation: '입어 봐도 돼요? nghĩa là tôi mặc thử được không.' },
+        ],
+      },
+      {
+        id: 's6-step-4',
+        stepNumber: 4,
+        title: 'Thanh toán tiền mặt hay Thẻ ngân hàng',
+        shortTitle: 'Phương thức thanh toán',
+        type: 'lesson',
+        summaryVi: 'Phân biệt 현금 (tiền mặt) & 카드 (thẻ), lấy hóa đơn 영수증',
+        contentKo: '카드로 할게요. / 현금으로 낼게요. / 영수증 주세요.',
+        romanization: 'Kadeu-ro halgeyo. / Yeongsujeung juseyo.',
+        meaningVi: 'Tôi thanh toán bằng thẻ. / Cho tôi xin hóa đơn.',
+        detailExplanation: 'Tại Hàn Quốc, hơn 95% cửa hàng ưu tiên thanh toán bằng thẻ (카드).',
+        practiceQuestions: [
+          { question: 'Từ "카드" nghĩa là gì?', options: ['Thẻ ngân hàng', 'Tiền mặt', 'Hóa đơn', 'Hàng hóa'], correctIndex: 0, explanation: '카드 nghĩa là thẻ.' },
+        ],
+      },
+      {
+        id: 's6-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 6',
+        shortTitle: 'Kiểm tra cả chặng 6 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách hội thoại mua sắm trọn vẹn từ hỏi giá đến trả tiền!',
+        contentKo: '쇼핑 회화 종합 퀴즈',
+        romanization: 'Syoping hoehwa jonghap kwijeu',
+        meaningVi: 'Đánh giá tổng hợp mua sắm',
+        detailExplanation: 'Chúc mừng bạn! Vượt qua bài kiểm tra để tự tin mua sắm mọi khu chợ Seoul!',
+        practiceQuestions: [
+          { question: 'Câu "이거 얼마예요?" nghĩa là gì?', audioKo: '이거 얼마예요?', options: ['Cái này bao nhiêu tiền?', 'Cái này là cái gì?', 'Cái này ở đâu?', 'Cái này màu gì?'], correctIndex: 0, explanation: '이거 얼마예요? nghĩa là cái này bao nhiêu tiền.' },
+          { question: 'Từ "가방" có nghĩa là gì?', audioKo: '가방', options: ['Cái túi xách', 'Đôi giày', 'Cái áo', 'Cái mũ'], correctIndex: 0, explanation: '가방 nghĩa là cái túi xách / cặp.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 7: SINH HOẠT HÀNG NGÀY & THÌ QUÁ KHỨ
+  // ============================================================
+  {
+    stageNumber: 7,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Sinh hoạt & Thì quá khứ',
+    koreanTitle: '일상 & 과거시제',
+    icon: '⏰',
+    themeColor: 'indigo',
+    candyColor: 'purple',
+    tourMiniGame: {
+      locationName: 'Công Viên Sông Hàn Hangang',
+      locationIcon: '🚴',
+      themePrompt: 'Dạo mát bên bờ sông Hàn thơ mộng và tinh mắt tìm chữ sinh hoạt thường nhật!',
+      targetWords: [
+        { wordKo: '운동', meaningVi: 'Tập thể thao', romanization: 'un-dong', syllables: ['운', '동'], hint: 'Rèn luyện thân thể dẻo dai' },
+        { wordKo: '공부', meaningVi: 'Học bài', romanization: 'gong-bu', syllables: ['공', '부'], hint: 'Tiếp thu tri thức mới' },
+        { wordKo: '휴식', meaningVi: 'Nghỉ ngơi', romanization: 'hyu-sik', syllables: ['휴', '식'], hint: 'Thư giãn sau giờ làm việc' },
+        { wordKo: '영화', meaningVi: 'Bộ phim điện ảnh', romanization: 'yeong-hwa', syllables: ['영', '화'], hint: 'Xem phim chiếu rạp' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's7-step-1',
+        stepNumber: 1,
+        title: 'Động từ thường nhật phổ biến',
+        shortTitle: 'Động từ thường nhật',
+        type: 'lesson',
+        summaryVi: 'Học các hành động: 일어나다, 밥을 먹다, 일하다, 자다',
+        contentKo: '일어나다 (thức dậy), 먹다 (ăn), 일하다 (làm việc), 자다 (ngủ)',
+        romanization: 'ireonada, meokda, ilhada, jada',
+        meaningVi: 'Các hành động hàng ngày',
+        detailExplanation: 'Động từ tiếng Hàn nguyên mẫu luôn kết thúc bằng đuôi 다.',
+        practiceQuestions: [
+          { question: '"먹다" có nghĩa là gì?', options: ['Ăn', 'Uống', 'Ngủ', 'Đi'], correctIndex: 0, explanation: '먹다 nghĩa là ăn.' },
+        ],
+      },
+      {
+        id: 's7-step-2',
+        stepNumber: 2,
+        title: 'Quy tắc chia thì hiện tại (-아/어요)',
+        shortTitle: 'Thì hiện tại',
+        type: 'lesson',
+        summaryVi: 'Gốc nguyên âm chứa ㅏ, ㅗ cộng -아요; còn lại cộng -어요; 하다 chuyển thành 해요',
+        contentKo: '가다 -> 가요, 먹다 -> 먹어요, 공부하다 -> 공부해요',
+        romanization: 'gayo, meogeoyo, gongbuhaeyo',
+        meaningVi: 'Đuôi câu thân mật lịch sự thông dụng nhất',
+        detailExplanation: 'Đuôi -아/어요 là linh hồn của khẩu ngữ tiếng Hàn, dùng trong hơn 80% cuộc trò chuyện.',
+        practiceQuestions: [
+          { question: 'Động từ "가다" (đi) chia sang hiện tại là gì?', options: ['가요', '가어요', '가해요', '갔어요'], correctIndex: 0, explanation: '가다 + 아요 = 가요.' },
+        ],
+      },
+      {
+        id: 's7-step-3',
+        stepNumber: 3,
+        title: 'Quy tắc thì quá khứ (-았/었어요)',
+        shortTitle: 'Thì quá khứ',
+        type: 'lesson',
+        summaryVi: 'Kể lại việc đã xảy ra: -았/었어요, 했어요',
+        contentKo: '어제 영화를 봤어요 (Hôm qua tôi đã xem phim), 밥을 먹었어요 (Đã ăn cơm)',
+        romanization: 'bwasseoyo, meogeosseoyo, haesseoyo',
+        meaningVi: 'Đã làm việc gì đó',
+        detailExplanation: 'Gốc động từ gắn thêm -았/었어요 để tạo thì quá khứ.',
+        practiceQuestions: [
+          { question: '"했어요" biểu thị thì gì?', options: ['Thì quá khứ (Đã làm)', 'Thì tương lai', 'Thì hiện tại', 'Cầu khiến'], correctIndex: 0, explanation: '했어요 là thì quá khứ của 하다.' },
+        ],
+      },
+      {
+        id: 's7-step-4',
+        stepNumber: 4,
+        title: 'Từ chỉ thời gian & Tần suất',
+        shortTitle: 'Thời gian & Tần suất',
+        type: 'lesson',
+        summaryVi: 'Học: 어제 (hôm qua), 오늘 (hôm nay), 내일 (ngày mai), 자주 (thường xuyên)',
+        contentKo: '어제 (hôm qua), 오늘 (hôm nay), 내일 (ngày mai), 매일 (mỗi ngày)',
+        romanization: 'eoje, oneul, naeil, maeil',
+        meaningVi: 'Từ chỉ mốc thời gian',
+        detailExplanation: 'Kết hợp từ chỉ thời gian đứng đầu câu giúp câu nói rõ ràng và tự nhiên.',
+        practiceQuestions: [
+          { question: '"어제" có nghĩa là gì?', options: ['Hôm qua', 'Hôm nay', 'Ngày mai', 'Tuần sau'], correctIndex: 0, explanation: '어제 nghĩa là hôm qua.' },
+        ],
+      },
+      {
+        id: 's7-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 7',
+        shortTitle: 'Kiểm tra cả chặng 7 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách chia động từ và kể lại một ngày đáng nhớ trong quá khứ!',
+        contentKo: '과거시제 종합 퀴즈',
+        romanization: 'Gwageo-sije jonghap kwijeu',
+        meaningVi: 'Đánh giá tổng hợp thì quá khứ',
+        detailExplanation: 'Chúc mừng bạn! Vượt qua bài kiểm tra để tự tin kể lại mọi trải nghiệm!',
+        practiceQuestions: [
+          { question: '"어제 뭐 했어요?" nghĩa là gì?', audioKo: '어제 뭐 했어요?', options: ['Hôm qua bạn đã làm gì?', 'Hôm nay bạn làm gì?', 'Ngày mai bạn đi đâu?', 'Bạn ăn cơm chưa?'], correctIndex: 0, explanation: 'Câu này nghĩa là: Hôm qua bạn đã làm gì?' },
+          { question: 'Từ "운동" có nghĩa là gì?', audioKo: '운동', options: ['Tập thể dục / Thể thao', 'Xem phim', 'Học bài', 'Mua sắm'], correctIndex: 0, explanation: '운동 nghĩa là tập thể dục / vận động.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CHẶNG 8: TỔNG HỢP TOPIK SƠ CẤP & TỐT NGHIỆP NỀN TẢNG
+  // ============================================================
+  {
+    stageNumber: 8,
+    levelCategory: 'foundation_lv1',
+    levelLabel: 'Nền tảng - LV1',
+    title: 'Đỉnh cao: TOPIK Sơ cấp',
+    koreanTitle: 'TOPIK 초급 종합',
+    icon: '🎓',
+    themeColor: 'sky',
+    candyColor: 'blue',
+    tourMiniGame: {
+      locationName: 'Đại Học Quốc Gia Seoul SNU',
+      locationIcon: '🏫',
+      themePrompt: 'Đến cổng trường đại học danh giá số 1 Hàn Quốc và tinh mắt chinh phục từ vựng thi đỗ!',
+      targetWords: [
+        { wordKo: '시험', meaningVi: 'Kỳ thi', romanization: 'si-heom', syllables: ['시', '험'], hint: 'Bài kiểm tra đánh giá năng lực' },
+        { wordKo: '합격', meaningVi: 'Thi đỗ / Trúng tuyển', romanization: 'hap-gyeok', syllables: ['합', '격'], hint: 'Tin vui vượt qua kỳ thi' },
+        { wordKo: '도서관', meaningVi: 'Thư viện', romanization: 'do-seo-gwan', syllables: ['도', '서', '관'], hint: 'Nơi yên tĩnh đọc sách' },
+        { wordKo: '성공', meaningVi: 'Thành công', romanization: 'seong-gong', syllables: ['성', '공'], hint: 'Đạt được mục tiêu mong ước' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's8-step-1',
+        stepNumber: 1,
+        title: 'Liên từ nối câu quan trọng (그리고, 그래서, 하지만)',
+        shortTitle: 'Liên từ nối câu',
+        type: 'lesson',
+        summaryVi: 'Học cách ghép các câu đơn thành câu phức mượt mà',
+        contentKo: '그리고 (và), 그래서 (vì thế), 하지만 (nhưng mà), 그런데 (nhân tiện)',
+        romanization: 'geurigo, geuraeseo, hajiman, geureonde',
+        meaningVi: 'Liên từ kết nối',
+        detailExplanation: 'Liên từ đứng đầu câu thứ hai để liên kết ý với câu phía trước.',
+        practiceQuestions: [
+          { question: '"하지만" có nghĩa là gì?', options: ['Nhưng mà', 'Và', 'Vì thế', 'Nếu như'], correctIndex: 0, explanation: '하지만 nghĩa là nhưng mà / tuy nhiên.' },
+        ],
+      },
+      {
+        id: 's8-step-2',
+        stepNumber: 2,
+        title: 'Cấu trúc dự định tương lai: -(으)ㄹ 거예요',
+        shortTitle: 'Dự định tương lai',
+        type: 'lesson',
+        summaryVi: 'Nói về kế hoạch sắp tới: Tôi sẽ làm...',
+        contentKo: '내일 친구를 만날 거예요. (Ngày mai tôi sẽ gặp bạn)',
+        romanization: 'mannal geoyeyo',
+        meaningVi: 'Sẽ làm việc gì đó',
+        detailExplanation: 'Động từ có patchim + 을 거예요, không có patchim + ㄹ 거예요.',
+        practiceQuestions: [
+          { question: '"한국에 갈 거예요" nghĩa là gì?', options: ['Tôi sẽ đi Hàn Quốc', 'Tôi đã đi Hàn Quốc', 'Tôi đang ở Hàn Quốc', 'Tôi không đi'], correctIndex: 0, explanation: '갈 거예요 là thì tương lai: Sẽ đi.' },
+        ],
+      },
+      {
+        id: 's8-step-3',
+        stepNumber: 3,
+        title: 'Khả năng & Bất khả năng: -(으)ㄹ 수 있다 / 없다',
+        shortTitle: 'Có thể & Không thể',
+        type: 'lesson',
+        summaryVi: 'Diễn tả năng lực: Có thể làm được / Không thể làm được',
+        contentKo: '한국어를 할 수 있어요. (Tôi có thể nói tiếng Hàn)',
+        romanization: 'halsu isseoyo / halsu eopseoyo',
+        meaningVi: 'Có thể làm / Không thể làm',
+        detailExplanation: '-(으)ㄹ 수 있다 nghĩa là có thể; -(으)ㄹ 수 없다 nghĩa là không thể.',
+        practiceQuestions: [
+          { question: '"한국어를 할 수 있어요" nghĩa là gì?', options: ['Tôi có thể nói tiếng Hàn', 'Tôi không biết tiếng Hàn', 'Tôi đang học tiếng Hàn', 'Tôi là người Hàn'], correctIndex: 0, explanation: 'Câu này nghĩa là: Tôi có thể nói tiếng Hàn.' },
+        ],
+      },
+      {
+        id: 's8-step-4',
+        stepNumber: 4,
+        title: 'Đọc hiểu đoạn văn hội thoại ngắn',
+        shortTitle: 'Đọc hiểu sơ cấp',
+        type: 'lesson',
+        summaryVi: 'Luyện kỹ năng nắm bắt ý chính trong đề thi TOPIK I',
+        contentKo: '저는 매일 아침 7시에 일어납니다. 그리고 운동을 합니다.',
+        romanization: 'Daehwa ilki',
+        meaningVi: 'Đọc hiểu tổng hợp',
+        detailExplanation: 'Kỹ năng đọc nhanh tìm từ khóa chính và liên kết câu trả lời.',
+        practiceQuestions: [
+          { question: 'Trong câu "저는 매일 운동을 합니다", người nói làm gì mỗi ngày?', options: ['Tập thể dục', 'Ăn sáng', 'Đi ngủ', 'Học bài'], correctIndex: 0, explanation: '운동 nghĩa là tập thể dục.' },
+        ],
+      },
+      {
+        id: 's8-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 8 & Tốt nghiệp Nền tảng',
+        shortTitle: 'Tốt nghiệp LV1 🏆👑',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách lớn nhất của Level 1: Tốt nghiệp cấp độ Nền tảng!',
+        contentKo: 'TOPIK 초급 최종 종합 평가',
+        romanization: 'TOPIK Chogeup choejong jonghap pyeong-ga',
+        meaningVi: 'Đánh giá chung kết tốt nghiệp cấp độ Nền tảng',
+        detailExplanation: 'Chúc mừng bạn! Vượt qua bài thi này để chính thức mở khóa cánh cổng bước vào Level 2: Căn bản!',
+        practiceQuestions: [
+          { question: 'Từ "시험" có nghĩa là gì?', audioKo: '시험', options: ['Kỳ thi / Bài kiểm tra', 'Trường học', 'Sách vở', 'Bút viết'], correctIndex: 0, explanation: '시험 nghĩa là kỳ thi.' },
+          { question: 'Từ "합격" có nghĩa là gì?', audioKo: '합격', options: ['Thi đỗ / Trúng tuyển', 'Thi trượt', 'Điểm kém', 'Hủy thi'], correctIndex: 0, explanation: '합격 nghĩa là thi đỗ.' },
+          { question: 'Từ "도서관" có nghĩa là gì?', audioKo: '도서관', options: ['Thư viện', 'Rạp chiếu phim', 'Quán cà phê', 'Bệnh viện'], correctIndex: 0, explanation: '도서관 nghĩa là thư viện.' },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // CĂN BẢN - LV2 (CHẶNG 9 -> 16)
+  // ============================================================
+  {
+    stageNumber: 9,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Cảm xúc & Lý do - Nguyên nhân',
+    koreanTitle: '감정 & 이유',
+    icon: '💖',
+    themeColor: 'pink',
+    candyColor: 'pink',
+    tourMiniGame: {
+      locationName: 'Quán Cà Phê Ngắm Mưa Gangnam',
+      locationIcon: '☕',
+      themePrompt: 'Ngồi trong quán cà phê ấm cúng Gangnam và tinh mắt tìm chữ diễn tả xúc cảm yêu thương!',
+      targetWords: [
+        { wordKo: '행복', meaningVi: 'Hạnh phúc', romanization: 'haeng-bok', syllables: ['행', '복'], hint: 'Niềm vui trọn vẹn trong tim' },
+        { wordKo: '희망', meaningVi: 'Hy vọng', romanization: 'hui-mang', syllables: ['희', '망'], hint: 'Niềm tin vào điều tốt đẹp' },
+        { wordKo: '사랑', meaningVi: 'Tình yêu', romanization: 'sa-rang', syllables: ['사', '랑'], hint: 'Tình cảm sâu đậm thiêng liêng' },
+        { wordKo: '미소', meaningVi: 'Nụ cười', romanization: 'mi-so', syllables: ['미', '소'], hint: 'Nét rạng rỡ trên môi' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's9-step-1',
+        stepNumber: 1,
+        title: 'Từ vựng tâm trạng phong phú',
+        shortTitle: 'Từ vựng cảm xúc',
+        type: 'lesson',
+        summaryVi: 'Học: 기쁘다 (vui), 슬프다 (buồn), 화나다 (tức giận), 피곤하다 (mệt)',
+        contentKo: '기뻐요 (Vui mừng), 슬퍼요 (Buồn), 화나요 (Giận), 피곤해요 (Mệt mỏi)',
+        romanization: 'gippeoyo, seulpeoyo, hwanayo, pigonhaeyo',
+        meaningVi: 'Các sắc thái cảm xúc',
+        detailExplanation: 'Diễn tả chân thật trạng thái tâm lý giúp cuộc nói chuyện sâu sắc và ấm áp hơn.',
+        practiceQuestions: [
+          { question: '"행복해요" nghĩa là gì?', options: ['Tôi hạnh phúc', 'Tôi buồn', 'Tôi mệt', 'Tôi giận'], correctIndex: 0, explanation: '행복해요 nghĩa là tôi hạnh phúc.' },
+        ],
+      },
+      {
+        id: 's9-step-2',
+        stepNumber: 2,
+        title: 'Phân biệt -아/어서 và -(으)니까',
+        shortTitle: 'Phân biệt nguyên nhân',
+        type: 'lesson',
+        summaryVi: 'Bí kíp: -아/어서 không dùng câu mệnh lệnh rủ rê; -(으)니까 dùng thoải mái!',
+        contentKo: '날씨가 좋아서 산책해요. / 날씨가 좋으니까 산책합시다.',
+        romanization: '-aseo/eoseo vs -(eu)nikka',
+        meaningVi: 'Vì... nên...',
+        detailExplanation: 'Câu mệnh lệnh (-(으)세요) và rủ rê (-(으)ㅂ시다) chỉ đi với -(으)니까.',
+        practiceQuestions: [
+          { question: 'Với đuôi rủ rê "산책합시다" (Hãy cùng đi dạo), ta dùng liên từ nào?', options: ['좋으니까', '좋아서', '좋지만', '좋고'], correctIndex: 0, explanation: 'Câu rủ rê đi với -(으)니까.' },
+        ],
+      },
+      {
+        id: 's9-step-3',
+        stepNumber: 3,
+        title: 'Nguyên nhân trang trọng: -기 때문에',
+        shortTitle: '-기 때문에',
+        type: 'lesson',
+        summaryVi: 'Dùng trong văn viết, bài phát biểu hoặc ngữ cảnh trang nghiêm',
+        contentKo: '비가 오기 때문에 행사가 취소되었습니다.',
+        romanization: '-gi ttaemune',
+        meaningVi: 'Do... bởi vì...',
+        detailExplanation: 'Động từ + -기 때문에; Danh từ + 때문에.',
+        practiceQuestions: [
+          { question: '"비 때문에" nghĩa là gì?', options: ['Vì trời mưa', 'Dù trời mưa', 'Khi trời mưa', 'Trước cơn mưa'], correctIndex: 0, explanation: '비 때문에 nghĩa là vì trời mưa.' },
+        ],
+      },
+      {
+        id: 's9-step-4',
+        stepNumber: 4,
+        title: 'Mẫu câu an ủi & Chia sẻ tâm sự',
+        shortTitle: 'An ủi & Tâm sự',
+        type: 'lesson',
+        summaryVi: 'Học cách động viên: 힘내세요 (Cố lên), 괜찮아요 (Không sao đâu)',
+        contentKo: '힘내세요! 다 잘 될 거예요. (Cố lên nhé! Mọi chuyện sẽ ổn thôi)',
+        romanization: 'Himnaeseyo! Da jal doel geoyeyo.',
+        meaningVi: 'Lời động viên chân thành',
+        detailExplanation: 'Câu nói ấm lòng người Hàn hay dùng để xoa dịu áp lực mệt mỏi.',
+        practiceQuestions: [
+          { question: '"힘내세요" có nghĩa là gì?', options: ['Cố lên nhé', 'Xin chào', 'Tạm biệt', 'Cảm ơn'], correctIndex: 0, explanation: '힘내세요 nghĩa là cố lên nhé.' },
+        ],
+      },
+      {
+        id: 's9-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 9',
+        shortTitle: 'Kiểm tra cả chặng 9 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách phản xạ diễn đạt cảm xúc và lý do tự nhiên!',
+        contentKo: '감정 표현 종합 평가',
+        romanization: 'Gamjeong pyohyeon jonghap pyeong-ga',
+        meaningVi: 'Đánh giá tổng hợp biểu đạt cảm xúc',
+        detailExplanation: 'Hoàn thành bài kiểm tra để thấu hiểu cảm xúc đối phương trong giao tiếp!',
+        practiceQuestions: [
+          { question: 'Từ "행복" có nghĩa là gì?', audioKo: '행복', options: ['Hạnh phúc', 'Đau khổ', 'Mệt mỏi', 'Tức giận'], correctIndex: 0, explanation: '행복 nghĩa là hạnh phúc.' },
+          { question: 'Từ "사랑" có nghĩa là gì?', audioKo: '사랑', options: ['Tình yêu', 'Tình bạn', 'Gia đình', 'Trường học'], correctIndex: 0, explanation: '사랑 nghĩa là tình yêu.' },
+        ],
+      },
+    ],
+  },
+
+  {
+    stageNumber: 10,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Giao thông & Hỏi đường Seoul',
+    koreanTitle: '교통 & 길 찾기',
+    icon: '🚇',
+    themeColor: 'blue',
+    candyColor: 'blue',
+    tourMiniGame: {
+      locationName: 'Ga Trung Tâm Seoul Station',
+      locationIcon: '🚉',
+      themePrompt: 'Đứng giữa trung tâm giao thông sầm uất Seoul và tinh mắt tìm phương tiện di chuyển!',
+      targetWords: [
+        { wordKo: '지하철', meaningVi: 'Tàu điện ngầm', romanization: 'ji-ha-cheol', syllables: ['지', '하', '철'], hint: 'Phương tiện ngầm nhanh chóng' },
+        { wordKo: '지도', meaningVi: 'Bản đồ', romanization: 'ji-do', syllables: ['지', '도'], hint: 'Chỉ dẫn phương hướng' },
+        { wordKo: '방향', meaningVi: 'Phương hướng', romanization: 'bang-hyang', syllables: ['방', '향'], hint: 'Hướng đi cần đến' },
+        { wordKo: '도착', meaningVi: 'Đến nơi', romanization: 'do-chak', syllables: ['도', '착'], hint: 'Tới đích thành công' },
+      ],
+    },
+    subSteps: [
+      {
+        id: 's10-step-1',
+        stepNumber: 1,
+        title: 'Hệ thống tàu điện ngầm & Thẻ T-Money',
+        shortTitle: 'Tàu điện ngầm',
+        type: 'lesson',
+        summaryVi: 'Học cách quẹt thẻ T-Money, nạp tiền và nhận diện tuyến tàu (호선)',
+        contentKo: '교통카드 (thẻ giao thông), 충전 (nạp tiền), 2호선 (tuyến số 2)',
+        romanization: 'T-Money, Gyotongkadeu',
+        meaningVi: 'Đi tàu điện ngầm Seoul',
+        detailExplanation: 'Mạng lưới tàu điện ngầm Seoul có hơn 9 tuyến lớn và thẻ T-Money dùng được cho cả xe buýt và taxi.',
+        practiceQuestions: [
+          { question: '"지하철" có nghĩa là gì?', options: ['Tàu điện ngầm', 'Xe buýt', 'Máy bay', 'Xe đạp'], correctIndex: 0, explanation: '지하철 nghĩa là tàu điện ngầm.' },
+        ],
+      },
+      {
+        id: 's10-step-2',
+        stepNumber: 2,
+        title: 'Chuyển tuyến và Cửa ra (환승 & 출구)',
+        shortTitle: 'Chuyển tuyến & Cửa ra',
+        type: 'lesson',
+        summaryVi: 'Nhận diện biển báo 환승 (chuyển tuyến) và 몇 번 출구 (cửa ra số mấy)',
+        contentKo: '환승역 (ga chuyển tuyến), 3번 출구 (cửa ra số 3)',
+        romanization: 'Hwanseung, Chulgu',
+        meaningVi: 'Chuyển tuyến & Cửa ra',
+        detailExplanation: 'Ga ngầm Seoul rất rộng, việc hỏi đúng số cửa ra (출구) là chìa khóa không bị lạc.',
+        practiceQuestions: [
+          { question: '"출구" có nghĩa là gì?', options: ['Cửa ra', 'Cửa vào', 'Cửa sổ', 'Cầu thang'], correctIndex: 0, explanation: '출구 nghĩa là cửa ra (Exit).' },
+        ],
+      },
+      {
+        id: 's10-step-3',
+        stepNumber: 3,
+        title: 'Bắt xe buýt & Đi Taxi tại Seoul',
+        shortTitle: 'Xe buýt & Taxi',
+        type: 'lesson',
+        summaryVi: 'Nói điểm đến cho tài xế taxi: ~ (으)로 가 주세요',
+        contentKo: '기사님, 명동역으로 가 주세요! (Bác tài ơi, cho cháu đến ga Myeongdong!)',
+        romanization: 'Gisanim, Myeongdong-yeogeuro ga juseyo!',
+        meaningVi: 'Đi taxi chuẩn bản xứ',
+        detailExplanation: 'Danh từ địa điểm + (으)로 가 주세요: Xin hãy đi đến...',
+        practiceQuestions: [
+          { question: 'Để nhờ bác tài "Hãy đi đến Seoul Station", câu nào đúng?', options: ['서울역으로 가 주세요', '서울역에 있어요', '서울역이 뭐예요', '서울역 가세요'], correctIndex: 0, explanation: '서울역으로 가 주세요.' },
+        ],
+      },
+      {
+        id: 's10-step-4',
+        stepNumber: 4,
+        title: 'Mẫu câu hỏi đường chuẩn bản xứ (~ 어디에 있어요?)',
+        shortTitle: 'Hỏi đường chuẩn',
+        type: 'lesson',
+        summaryVi: 'Công thức: 실례지만, [Địa điểm] + 이/가 어디에 있어요?',
+        contentKo: '실례지만, 화장실이 어디에 있어요? (Xin lỗi, nhà vệ sinh ở đâu ạ?)',
+        romanization: 'Silryejiman, hwajangsil-i eodie isseoyo?',
+        meaningVi: 'Hỏi thăm đường xá lịch sự',
+        detailExplanation: 'Bắt đầu bằng 실례지만 (Xin lỗi làm phiền một chút) thể hiện phép lịch sự cao.',
+        practiceQuestions: [
+          { question: '"화장실" có nghĩa là gì?', options: ['Nhà vệ sinh', 'Nhà ăn', 'Trạm dừng', 'Bệnh viện'], correctIndex: 0, explanation: '화장실 nghĩa là nhà vệ sinh.' },
+        ],
+      },
+      {
+        id: 's10-step-5',
+        stepNumber: 5,
+        title: 'Kiểm tra toàn diện chặng 10',
+        shortTitle: 'Kiểm tra cả chặng 10 🏆',
+        type: 'checkpoint',
+        summaryVi: 'Thử thách định vị và tự tin chu du khắp thủ đô Seoul!',
+        contentKo: '교통 회화 종합 평가',
+        romanization: 'Gyotong hoehwa jonghap pyeong-ga',
+        meaningVi: 'Đánh giá tổng hợp giao thông đi lại',
+        detailExplanation: 'Vượt qua bài test để trở thành chuyên gia bản đồ đường phố Seoul!',
+        practiceQuestions: [
+          { question: 'Câu "지하철역이 어디에 있어요?" nghĩa là gì?', audioKo: '지하철역이 어디에 있어요?', options: ['Ga tàu điện ngầm ở đâu?', 'Xe buýt ở đâu?', 'Nhà ở đâu?', 'Sân bay ở đâu?'], correctIndex: 0, explanation: 'Nghĩa là ga tàu điện ngầm ở đâu.' },
+          { question: 'Từ "지도" có nghĩa là gì?', audioKo: '지도', options: ['Bản đồ', 'Vé xe', 'Tiền bạc', 'Đồng hồ'], correctIndex: 0, explanation: '지도 nghĩa là bản đồ.' },
+        ],
+      },
+    ],
+  },
+
+  // Stages 11 to 20 summary configs
+  {
+    stageNumber: 11,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Khám bệnh & Nhà thuốc',
+    koreanTitle: '병원 & 약국',
+    icon: '🏥',
+    themeColor: 'emerald',
+    candyColor: 'green',
+    tourMiniGame: {
+      locationName: 'Bệnh Viện Quốc Tế Asan Seoul',
+      locationIcon: '🩺',
+      themePrompt: 'Ghé trung tâm y tế hàng đầu và tinh mắt tìm các từ khóa chăm sóc sức khỏe!',
+      targetWords: [
+        { wordKo: '병원', meaningVi: 'Bệnh viện', romanization: 'byeong-won', syllables: ['병', '원'], hint: 'Nơi khám chữa bệnh' },
+        { wordKo: '건강', meaningVi: 'Sức khỏe', romanization: 'geon-gang', syllables: ['건', '강'], hint: 'Vốn quý giá nhất đời người' },
+        { wordKo: '치료', meaningVi: 'Điều trị', romanization: 'chi-ryo', syllables: ['치', '료'], hint: 'Chữa lành vết thương' },
+        { wordKo: '회복', meaningVi: 'Hồi phục', romanization: 'hoe-bok', syllables: ['회', '복'], hint: 'Khỏe khoắn trở lại' },
+      ],
+    },
+    subSteps: [
+      { id: 's11-1', stepNumber: 1, title: 'Triệu chứng thường gặp (감기, 두통, 열)', shortTitle: 'Triệu chứng bệnh', type: 'lesson', summaryVi: 'Học từ vựng: cảm cúm, đau đầu, sốt cao', contentKo: '감기, 두통, 열, 기침', romanization: 'gamgi, dutong, yeol', meaningVi: 'Triệu chứng sức khỏe', detailExplanation: 'Các triệu chứng y tế hay gặp khi đổi mùa.', practiceQuestions: [{ question: 'Từ "감기" nghĩa là gì?', options: ['Cảm cúm', 'Đau răng', 'Đau bụng', 'Gãy tay'], correctIndex: 0, explanation: '감기 nghĩa là cảm cúm.' }] },
+      { id: 's11-2', stepNumber: 2, title: 'Ngữ pháp miêu tả vị trí đau (~ 이/가 아프다)', shortTitle: 'Vị trí đau', type: 'lesson', summaryVi: 'Công thức: Bộ phận cơ thể + 이/가 아파요', contentKo: '머리가 아파요 (Đau đầu), 배가 아파요 (Đau bụng)', romanization: 'meoriga apayo', meaningVi: 'Miêu tả cơn đau', detailExplanation: 'Gắn tiểu từ chủ ngữ với vị trí đau.', practiceQuestions: [{ question: '"배가 아파요" nghĩa là gì?', options: ['Tôi bị đau bụng', 'Tôi đau đầu', 'Tôi đau răng', 'Tôi đau chân'], correctIndex: 0, explanation: '배 nghĩa là bụng: Đau bụng.' }] },
+      { id: 's11-3', stepNumber: 3, title: 'Mua thuốc tại Dược quán (약국)', shortTitle: 'Mua thuốc', type: 'lesson', summaryVi: 'Hướng dẫn uống thuốc: 하루 세 번 (Ngày 3 lần sau ăn)', contentKo: '하루 세 번 식후 30분에 드세요.', romanization: 'haru se beon sikhu', meaningVi: 'Uống thuốc đúng liều', detailExplanation: 'Thuốc uống tại Hàn thường chia theo gói nhỏ tiện lợi.', practiceQuestions: [{ question: '"약국" nghĩa là gì?', options: ['Hiệu thuốc', 'Bệnh viện', 'Trường học', 'Nhà ăn'], correctIndex: 0, explanation: '약국 là hiệu thuốc.' }] },
+      { id: 's11-4', stepNumber: 4, title: 'Lời dặn bác sĩ: -(으)세요 & -지 마세요', shortTitle: 'Lời dặn dò', type: 'lesson', summaryVi: 'Khuyên làm gì và kiêng cữ điều gì', contentKo: '푹 쉬세요 (Hãy nghỉ ngơi) / 술을 마시지 마세요 (Đừng uống rượu)', romanization: 'puk swiseyo / masiji maseyo', meaningVi: 'Lời khuyên y khoa', detailExplanation: 'Cấu trúc mệnh lệnh khuyên bảo lịch sự.', practiceQuestions: [{ question: '"쉬세요" nghĩa là gì?', options: ['Hãy nghỉ ngơi', 'Hãy làm việc', 'Hãy ăn cơm', 'Hãy đi chơi'], correctIndex: 0, explanation: '쉬세요 nghĩa là hãy nghỉ ngơi.' }] },
+      { id: 's11-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 11', shortTitle: 'Kiểm tra cả chặng 11 🏆', type: 'checkpoint', summaryVi: 'Thử thách phản xạ miêu tả sức khỏe và khám bệnh!', contentKo: '병원 회화 종합 평가', romanization: 'Byeongwon hoehwa jonghap', meaningVi: 'Đánh giá y tế sức khỏe', detailExplanation: 'Chúc mừng bạn hoàn thành chặng y tế!', practiceQuestions: [{ question: 'Từ "병원" nghĩa là gì?', audioKo: '병원', options: ['Bệnh viện', 'Trường học', 'Thư viện', 'Công viên'], correctIndex: 0, explanation: '병원 nghĩa là bệnh viện.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 12,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Đổi trả & Mua sắm thông minh',
+    koreanTitle: '교환 & 환불',
+    icon: '📦',
+    themeColor: 'orange',
+    candyColor: 'orange',
+    tourMiniGame: {
+      locationName: 'Trung Tâm Logistics Incheon',
+      locationIcon: '🚚',
+      themePrompt: 'Khám phá chuỗi vận chuyển giao hàng siêu tốc và tinh mắt tìm từ mua sắm online!',
+      targetWords: [
+        { wordKo: '배송', meaningVi: 'Giao hàng', romanization: 'bae-song', syllables: ['배', '송'], hint: 'Vận chuyển đơn hàng đến tay' },
+        { wordKo: '주문', meaningVi: 'Đặt hàng', romanization: 'ju-mun', syllables: ['주', '문'], hint: 'Thực hiện mua sắm' },
+        { wordKo: '영수증', meaningVi: 'Hóa đơn', romanization: 'yeong-su-jeung', syllables: ['영', '수', '증'], hint: 'Chứng từ thanh toán' },
+        { wordKo: '고객', meaningVi: 'Khách hàng', romanization: 'go-gaek', syllables: ['고', '객'], hint: 'Thượng đế mua sắm' },
+      ],
+    },
+    subSteps: [
+      { id: 's12-1', stepNumber: 1, title: 'Mua sắm online & Giao hàng tên lửa', shortTitle: 'Mua sắm online', type: 'lesson', summaryVi: 'Học thuật ngữ: 로켓배송, 배송 조회', contentKo: '주문, 배송, 장바구니', romanization: 'jumun, baesong', meaningVi: 'Đặt hàng & Giao hàng', detailExplanation: 'Thương mại điện tử Hàn Quốc cực kỳ phát triển.', practiceQuestions: [{ question: '"배송" nghĩa là gì?', options: ['Giao hàng', 'Hủy hàng', 'Đổi hàng', 'Bán hàng'], correctIndex: 0, explanation: '배송 là giao hàng.' }] },
+      { id: 's12-2', stepNumber: 2, title: 'Khiếu nại sản phẩm lỗi (하자, 불량)', shortTitle: 'Báo lỗi sản phẩm', type: 'lesson', summaryVi: 'Sản phẩm trầy xước, hỏng hóc hoặc giao nhầm', contentKo: '제품에 하자가 있어요. (Sản phẩm có lỗi ạ)', romanization: 'Haja, Bulryang', meaningVi: 'Sản phẩm lỗi', detailExplanation: 'Trình bày lịch sự nhưng kiên định khi hàng lỗi.', practiceQuestions: [{ question: '"하자가 있어요" nghĩa là gì?', options: ['Có lỗi/khuyết tật', 'Rất đẹp', 'Rất tốt', 'Đã nhận được'], correctIndex: 0, explanation: 'Nghĩa là có lỗi.' }] },
+      { id: 's12-3', stepNumber: 3, title: 'Quy trình đổi hàng & Hoàn tiền (교환 & 환불)', shortTitle: 'Đổi trả & Hoàn tiền', type: 'lesson', summaryVi: 'Mẫu câu: 교환해 주세요 (Đổi hàng), 환불해 주세요 (Hoàn tiền)', contentKo: '다른 걸로 교환해 주세요. / 환불해 주세요.', romanization: 'Gyohwan, Hwanbul', meaningVi: 'Đổi hàng hoặc trả lại tiền', detailExplanation: 'Cần giữ nguyên hóa đơn (영수증) để được đổi trả.', practiceQuestions: [{ question: '"환불" có nghĩa là gì?', options: ['Hoàn tiền', 'Mua thêm', 'Đổi màu', 'Tặng quà'], correctIndex: 0, explanation: '환불 nghĩa là hoàn tiền.' }] },
+      { id: 's12-4', stepNumber: 4, title: 'Quy tắc thương lượng khiếu nại lịch sự', shortTitle: 'Thương lượng lịch sự', type: 'lesson', summaryVi: 'Dùng mẫu câu đuôi kính ngữ tôn trọng', contentKo: '확인해 주시겠어요? (Xin vui lòng kiểm tra giúp)', romanization: 'Hwagin-hae jusigesseoyo?', meaningVi: 'Kính ngữ khiếu nại', detailExplanation: 'Thái độ lịch sự giúp giải quyết khiếu nại nhanh chóng.', practiceQuestions: [{ question: '"확인해 주세요" nghĩa là gì?', options: ['Xin vui lòng kiểm tra', 'Xin hãy trả tiền', 'Xin hãy đi đi', 'Xin hãy ăn cơm'], correctIndex: 0, explanation: 'Nghĩa là xin hãy kiểm tra.' }] },
+      { id: 's12-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 12', shortTitle: 'Kiểm tra cả chặng 12 🏆', type: 'checkpoint', summaryVi: 'Thử thách xử lý tình huống đổi trả sản phẩm thông minh!', contentKo: '쇼핑 클레임 종합 평가', romanization: 'Syoping keulleim jonghap', meaningVi: 'Đánh giá xử lý đổi trả hàng hóa', detailExplanation: 'Chúc mừng bạn hoàn thành chặng đổi trả!', practiceQuestions: [{ question: 'Từ "영수증" nghĩa là gì?', audioKo: '영수증', options: ['Hóa đơn', 'Thẻ cào', 'Bao bì', 'Tiền lẻ'], correctIndex: 0, explanation: '영수증 nghĩa là hóa đơn.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 13,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Công sở & Phỏng vấn việc làm',
+    koreanTitle: '회사 & 면접',
+    icon: '💼',
+    themeColor: 'indigo',
+    candyColor: 'purple',
+    tourMiniGame: {
+      locationName: 'Tòa Tháp Tài Chính Yeouido',
+      locationIcon: '🏢',
+      themePrompt: 'Bước vào trung tâm kinh tế tài chính và tinh mắt săn các từ khóa công sở chuyên nghiệp!',
+      targetWords: [
+        { wordKo: '회사', meaningVi: 'Công ty', romanization: 'hoe-sa', syllables: ['회', '사'], hint: 'Nơi làm việc mỗi ngày' },
+        { wordKo: '업무', meaningVi: 'Nhiệm vụ / Công việc', romanization: 'eop-mu', syllables: ['업', '무'], hint: 'Trách nhiệm phụ trách' },
+        { wordKo: '회의', meaningVi: 'Cuộc họp', romanization: 'hoe-ui', syllables: ['회', '의'], hint: 'Trao đổi ý kiến tập thể' },
+        { wordKo: '보고서', meaningVi: 'Bản báo cáo', romanization: 'bo-go-seo', syllables: ['보', '고', '서'], hint: 'Văn bản trình bày kết quả' },
+      ],
+    },
+    subSteps: [
+      { id: 's13-1', stepNumber: 1, title: 'Hệ thống chức danh công ty Hàn Quốc', shortTitle: 'Chức danh công ty', type: 'lesson', summaryVi: 'Học cấp bậc: 사원, 대리, 과장, 차장, 부장', contentKo: '김 대리님, 이 과장님, 박 부장님', romanization: 'sawon, daeri, gwajang, bujang', meaningVi: 'Cấp bậc chức danh', detailExplanation: 'Gọi cấp trên luôn kèm họ + chức danh + 님.', practiceQuestions: [{ question: 'Cách gọi Trưởng phòng Park lịch sự là gì?', options: ['박 부장님', '박 씨', '부장 박', '박 과장'], correctIndex: 0, explanation: 'Gọi là 박 부장님.' }] },
+      { id: 's13-2', stepNumber: 2, title: 'Viết email thương mại tiếng Hàn', shortTitle: 'Email thương mại', type: 'lesson', summaryVi: 'Mở đầu: 안녕하십니까 & Kết thúc: 감사합니다', contentKo: '안녕하십니까, OOO입니다. / 감사의 말씀을 드립니다.', romanization: 'Business email', meaningVi: 'Khuôn mẫu email công việc', detailExplanation: 'Email công việc luôn dùng kính ngữ trang trọng.', practiceQuestions: [{ question: 'Mở đầu thư kinh doanh lịch sự nhất là gì?', options: ['안녕하십니까', '안녕', '반가워', '잘 지내'], correctIndex: 0, explanation: '안녕하십니까.' }] },
+      { id: 's13-3', stepNumber: 3, title: 'Kỹ năng nghe gọi điện thoại công việc', shortTitle: 'Điện thoại công việc', type: 'lesson', summaryVi: 'Nhấc máy: 여보세요, OOO입니다. / Xin nối máy: 연결해 드리겠습니다', contentKo: '잠시만 기다려 주십시오.', romanization: 'Jeonhwa eungdae', meaningVi: 'Xử lý cuộc gọi công ty', detailExplanation: 'Giọng điệu khiêm tốn và rõ ràng.', practiceQuestions: [{ question: '"잠시만 기다려 주세요" nghĩa là gì?', options: ['Xin vui lòng đợi một chút', 'Xin cúp máy', 'Xin gọi lại sau', 'Tôi đi vắng'], correctIndex: 0, explanation: 'Xin đợi một chút.' }] },
+      { id: 's13-4', stepNumber: 4, title: 'Phỏng vấn: Bày tỏ thế mạnh bản thân', shortTitle: 'Phỏng vấn xin việc', type: 'lesson', summaryVi: 'Giới thiệu kỹ năng, kinh nghiệm và tinh thần nhiệt huyết', contentKo: '제 강점은 책임감과 성실함입니다. (Thế mạnh của tôi là tinh thần trách nhiệm)', romanization: 'Myeonjeop', meaningVi: 'Tự tin ứng tuyển', detailExplanation: 'Nhấn mạnh sự nhiệt tình và khả năng hòa nhập nhóm.', practiceQuestions: [{ question: '"책임감" nghĩa là gì?', options: ['Tinh thần trách nhiệm', 'Sự lười biếng', 'Sự sợ hãi', 'Sự bất cẩn'], correctIndex: 0, explanation: '책임감 nghĩa là trách nhiệm.' }] },
+      { id: 's13-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 13', shortTitle: 'Kiểm tra cả chặng 13 🏆', type: 'checkpoint', summaryVi: 'Thử thách phản xạ phỏng vấn và ứng xử công sở!', contentKo: '비즈니스 한국어 종합 평가', romanization: 'Business Korean jonghap', meaningVi: 'Đánh giá tiếng Hàn thương mại', detailExplanation: 'Chúc mừng bạn hoàn thành chặng công sở!', practiceQuestions: [{ question: 'Từ "회사" có nghĩa là gì?', audioKo: '회사', options: ['Công ty', 'Trường học', 'Nhà riêng', 'Bệnh viện'], correctIndex: 0, explanation: '회사 nghĩa là công ty.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 14,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Ẩm thực truyền thống & Bàn tiệc Hoesik',
+    koreanTitle: '전통 음식 & 회식',
+    icon: '🍶',
+    themeColor: 'amber',
+    candyColor: 'yellow',
+    tourMiniGame: {
+      locationName: 'Phố Ẩm Thực Jongno 3-ga',
+      locationIcon: '🍻',
+      themePrompt: 'Khám phá văn hóa tiệc liên hoan Hoesik và tinh mắt tìm từ cạn ly gắn kết bạn bè!',
+      targetWords: [
+        { wordKo: '건배', meaningVi: 'Cạn ly / Nâng chén', romanization: 'geon-bae', syllables: ['건', '배'], hint: 'Chúc mừng trong tiệc' },
+        { wordKo: '안주', meaningVi: 'Mồi nhắm', romanization: 'an-ju', syllables: ['안', '주'], hint: 'Thức ăn kèm khi uống' },
+        { wordKo: '음식', meaningVi: 'Món ăn', romanization: 'eum-sik', syllables: ['음', '식'], hint: 'Ẩm thực nuôi dưỡng cơ thể' },
+        { wordKo: '추억', meaningVi: 'Kỷ niệm', romanization: 'chu-eok', syllables: ['추', '억'], hint: 'Ký ức đẹp khó quên' },
+      ],
+    },
+    subSteps: [
+      { id: 's14-1', stepNumber: 1, title: 'Văn hóa bàn tiệc Hoesik', shortTitle: 'Văn hóa Hoesik', type: 'lesson', summaryVi: 'Hiểu về tiệc liên hoan công ty và gắn kết tập thể', contentKo: '회식 문화, 팀워크', romanization: 'hoesik munhwa', meaningVi: 'Tiệc công ty', detailExplanation: 'Hoesik là nét văn hóa truyền thống quan trọng.', practiceQuestions: [{ question: '"건배" nghĩa là gì?', options: ['Cạn ly', 'Xin chào', 'Tạm biệt', 'Cảm ơn'], correctIndex: 0, explanation: '건배 nghĩa là cạn ly.' }] },
+      { id: 's14-2', stepNumber: 2, title: 'Quy tắc rót và nhận rượu với tiền bối', shortTitle: 'Quy tắc rót rượu', type: 'lesson', summaryVi: 'Cầm chai hai tay, quay mặt sang bên khi uống', contentKo: '두 손으로 따르고 받습니다.', romanization: 'Yejol', meaningVi: 'Lễ nghi bàn tiệc', detailExplanation: 'Thể hiện sự tôn trọng tuyệt đối với người lớn tuổi.', practiceQuestions: [{ question: 'Khi tiền bối rót rượu, ta nên nhận thế nào?', options: ['Bằng hai tay và nghiêng người nhẹ', 'Bằng một tay', 'Không nhận', 'Cười to'], correctIndex: 0, explanation: 'Nhận bằng hai tay.' }] },
+      { id: 's14-3', stepNumber: 3, title: 'Văn hóa Tăng 1, Tăng 2, Tăng 3 (1차, 2차, 3차)', shortTitle: 'Tăng 1, Tăng 2', type: 'lesson', summaryVi: 'Ăn tối (1차), uống bia trò chuyện (2차), hát karaoke noraebang (3차)', contentKo: '1차는 삼겹살, 2차는 맥주, 3차는 노래방!', romanization: '1-cha, 2-cha, 3-cha', meaningVi: 'Các chặng tiệc tùng', detailExplanation: 'Nét sinh hoạt đặc sắc của người lao động Hàn Quốc.', practiceQuestions: [{ question: '"노래방" là địa điểm gì?', options: ['Phòng hát Karaoke', 'Quán cà phê', 'Rạp phim', 'Nhà ăn'], correctIndex: 0, explanation: '노래방 là phòng hát Karaoke.' }] },
+      { id: 's14-4', stepNumber: 4, title: 'Từ vựng nấu nướng: Đun sôi, Xào, Rán, Ướp gia vị', shortTitle: 'Từ vựng nấu nướng', type: 'lesson', summaryVi: 'Học: 끓이다 (đun sôi), 볶다 (xào), 굽다 (nướng)', contentKo: '끓이다, 볶다, 굽다, 튀기다', romanization: 'kkeurida, bokda, gupda', meaningVi: 'Cách thức chế biến', detailExplanation: 'Các động từ nấu nướng trong bếp ăn Hàn.', practiceQuestions: [{ question: '"굽다" có nghĩa là gì?', options: ['Nướng', 'Luộc', 'Xào', 'Cắt'], correctIndex: 0, explanation: '굽다 nghĩa là nướng (ví dụ 고기를 굽다).' }] },
+      { id: 's14-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 14', shortTitle: 'Kiểm tra cả chặng 14 🏆', type: 'checkpoint', summaryVi: 'Thử thách hiểu biết văn hóa ẩm thực và bàn tiệc!', contentKo: '회식 문화 종합 평가', romanization: 'Hoesik jonghap', meaningVi: 'Đánh giá văn hóa ẩm thực Hoesik', detailExplanation: 'Chúc mừng bạn hoàn thành chặng văn hóa bàn tiệc!', practiceQuestions: [{ question: 'Từ "음식" nghĩa là gì?', audioKo: '음식', options: ['Món ăn', 'Nước uống', 'Bàn ghế', 'Bát đũa'], correctIndex: 0, explanation: '음식 nghĩa là món ăn / thức ăn.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 15,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'K-Pop, Phim ảnh K-Drama & Giải trí',
+    koreanTitle: 'K-POP & K-드라마',
+    icon: '🎬',
+    themeColor: 'purple',
+    candyColor: 'purple',
+    tourMiniGame: {
+      locationName: 'Đại Lộ K-Star Road Apgujeong',
+      locationIcon: '🌟',
+      themePrompt: 'Dạo bước trên con đường thần tượng rực rỡ và tinh mắt săn đón từ khóa idol K-Pop!',
+      targetWords: [
+        { wordKo: '노래', meaningVi: 'Bài hát', romanization: 'no-rae', syllables: ['노', '래'], hint: 'Giai điệu âm nhạc' },
+        { wordKo: '무대', meaningVi: 'Sân khấu', romanization: 'mu-dae', syllables: ['무', '대'], hint: 'Nơi idol tỏa sáng biểu diễn' },
+        { wordKo: '열정', meaningVi: 'Nhiệt huyết', romanization: 'yeol-jeong', syllables: ['열', '정'], hint: 'Ngọn lửa đam mê' },
+        { wordKo: '팬클럽', meaningVi: 'Fan club', romanization: 'paen-keul-reop', syllables: ['팬', '클', '럽'], hint: 'Cộng đồng người hâm mộ' },
+      ],
+    },
+    subSteps: [
+      { id: 's15-1', stepNumber: 1, title: 'Thuật ngữ Fandom K-Pop chính hiệu', shortTitle: 'Thuật ngữ K-Pop', type: 'lesson', summaryVi: 'Học: 컴백 (Comeback), 응원봉 (Lightstick), 최애 (Bias)', contentKo: '아이돌, 최애, 덕질, 응원봉', romanization: 'K-Pop terms', meaningVi: 'Thuật ngữ fandom', detailExplanation: 'Ngôn ngữ của các fan K-Pop toàn cầu.', practiceQuestions: [{ question: '"최애" nghĩa là gì trong giới fan?', options: ['Thành viên yêu thích nhất (Bias)', 'Trưởng nhóm', 'Công ty quản lý', 'Album mới'], correctIndex: 0, explanation: '최애 nghĩa là thành viên thích nhất.' }] },
+      { id: 's15-2', stepNumber: 2, title: 'Lời thoại ngọt ngào & kịch tính K-Drama', shortTitle: 'Lời thoại K-Drama', type: 'lesson', summaryVi: 'Những câu thoại kinh điển làm xiêu lòng khán giả', contentKo: '보고 싶었어. (Anh đã rất nhớ em) / 가지 마. (Đừng đi)', romanization: 'K-Drama lines', meaningVi: 'Lời thoại phim ảnh', detailExplanation: 'Luyện ngữ điệu cảm xúc tự nhiên.', practiceQuestions: [{ question: '"보고 싶어요" nghĩa là gì?', options: ['Tôi nhớ bạn', 'Tôi ghét bạn', 'Tôi yêu phim', 'Tôi đi ngủ'], correctIndex: 0, explanation: '보고 싶어요 nghĩa là tôi nhớ bạn.' }] },
+      { id: 's15-3', stepNumber: 3, title: 'Cảm thán & Phản xạ trong show tạp kỹ (예능)', shortTitle: 'Cảm thán show giải trí', type: 'lesson', summaryVi: 'Học các từ: 대박! (Đỉnh quá!), 헐! (Trời ơi!), 진짜? (Thật á?)', contentKo: '대박! 헐! 진짜요? 말도 안 돼!', romanization: 'Daebak, Heol, Jinjja', meaningVi: 'Phản xạ cảm thán', detailExplanation: 'Dùng rất phổ biến trong giao tiếp bạn bè thường nhật.', practiceQuestions: [{ question: '"대박" nghĩa là gì?', options: ['Đỉnh quá / Tuyệt vời', 'Xấu quá', 'Chán quá', 'Tạm biệt'], correctIndex: 0, explanation: '대박 nghĩa là đỉnh quá / tuyệt vời.' }] },
+      { id: 's15-4', stepNumber: 4, title: 'Viết thư tay gửi Idol (팬레터)', shortTitle: 'Viết thư cho Idol', type: 'lesson', summaryVi: 'Cách gửi gắm lời chúc ấm áp đến nghệ sĩ yêu mến', contentKo: '항상 응원하고 있어요! 건강 잘 챙기세요.', romanization: 'Fan letter', meaningVi: 'Viết thư động viên', detailExplanation: 'Từ ngữ ấm áp, chân thành.', practiceQuestions: [{ question: '"항상 응원해요" nghĩa là gì?', options: ['Luôn luôn cổ vũ bạn', 'Luôn luôn đi ngủ', 'Luôn luôn ăn cơm', 'Không cổ vũ'], correctIndex: 0, explanation: 'Luôn luôn cổ vũ bạn.' }] },
+      { id: 's15-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 15', shortTitle: 'Kiểm tra cả chặng 15 🏆', type: 'checkpoint', summaryVi: 'Thử thách phản xạ phim ảnh và văn hóa K-Wave!', contentKo: 'K-컬처 종합 평가', romanization: 'K-Culture jonghap', meaningVi: 'Đánh giá văn hóa Hallyu', detailExplanation: 'Chúc mừng bạn hoàn thành chặng K-Wave!', practiceQuestions: [{ question: 'Từ "노래" có nghĩa là gì?', audioKo: '노래', options: ['Bài hát', 'Bộ phim', 'Tranh vẽ', 'Quyển sách'], correctIndex: 0, explanation: '노래 nghĩa là bài hát.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 16,
+    levelCategory: 'basic_lv2',
+    levelLabel: 'Căn bản - LV2',
+    title: 'Thành ngữ & Tiếng lóng Gen Z',
+    koreanTitle: '관용어 & 신조어',
+    icon: '⚡',
+    themeColor: 'teal',
+    candyColor: 'teal',
+    tourMiniGame: {
+      locationName: 'Khu Phố Trẻ Trung Seongsu-dong',
+      locationIcon: '🎨',
+      themePrompt: 'Khám phá thủ phủ thời trang nghệ thuật Seongsu và tinh mắt tìm các tiếng lóng chất lừ!',
+      targetWords: [
+        { wordKo: '소통', meaningVi: 'Giao lưu / Kết nối', romanization: 'so-tong', syllables: ['소', '통'], hint: 'Thấu hiểu chia sẻ' },
+        { wordKo: '문화', meaningVi: 'Văn hóa', romanization: 'mun-hwa', syllables: ['문', '화'], hint: 'Bản sắc dân tộc' },
+        { wordKo: '유행', meaningVi: 'Xu hướng / Trend', romanization: 'yu-haeng', syllables: ['유', '행'], hint: 'Đang hot thịnh hành' },
+        { wordKo: '센스', meaningVi: 'Sự tinh tế (Sense)', romanization: 'sen-seu', syllables: ['센', '스'], hint: 'Khéo léo nhạy bén' },
+      ],
+    },
+    subSteps: [
+      { id: 's16-1', stepNumber: 1, title: 'Quán dụng ngữ về bộ phận cơ thể', shortTitle: 'Quán dụng ngữ cơ thể', type: 'lesson', summaryVi: 'Học: 눈이 높다 (Tiêu chuẩn cao), 귀가 얇다 (Cả tin)', contentKo: '눈이 높다, 발이 넓다 (Quan hệ rộng), 입이 무겁다 (Kín miệng)', romanization: 'Gwanyong-eo', meaningVi: 'Thành ngữ đời sống', detailExplanation: 'Nói ẩn dụ sinh động.', practiceQuestions: [{ question: '"발이 넓다" (chân rộng) nghĩa bóng là gì?', options: ['Có quan hệ quen biết rộng', 'Chân đi giày to', 'Đi nhanh', 'Đi chậm'], correctIndex: 0, explanation: 'Nghĩa là quan hệ rộng.' }] },
+      { id: 's16-2', stepNumber: 2, title: 'Tục ngữ Hàn Quốc (속담) bất hủ', shortTitle: 'Tục ngữ kinh điển', type: 'lesson', summaryVi: 'Học: 시작이 반이다 (Bắt đầu là đã xong một nửa)', contentKo: '시작이 반이다, 고생 끝에 낙이 온다 (Khổ tận cam lai)', romanization: 'Sokdam', meaningVi: 'Tục ngữ trí tuệ', detailExplanation: 'Bài học đúc kết qua ngàn năm.', practiceQuestions: [{ question: '"시작이 반이다" nghĩa là gì?', options: ['Bắt đầu là đã xong một nửa', 'Bắt đầu rất khó', 'Kết thúc rất vui', 'Chưa bắt đầu'], correctIndex: 0, explanation: 'Bắt đầu là xong một nửa.' }] },
+      { id: 's16-3', stepNumber: 3, title: 'Tiếng lóng Gen Z trên mạng xã hội', shortTitle: 'Tiếng lóng Gen Z', type: 'lesson', summaryVi: 'Học: 인싸 (Người hướng ngoại), 꿀잼 (Cực vui), 존맛 (Ngon bá cháy)', contentKo: '인싸, 아싸, 꿀잼, 노잼, TMI', romanization: 'Gen Z slang', meaningVi: 'Từ lóng giới trẻ', detailExplanation: 'Dùng khi nhắn tin mạng xã hội.', practiceQuestions: [{ question: '"꿀잼" nghĩa là gì?', options: ['Cực kỳ vui / Hài hước', 'Rất chán', 'Rất ngọt', 'Rất cay'], correctIndex: 0, explanation: '꿀잼 nghĩa là cực kỳ vui / thú vị.' }] },
+      { id: 's16-4', stepNumber: 4, title: 'Nói tiếng Hàn tự nhiên như người bản xứ', shortTitle: 'Giao tiếp tự nhiên', type: 'lesson', summaryVi: 'Dùng các trợ từ cảm thán: -잖아 (chẳng phải sao), -거든 (vì thế mà)', contentKo: '알잖아~ / 그렇거든!', romanization: 'Natural Korean', meaningVi: 'Khẩu ngữ tự nhiên', detailExplanation: 'Tạo cảm giác thân mật gắn kết.', practiceQuestions: [{ question: '"알잖아" nghĩa là gì?', options: ['Bạn biết mà / chẳng phải bạn biết sao', 'Bạn không biết', 'Tôi quên rồi', 'Tôi đi nhé'], correctIndex: 0, explanation: 'Bạn biết mà.' }] },
+      { id: 's16-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 16 & Tốt nghiệp Căn bản', shortTitle: 'Tốt nghiệp LV2 🏆👑', type: 'checkpoint', summaryVi: 'Đại thi tốt nghiệp Level 2: Căn bản!', contentKo: '중급 종합 최종 평가', romanization: 'Junggeup jonghap', meaningVi: 'Đánh giá tốt nghiệp cấp độ Căn bản', detailExplanation: 'Chúc mừng bạn! Mở khóa cánh cổng bước vào Level 3: Nâng cao đỉnh cao!', practiceQuestions: [{ question: 'Từ "문화" có nghĩa là gì?', audioKo: '문화', options: ['Văn hóa', 'Văn học', 'Lịch sử', 'Địa lý'], correctIndex: 0, explanation: '문화 nghĩa là văn hóa.' }] },
+    ],
+  },
+
+  // ============================================================
+  // NÂNG CAO - LV3 (CHẶNG 17 -> 20)
+  // ============================================================
+  {
+    stageNumber: 17,
+    levelCategory: 'advanced_lv3',
+    levelLabel: 'Nâng cao - LV3',
+    title: 'Kinh tế & Đầu tư thương mại',
+    koreanTitle: '경제 & 금융',
+    icon: '📈',
+    themeColor: 'emerald',
+    candyColor: 'green',
+    tourMiniGame: {
+      locationName: 'Sở Giao Dịch Chứng Khoán KRX',
+      locationIcon: '🏦',
+      themePrompt: 'Đến trung tâm thị trường vốn tài chính và tinh mắt săn đón các thuật ngữ đầu tư đắt giá!',
+      targetWords: [
+        { wordKo: '투자', meaningVi: 'Đầu tư', romanization: 'tu-ja', syllables: ['투', '자'], hint: 'Rót vốn sinh lời' },
+        { wordKo: '시장', meaningVi: 'Thị trường', romanization: 'si-jang', syllables: ['시', '장'], hint: 'Nơi giao thương kinh tế' },
+        { wordKo: '성장', meaningVi: 'Tăng trưởng', romanization: 'seong-jang', syllables: ['성', '장'], hint: 'Phát triển đi lên' },
+        { wordKo: '가치', meaningVi: 'Giá trị', romanization: 'ga-chi', syllables: ['가', '치'], hint: 'Ý nghĩa và giá cả cốt lõi' },
+      ],
+    },
+    subSteps: [
+      { id: 's17-1', stepNumber: 1, title: 'Thuật ngữ tài chính: 주식, 환율, 금리', shortTitle: 'Kinh tế tài chính', type: 'lesson', summaryVi: 'Học: Cổ phiếu (주식), Tỷ giá (환율), Lãi suất (금리)', contentKo: '주식, 환율, 금리, 인플레이션', romanization: 'Economy', meaningVi: 'Kinh tế vĩ mô', detailExplanation: 'Từ vựng chuyên ngành trong các bản tin kinh tế.', practiceQuestions: [{ question: '"환율" nghĩa là gì?', options: ['Tỷ giá hối đoái', 'Lãi suất', 'Tiền gửi', 'Giá vàng'], correctIndex: 0, explanation: '환율 là tỷ giá hối đoái.' }] },
+      { id: 's17-2', stepNumber: 2, title: 'Phân tích báo cáo tài chính doanh nghiệp', shortTitle: 'Báo cáo doanh nghiệp', type: 'lesson', summaryVi: 'Học: Doanh thu (매출), Lợi nhuận (영업이익)', contentKo: '매출액, 영업이익, 순이익', romanization: 'Financial report', meaningVi: 'Số liệu tài chính', detailExplanation: 'Đọc hiểu báo cáo thường niên.', practiceQuestions: [{ question: '"매출" nghĩa là gì?', options: ['Doanh thu', 'Chi phí', 'Khoản nợ', 'Thất bại'], correctIndex: 0, explanation: '매출 nghĩa là doanh thu.' }] },
+      { id: 's17-3', stepNumber: 3, title: 'Đàm phán hợp đồng thương mại quốc tế', shortTitle: 'Đàm phán hợp đồng', type: 'lesson', summaryVi: 'Mẫu câu thương lượng giá cả và điều khoản', contentKo: '계약 조건을 검토해 주십시오.', romanization: 'Contract', meaningVi: 'Ký kết hợp đồng', detailExplanation: 'Dùng từ ngữ chuẩn xác, chặt chẽ pháp lý.', practiceQuestions: [{ question: '"계약" nghĩa là gì?', options: ['Hợp đồng', 'Bản vẽ', 'Hóa đơn', 'Hộ chiếu'], correctIndex: 0, explanation: '계약 là hợp đồng.' }] },
+      { id: 's17-4', stepNumber: 4, title: 'Phân tích xu hướng thị trường & Cạnh tranh', shortTitle: 'Xu hướng thị trường', type: 'lesson', summaryVi: 'Dự báo tăng trưởng và chiến lược cạnh tranh', contentKo: '시장 점유율을 확대하다.', romanization: 'Market trend', meaningVi: 'Chiến lược thị trường', detailExplanation: 'Từ vựng phân tích kinh doanh.', practiceQuestions: [{ question: '"경쟁력" nghĩa là gì?', options: ['Năng lực cạnh tranh', 'Sự hợp tác', 'Sự nhượng bộ', 'Sự từ chối'], correctIndex: 0, explanation: 'Năng lực cạnh tranh.' }] },
+      { id: 's17-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 17', shortTitle: 'Kiểm tra cả chặng 17 🏆', type: 'checkpoint', summaryVi: 'Thử thách đàm phán kinh tế và phân tích thương mại!', contentKo: '경제 한국어 종합 평가', romanization: 'Economy Korean', meaningVi: 'Đánh giá tiếng Hàn kinh tế', detailExplanation: 'Chúc mừng bạn hoàn thành chặng kinh tế!', practiceQuestions: [{ question: 'Từ "투자" có nghĩa là gì?', audioKo: '투자', options: ['Đầu tư', 'Tiêu xài', 'Bỏ cuộc', 'Thua lỗ'], correctIndex: 0, explanation: '투자 nghĩa là đầu tư.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 18,
+    levelCategory: 'advanced_lv3',
+    levelLabel: 'Nâng cao - LV3',
+    title: 'Tin tức thời sự & Báo chí Hàn Quốc',
+    koreanTitle: '뉴스 & 미디어',
+    icon: '📰',
+    themeColor: 'blue',
+    candyColor: 'blue',
+    tourMiniGame: {
+      locationName: 'Tòa Soạn Truyền Hình MBC Sangam',
+      locationIcon: '📺',
+      themePrompt: 'Bước vào trường quay tin tức hiện đại và tinh mắt thu thập từ vựng thời sự 9 giờ!',
+      targetWords: [
+        { wordKo: '뉴스', meaningVi: 'Tin tức bản tin', romanization: 'nyu-seu', syllables: ['뉴', '스'], hint: 'Thông tin thời sự' },
+        { wordKo: '진실', meaningVi: 'Sự thật chân lý', romanization: 'jin-sil', syllables: ['진', '실'], hint: 'Điều đúng đắn' },
+        { wordKo: '사회', meaningVi: 'Xã hội', romanization: 'sa-hoe', syllables: ['사', '회'], hint: 'Cộng đồng con người' },
+        { wordKo: '발전', meaningVi: 'Phát triển', romanization: 'bal-jeon', syllables: ['발', '전'], hint: 'Tiến bộ văn minh' },
+      ],
+    },
+    subSteps: [
+      { id: 's18-1', stepNumber: 1, title: 'Từ vựng chuyên ngành báo chí & Truyền thông', shortTitle: 'Thuật ngữ báo chí', type: 'lesson', summaryVi: 'Học: 보도 (đưa tin), 인터뷰 (phỏng vấn), 언론 (truyền thông)', contentKo: '보도, 속보 (tin khẩn), 언론', romanization: 'News vocabulary', meaningVi: 'Thuật ngữ truyền thông', detailExplanation: 'Nắm chắc để nghe hiểu bản tin thời sự.', practiceQuestions: [{ question: '"속보" nghĩa là gì?', options: ['Tin khẩn cấp', 'Tin cũ', 'Tin đồn', 'Tin vui'], correctIndex: 0, explanation: '속보 là tin khẩn cấp.' }] },
+      { id: 's18-2', stepNumber: 2, title: 'Ngữ pháp văn phong tin tức gián tiếp (-다고 하다)', shortTitle: 'Tường thuật gián tiếp', type: 'lesson', summaryVi: 'Thuật lại lời người khác: Nghe nói rằng... Theo nguồn tin...', contentKo: '전문가들은 경기가 회복될 것이라고 밝혔습니다.', romanization: 'Indirect speech', meaningVi: 'Dẫn lời gián tiếp', detailExplanation: 'Đặc trưng trong mọi bài báo tiếng Hàn.', practiceQuestions: [{ question: 'Đuôi "-다고 밝혔다" nghĩa là gì?', options: ['Đã cho biết rằng...', 'Đã hỏi rằng...', 'Đã yêu cầu rằng...', 'Đã từ chối'], correctIndex: 0, explanation: 'Đã cho biết rằng...' }] },
+      { id: 's18-3', stepNumber: 3, title: 'Bình luận các vấn đề môi trường & Xã hội', shortTitle: 'Môi trường xã hội', type: 'lesson', summaryVi: 'Ô nhiễm không khí, biến đổi khí hậu, già hóa dân số', contentKo: '환경 보호, 고령화 사회', romanization: 'Social issues', meaningVi: 'Vấn đề thời sự lớn', detailExplanation: 'Chủ đề quen thuộc trong kỳ thi TOPIK II.', practiceQuestions: [{ question: '"환경" nghĩa là gì?', options: ['Môi trường', 'Giáo dục', 'Kinh tế', 'Giao thông'], correctIndex: 0, explanation: '환경 nghĩa là môi trường.' }] },
+      { id: 's18-4', stepNumber: 4, title: 'Luyện nghe hiểu bản tin thời sự 9 giờ', shortTitle: 'Nghe tin thời sự', type: 'lesson', summaryVi: 'Bắt nhịp phát âm đài truyền hình KBS, MBC, SBS', contentKo: '9시 뉴스 앵커 브리핑', romanization: 'News listening', meaningVi: 'Nghe hiểu đài truyền hình', detailExplanation: 'Giọng đọc chuẩn Seoul tốc độ tự nhiên.', practiceQuestions: [{ question: 'Bản tin 9 giờ tối tại Hàn được gọi là gì?', options: ['9시 뉴스', '9시 라디오', '9시 영화', '9시 드라마'], correctIndex: 0, explanation: '9시 뉴스.' }] },
+      { id: 's18-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 18', shortTitle: 'Kiểm tra cả chặng 18 🏆', type: 'checkpoint', summaryVi: 'Thử thách nghe hiểu và tóm tắt bản tin thời sự!', contentKo: '미디어 한국어 종합 평가', romanization: 'Media Korean', meaningVi: 'Đánh giá tiếng Hàn thời sự', detailExplanation: 'Chúc mừng bạn hoàn thành chặng báo chí!', practiceQuestions: [{ question: 'Từ "사회" có nghĩa là gì?', audioKo: '사회', options: ['Xã hội', 'Tự nhiên', 'Cá nhân', 'Gia đình'], correctIndex: 0, explanation: '사회 nghĩa là xã hội.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 19,
+    levelCategory: 'advanced_lv3',
+    levelLabel: 'Nâng cao - LV3',
+    title: 'Viết luận TOPIK II Đỉnh cao',
+    koreanTitle: 'TOPIK II 쓰기 전략',
+    icon: '✍️',
+    themeColor: 'purple',
+    candyColor: 'purple',
+    tourMiniGame: {
+      locationName: 'Thư Viện Quốc Gia Hàn Quốc',
+      locationIcon: '📚',
+      themePrompt: 'Bước vào kho tàng tri thức quốc gia và tinh mắt thu thập kho báu từ vựng viết luận!',
+      targetWords: [
+        { wordKo: '논술', meaningVi: 'Bài nghị luận', romanization: 'non-sul', syllables: ['논', '술'], hint: 'Văn phong lập luận sắc bén' },
+        { wordKo: '분석', meaningVi: 'Phân tích', romanization: 'bun-seok', syllables: ['분', '석'], hint: 'Mổ xẻ số liệu biểu đồ' },
+        { wordKo: '주장', meaningVi: 'Luận điểm / Ý kiến', romanization: 'ju-jang', syllables: ['주', '장'], hint: 'Quan điểm tác giả' },
+        { wordKo: '근거', meaningVi: 'Căn cứ xác thực', romanization: 'geun-geo', syllables: ['근', '거'], hint: 'Bằng chứng thuyết phục' },
+      ],
+    },
+    subSteps: [
+      { id: 's19-1', stepNumber: 1, title: 'Chiến thuật câu 51 & 52 (Điền khuyết)', shortTitle: 'Câu 51 & 52', type: 'lesson', summaryVi: 'Bắt đúng đuôi câu văn phong thông báo và giải thích', contentKo: '-(으)ㄹ 예정이다, -기 마련이다', romanization: 'Writing 51-52', meaningVi: 'Kỹ năng điền từ chuẩn xác', detailExplanation: 'Ăn trọn 20 điểm bằng cách nắm cấu trúc văn mẫu.', practiceQuestions: [{ question: 'Câu thông báo trang trọng thường dùng đuôi câu nào?', options: ['-(으)십시오 / -(으)ㅂ니다', '-아/어요', '-아/어', '-자'], correctIndex: 0, explanation: 'Dùng đuôi trang trọng -(으)ㅂ니다.' }] },
+      { id: 's19-2', stepNumber: 2, title: 'Bí kíp câu 53: Phân tích biểu đồ (30 điểm)', shortTitle: 'Câu 53 Biểu đồ', type: 'lesson', summaryVi: 'Mô tả tăng giảm: 증가하다, 감소하다, 차지하다', contentKo: '조사 결과에 따르면, 크게 증가한 것으로 나타났다.', romanization: 'Graph analysis', meaningVi: 'Phân tích số liệu biểu đồ', detailExplanation: 'Tuyệt đối không dùng ý kiến cá nhân trong câu 53.', practiceQuestions: [{ question: '"증가하다" có nghĩa là gì?', options: ['Tăng lên', 'Giảm đi', 'Đứng yên', 'Biến mất'], correctIndex: 0, explanation: '증가하다 nghĩa là tăng lên.' }] },
+      { id: 's19-3', stepNumber: 3, title: 'Bài luận xã hội câu 54 (600 - 700 chữ)', shortTitle: 'Câu 54 Nghị luận', type: 'lesson', summaryVi: 'Bố cục 3 phần: Mở bài - Thân bài (2 luận điểm) - Kết bài', contentKo: '서론, 본론, 결론의 논리적 전개', romanization: 'Essay 54', meaningVi: 'Bố cục bài luận điểm cao', detailExplanation: 'Tránh hoàn toàn đuôi câu thân mật; dùng đuôi văn viết -ㄴ/는다.', practiceQuestions: [{ question: 'Trong bài luận câu 54 TOPIK, đuôi câu nào bắt buộc sử dụng?', options: ['Đuôi văn viết: -ㄴ/는다, -다', 'Đuôi thân mật: -아/어요', 'Đuôi kính cẩn: -습니다', 'Đuôi rủ rê: -자'], correctIndex: 0, explanation: 'Bắt buộc dùng đuôi văn viết -ㄴ/는다.' }] },
+      { id: 's19-4', stepNumber: 4, title: 'Từ nối học thuật cao cấp', shortTitle: 'Từ nối học thuật', type: 'lesson', summaryVi: 'Dùng: 첫째, 둘째, 이에 반해, 결론적으로', contentKo: '이에 따라, 반면에, 궁극적으로', romanization: 'Academic connectors', meaningVi: 'Liên từ viết luận', detailExplanation: 'Nâng tầm bài viết lên band 5, band 6.', practiceQuestions: [{ question: '"반면에" nghĩa là gì?', options: ['Trái lại / Ngược lại', 'Vì thế', 'Và', 'Cho nên'], correctIndex: 0, explanation: '반면에 nghĩa là trái lại.' }] },
+      { id: 's19-5', stepNumber: 5, title: 'Kiểm tra toàn diện chặng 19', shortTitle: 'Kiểm tra cả chặng 19 🏆', type: 'checkpoint', summaryVi: 'Thử thách chấm điểm bài thi TOPIK II Viết đỉnh cao!', contentKo: 'TOPIK 쓰기 실전 모의평가', romanization: 'TOPIK Essay Mock', meaningVi: 'Đánh giá thực chiến TOPIK Viết', detailExplanation: 'Chúc mừng bạn thành thạo kỹ năng viết luận!', practiceQuestions: [{ question: 'Từ "논술" có nghĩa là gì?', audioKo: '논술', options: ['Nghị luận / Viết luận', 'Đọc sách', 'Kể chuyện', 'Thơ ca'], correctIndex: 0, explanation: '논술 nghĩa là nghị luận.' }] },
+    ],
+  },
+
+  {
+    stageNumber: 20,
+    levelCategory: 'advanced_lv3',
+    levelLabel: 'Nâng cao - LV3',
+    title: 'Đại Sứ Hàn Ngữ: Đàm thoại tự nhiên',
+    koreanTitle: '한국어 마스터 & 프리토킹',
+    icon: '👑',
+    themeColor: 'amber',
+    candyColor: 'yellow',
+    tourMiniGame: {
+      locationName: 'Cung Điện Gyeongbokgung Hoàng Gia',
+      locationIcon: '🏯',
+      themePrompt: 'Đứng trước chính điện uy nghiêm của hoàng cung và tinh mắt chạm tay vào vinh quang Đại Sứ!',
+      targetWords: [
+        { wordKo: '대사', meaningVi: 'Đại sứ / Người đại diện', romanization: 'dae-sa', syllables: ['대', '사'], hint: 'Cầu nối hai quốc gia' },
+        { wordKo: '완성', meaningVi: 'Hoàn thành trọn vẹn', romanization: 'wan-seong', syllables: ['완', '성'], hint: 'Cán đích xuất sắc' },
+        { wordKo: '자랑', meaningVi: 'Niềm tự hào', romanization: 'ja-rang', syllables: ['자', '랑'], hint: 'Kiêu hãnh vì nỗ lực' },
+        { wordKo: '미래', meaningVi: 'Tương lai tươi sáng', romanization: 'mi-rae', syllables: ['미', '래'], hint: 'Những ngày tháng phía trước' },
+      ],
+    },
+    subSteps: [
+      { id: 's20-1', stepNumber: 1, title: 'Thảo luận tự do & Tranh biện học thuật', shortTitle: 'Tranh biện học thuật', type: 'lesson', summaryVi: 'Bảo vệ quan điểm và phản biện lịch sự', contentKo: '제 생각에는 ~ (Theo ý kiến của tôi...)', romanization: 'Debate', meaningVi: 'Kỹ năng phản biện', detailExplanation: 'Giao tiếp ở trình độ cao cấp.', practiceQuestions: [{ question: '"제 생각에는" dùng để làm gì?', options: ['Đưa ra quan điểm cá nhân', 'Xin lỗi', 'Chào tạm biệt', 'Khen ngợi'], correctIndex: 0, explanation: 'Nghĩa là: Theo ý kiến của tôi...' }] },
+      { id: 's20-2', stepNumber: 2, title: 'Ngữ điệu địa phương & Tinh hoa văn hóa', shortTitle: 'Ngữ điệu tinh tế', type: 'lesson', summaryVi: 'Phân biệt giọng Seoul chuẩn và phương ngữ Busan', contentKo: '사투리, 표준어', romanization: 'Dialect & Culture', meaningVi: 'Sự phong phú ngôn ngữ', detailExplanation: 'Hiểu sâu bản sắc văn hóa các vùng miền.', practiceQuestions: [{ question: '"표준어" nghĩa là gì?', options: ['Ngôn ngữ chuẩn (Seoul)', 'Tiếng lóng', 'Tiếng địa phương', 'Tiếng cổ'], correctIndex: 0, explanation: '표준어 là ngôn ngữ chuẩn.' }] },
+      { id: 's20-3', stepNumber: 3, title: 'Kỹ năng thuyết trình song ngữ chuyên nghiệp', shortTitle: 'Thuyết trình chuyên nghiệp', type: 'lesson', summaryVi: 'Làm chủ sân khấu, tự tin trình bày dự án trước đối tác Hàn Quốc', contentKo: '발표를 시작하겠습니다.', romanization: 'Presentation', meaningVi: 'Thuyết trình tự tin', detailExplanation: 'Kỹ năng đỉnh cao trong môi trường làm việc quốc tế.', practiceQuestions: [{ question: 'Câu mở đầu thuyết trình "Tôi xin bắt đầu bài phát biểu" là gì?', options: ['발표를 시작하겠습니다', '안녕히 계세요', '잘 먹겠습니다', '죄송합니다'], correctIndex: 0, explanation: '발표를 시작하겠습니다.' }] },
+      { id: 's20-4', stepNumber: 4, title: 'Tự tin hòa nhập cuộc sống & Làm việc tại Seoul', shortTitle: 'Hòa nhập trọn vẹn', type: 'lesson', summaryVi: 'Sống, học tập và làm việc như người bản xứ', contentKo: '현지 생활 적응 & 소통', romanization: 'Life in Seoul', meaningVi: 'Đạt cảnh giới bản xứ', detailExplanation: 'Tự tin đàm thoại mọi đề tài trong cuộc sống.', practiceQuestions: [{ question: 'Mục tiêu cao nhất của người học tiếng Hàn là gì?', options: ['Tự tin giao tiếp và thấu hiểu văn hóa', 'Học vẹt từ vựng', 'Không cần nói', 'Chỉ xem phim'], correctIndex: 0, explanation: 'Tự tin giao tiếp và thấu hiểu văn hóa.' }] },
+      { id: 's20-5', stepNumber: 5, title: 'Tốt nghiệp Đại Sứ Hàn Ngữ: Kiểm tra tổng kết toàn khóa', shortTitle: 'Tốt nghiệp toàn khóa 👑⭐', type: 'checkpoint', summaryVi: 'Thử thách vĩ đại cuối cùng: Vinh danh Đại Sứ Hàn Ngữ!', contentKo: '한국어 마스터 최종 졸업 시험', romanization: 'Korean Master Graduation', meaningVi: 'Đại thi tốt nghiệp toàn khóa học', detailExplanation: 'Chúc mừng bạn đã chinh phục trọn vẹn 20 chặng đường Hàn Ngữ!', practiceQuestions: [
+        { question: 'Từ "자랑" có nghĩa là gì?', audioKo: '자랑', options: ['Niềm tự hào / Khoe', 'Sự sợ hãi', 'Nỗi buồn', 'Sự tức giận'], correctIndex: 0, explanation: '자랑 nghĩa là niềm tự hào.' },
+        { question: 'Từ "미래" có nghĩa là gì?', audioKo: '미래', options: ['Tương lai', 'Quá khứ', 'Hiện tại', 'Hôm qua'], correctIndex: 0, explanation: '미래 nghĩa là tương lai.' },
+      ] },
+    ],
+  },
+];

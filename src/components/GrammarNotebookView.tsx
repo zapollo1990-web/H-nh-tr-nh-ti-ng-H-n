@@ -126,55 +126,70 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 pb-24 md:pb-8">
-      {/* Top Header */}
-      <div className="bg-gradient-to-r from-sky-50 via-white to-amber-50 rounded-2xl p-4 sm:p-5 border border-sky-100 shadow-xs mb-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">📖</span>
-          <h2 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight">
-            Sổ Tay Ngữ Pháp & Sửa Lỗi (한국어 문법 노트)
-          </h2>
-        </div>
-        <p className="text-xs sm:text-sm text-slate-600 mt-1">
-          Tổng hợp những lỗi người Việt hay mắc phải và công cụ AI sửa câu thông minh.
-        </p>
+      {/* Sleek Top Header & Tabs */}
+      <div className="space-y-3 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                Sổ Tay Ngữ Pháp & Sửa Lỗi
+              </h2>
+              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                {GRAMMAR_RULES.length} cấu trúc
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tổng hợp điểm ngữ pháp quan trọng và công cụ AI sửa lỗi câu
+            </p>
+          </div>
 
-        {/* View mode tabs */}
-        <div className="flex items-center gap-1.5 mt-4">
-          <button
-            onClick={() => setActiveTab('handbook')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              activeTab === 'handbook'
-                ? 'bg-sky-500 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            <span>Sổ tay lỗi thường gặp</span>
-          </button>
+          {/* View mode tabs */}
+          <div className="bg-slate-100 p-0.5 rounded-xl flex items-center border border-slate-200 text-xs font-bold self-start sm:self-auto">
+            <button
+              onClick={() => {
+                playClickSound();
+                setActiveTab('handbook');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                activeTab === 'handbook'
+                  ? 'bg-white text-slate-900 shadow-2xs font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Sổ tay</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('ai-checker')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              activeTab === 'ai-checker'
-                ? 'bg-amber-400 text-slate-900 shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>AI Soát lỗi câu</span>
-          </button>
+            <button
+              onClick={() => {
+                playClickSound();
+                setActiveTab('ai-checker');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                activeTab === 'ai-checker'
+                  ? 'bg-white text-slate-900 shadow-2xs font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>AI sửa lỗi</span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('saved')}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              activeTab === 'saved'
-                ? 'bg-emerald-500 text-white shadow-xs'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            <BookmarkCheck className="w-4 h-4" />
-            <span>Ghi chú của tôi ({savedMistakes.length})</span>
-          </button>
+            <button
+              onClick={() => {
+                playClickSound();
+                setActiveTab('saved');
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                activeTab === 'saved'
+                  ? 'bg-white text-slate-900 shadow-2xs font-black'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BookmarkCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Đã lưu ({savedMistakes.length})</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -182,20 +197,19 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
       {activeTab === 'handbook' && (
         <div className="space-y-4">
           {/* LEVEL FILTER TABS */}
-          <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-xs flex items-center gap-1.5 overflow-x-auto scrollbar-none">
+          <div className="bg-slate-100 p-0.5 rounded-xl flex items-center gap-0.5 overflow-x-auto scrollbar-none border border-slate-200/80">
             <button
               onClick={() => {
                 playClickSound();
                 setSelectedLevel('all');
               }}
-              className={`px-3 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'all'
-                  ? 'bg-slate-800 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Layers className="w-3.5 h-3.5" />
-              <span>Tất cả ({GRAMMAR_RULES.length} ngữ pháp)</span>
+              <span>Tất cả ({GRAMMAR_RULES.length})</span>
             </button>
 
             <button
@@ -203,10 +217,10 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 playClickSound();
                 setSelectedLevel('beginner');
               }}
-              className={`px-3 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'beginner'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-white text-emerald-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>🌱 Sơ cấp ({BEGINNER_GRAMMAR_RULES.length})</span>
@@ -217,10 +231,10 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 playClickSound();
                 setSelectedLevel('intermediate');
               }}
-              className={`px-3 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'intermediate'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-white text-indigo-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>🌿 Trung cấp ({INTERMEDIATE_GRAMMAR_RULES.length})</span>
@@ -231,48 +245,43 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 playClickSound();
                 setSelectedLevel('advanced');
               }}
-              className={`px-3 py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'advanced'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'bg-white text-purple-700 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <span>🌳 Cao cấp ({ADVANCED_GRAMMAR_RULES.length})</span>
             </button>
           </div>
 
-          {/* Search bar & Category filter */}
-          <div className="space-y-2">
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          {/* Search bar & Category dropdown */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm ngữ pháp theo tên, công thức, giải thích (vd: 은/는, -아/어서, -다고 하다)..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium focus:outline-hidden focus:ring-2 focus:ring-sky-400 shadow-xs"
+                placeholder="Tìm theo tên, công thức (vd: 은/는, -아/어서)..."
+                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    playClickSound();
-                    setSelectedCategory(cat.id);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                    selectedCategory === cat.id
-                      ? 'bg-sky-500 text-white shadow-xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <span>{cat.icon}</span>
-                  <span>{cat.label}</span>
-                </button>
+            <select
+              value={selectedCategory}
+              onChange={(e) => {
+                playClickSound();
+                setSelectedCategory(e.target.value);
+              }}
+              className="bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer"
+            >
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.icon} {c.label}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
 
           {/* Result Count Status */}

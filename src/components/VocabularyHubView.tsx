@@ -43,21 +43,21 @@ export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 3-Part Sub Navigation: Từ vựng, Toàn bộ Ngữ pháp & Ôn tập */}
-      <div className="bg-white rounded-3xl p-1.5 border border-slate-200 shadow-xs flex items-center gap-1.5 max-w-xl mx-auto overflow-x-auto scrollbar-none">
+      {/* 3-Part Sub Navigation: Từ vựng, Ngữ pháp & Ôn tập */}
+      <div className="bg-slate-100 p-1 rounded-2xl flex items-center gap-1 max-w-md mx-auto border border-slate-200/80">
         <button
           onClick={() => {
             playClickSound();
             setSubTab('vocab');
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'vocab'
-              ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-200'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
           }`}
         >
-          <BookOpen className="w-4 h-4 shrink-0" />
-          <span>Sổ tay Từ vựng (1000+)</span>
+          <BookOpen className="w-3.5 h-3.5 shrink-0" />
+          <span>Từ vựng</span>
         </button>
 
         <button
@@ -65,14 +65,14 @@ export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
             playClickSound();
             setSubTab('grammar');
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'grammar'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-amber-200'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
           }`}
         >
-          <FileText className="w-4 h-4 shrink-0" />
-          <span>Ngữ pháp toàn diện</span>
+          <FileText className="w-3.5 h-3.5 shrink-0" />
+          <span>Ngữ pháp</span>
         </button>
 
         <button
@@ -80,14 +80,14 @@ export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
             playClickSound();
             setSubTab('practice');
           }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3.5 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer whitespace-nowrap ${
             subTab === 'practice'
-              ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-200'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              ? 'bg-white text-slate-900 shadow-xs'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
           }`}
         >
-          <Brain className="w-4 h-4 shrink-0" />
-          <span>Ôn tập & Luyện thi</span>
+          <Brain className="w-3.5 h-3.5 shrink-0" />
+          <span>Ôn tập</span>
         </button>
       </div>
 

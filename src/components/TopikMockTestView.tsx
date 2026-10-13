@@ -194,26 +194,22 @@ export const TopikMockTestView: React.FC<TopikMockTestViewProps> = ({
               Luyện Thi TOPIK Sơ Cấp & Trung Cấp
             </h2>
             <p className="text-xs sm:text-sm text-orange-100 leading-relaxed font-medium">
-              Chọn đáp án sẽ <strong>tự động hiện kết quả đúng/sai</strong> và <strong>tự chuyển câu mới</strong> mượt mà. Hỗ trợ tùy chỉnh giọng đọc chuẩn Nam/Nữ!
+              Chọn đáp án sẽ <strong>tự động hiện kết quả đúng/sai</strong> và <strong>tự chuyển câu mới</strong> mượt mà. Giọng đọc nam bản xứ phát âm chuẩn Seoul!
             </p>
           </div>
 
           <div className="flex flex-col items-start md:items-end gap-1.5 shrink-0">
-            <span className="text-[11px] font-bold text-amber-100">Tùy chọn giọng đọc:</span>
+            <span className="text-[11px] font-bold text-amber-100">Giọng đọc phát âm:</span>
             <div className="flex items-center gap-2">
               <VoiceGenderToggle className="bg-white/95 text-slate-800 shadow-xs" />
               <button
                 type="button"
                 onClick={() => {
                   playClickSound();
-                  speakKorean(
-                    getVoiceGender() === 'female'
-                      ? '안녕하세요! 토픽 시험을 준비해 볼까요?'
-                      : '반갑습니다! 토픽 모의고사입니다.'
-                  );
+                  speakKorean('반갑습니다! 토픽 모의고사 듣기 문제입니다.');
                 }}
                 className="px-2.5 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold transition-all flex items-center gap-1 border border-white/30 cursor-pointer shadow-xs active:scale-95"
-                title="Nghe thử giọng đọc đã chọn"
+                title="Nghe thử giọng đọc nam bản xứ"
               >
                 <Volume2 className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Nghe thử</span>

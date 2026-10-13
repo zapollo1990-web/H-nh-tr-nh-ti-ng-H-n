@@ -1,26 +1,21 @@
 /**
  * Audio synthesis & sound effects for Korean Learning App
- * Supports Voice Gender Customization (Female 👩 / Male 👨)
+ * Exclusively Authentic Male Korean Voice (Giọng Nam Bản Xứ 👨)
  */
 
-export type VoiceGender = 'female' | 'male';
+export type VoiceGender = 'male' | 'female';
 
 const VOICE_GENDER_STORAGE_KEY = 'korean_voice_gender_pref';
 
 export function getVoiceGender(): VoiceGender {
-  if (typeof window === 'undefined') return 'female';
-  try {
-    const saved = localStorage.getItem(VOICE_GENDER_STORAGE_KEY);
-    if (saved === 'male' || saved === 'female') return saved;
-  } catch (_) {}
-  return 'female';
+  return 'male';
 }
 
-export function setVoiceGender(gender: VoiceGender): void {
+export function setVoiceGender(_gender: VoiceGender): void {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.setItem(VOICE_GENDER_STORAGE_KEY, gender);
-    window.dispatchEvent(new CustomEvent('voice-gender-changed', { detail: gender }));
+    localStorage.setItem(VOICE_GENDER_STORAGE_KEY, 'male');
+    window.dispatchEvent(new CustomEvent('voice-gender-changed', { detail: 'male' }));
   } catch (_) {}
 }
 
@@ -42,8 +37,8 @@ function getAudioContext(): AudioContext | null {
   return audioCtx;
 }
 
-// Korean Text-to-Speech using Web Speech API with gender adaptation
-export function speakKorean(text: string, rate = 0.85, genderOverride?: VoiceGender) {
+// Korean Text-to-Speech using Web Speech API - Exclusively Authentic Male Voice
+export function speakKorean(text: string, rate = 0.85, _genderOverride?: VoiceGender) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     console.warn('Speech synthesis not supported');
     return;
@@ -52,43 +47,41 @@ export function speakKorean(text: string, rate = 0.85, genderOverride?: VoiceGen
   // Cancel any ongoing speech
   window.speechSynthesis.cancel();
 
-  const gender = genderOverride || getVoiceGender();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'ko-KR';
   utterance.rate = rate;
 
-  // Modulate pitch according to gender preference
-  if (gender === 'male') {
-    utterance.pitch = 0.78; // Deep, clear masculine pitch
-  } else {
-    utterance.pitch = 1.12; // Bright, natural feminine pitch
-  }
+  // Clear, authoritative & warm masculine pitch
+  utterance.pitch = 0.78;
 
-  // Pick suitable Korean voice if available
+  // Pick suitable Korean male voice if available
   const voices = window.speechSynthesis.getVoices();
   const koVoices = voices.filter((v) => v.lang === 'ko-KR' || v.lang.startsWith('ko'));
 
   if (koVoices.length > 0) {
-    if (gender === 'male') {
-      const maleVoice = koVoices.find(
-        (v) =>
-          v.name.toLowerCase().includes('male') ||
-          v.name.toLowerCase().includes('injoon') ||
-          v.name.toLowerCase().includes('minho') ||
-          v.name.toLowerCase().includes('man')
-      );
-      utterance.voice = maleVoice || koVoices[koVoices.length - 1];
-    } else {
-      const femaleVoice = koVoices.find(
-        (v) =>
-          v.name.toLowerCase().includes('female') ||
-          v.name.toLowerCase().includes('yuna') ||
-          v.name.toLowerCase().includes('heami') ||
-          v.name.toLowerCase().includes('sunhi') ||
-          v.name.toLowerCase().includes('woman')
-      );
-      utterance.voice = femaleVoice || koVoices[0];
-    }
+    // Explicitly exclude any female voices
+    const nonFemaleVoices = koVoices.filter(
+      (v) =>
+        !v.name.toLowerCase().includes('female') &&
+        !v.name.toLowerCase().includes('yuna') &&
+        !v.name.toLowerCase().includes('heami') &&
+        !v.name.toLowerCase().includes('sunhi') &&
+        !v.name.toLowerCase().includes('woman') &&
+        !v.name.toLowerCase().includes('girl')
+    );
+
+    const targetPool = nonFemaleVoices.length > 0 ? nonFemaleVoices : koVoices;
+    const maleVoice = targetPool.find(
+      (v) =>
+        v.name.toLowerCase().includes('male') ||
+        v.name.toLowerCase().includes('injoon') ||
+        v.name.toLowerCase().includes('minho') ||
+        v.name.toLowerCase().includes('chinho') ||
+        v.name.toLowerCase().includes('daehyun') ||
+        v.name.toLowerCase().includes('man')
+    );
+
+    utterance.voice = maleVoice || targetPool[0] || koVoices[koVoices.length - 1];
   }
 
   window.speechSynthesis.speak(utterance);
@@ -206,4 +199,110 @@ export function playFanfareSound() {
   } catch (e) {
     // Ignore
   }
+}
+
+// Sound for launching the fishing hook (whoosh / line drop)
+export function playHookShotSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.exponentialRampToValueAtTime(150, now + 0.18);
+
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.18);
+  } catch (_) {}
+}
+
+// Sound for hook hitting / latching onto a fish
+export function playHookHitSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    // Metallic latch clink
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = 'triangle';
+    osc2.type = 'sine';
+    osc1.frequency.setValueAtTime(880, now);
+    osc2.frequency.setValueAtTime(1320, now);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 0.15);
+    osc2.stop(now + 0.15);
+  } catch (_) {}
+}
+
+// Water splash sound when catching a fish
+export function playSplashSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    // Bubbly splash (white noise burst + rapid FM sine)
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.22);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.22);
+  } catch (_) {}
+}
+
+// Plant seed sound (earthy chime)
+export function playPlantSeedSound() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const notes = [392, 523.25]; // G4 -> C5
+
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+      gain.gain.setValueAtTime(0.12, now + idx * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.15);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.07);
+      osc.stop(now + idx * 0.07 + 0.15);
+    });
+  } catch (_) {}
 }

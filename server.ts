@@ -254,7 +254,7 @@ function generateFlexibleFallback(userMessage: string, scenarioId: string) {
   if (norm.includes("thính") || norm.includes("yêu") || norm.includes("crush") || norm.includes("hẹn hò") || norm.includes("tim") || norm.includes("플러팅") || norm.includes("사랑")) {
     return {
       korean: "어머나! 심장에 무리 오게 왜 이렇게 달콤한 말을 해요? 오늘부터 1일 할까요? ㅋㅋㅋ",
-      romanization: "eo-meo-na! sim-jang-e mu-ri o-ge wae i-reoh-ge dal-kom-han mal-eul hae-yo? o-neul-bu-teo il-il hal-kka-yo? ㅋㅋㅋ",
+      romanization: "eo-meo-na! sim-jang-e mu-ri o-ge wae i-reoh-ge dal-kom-han mal-eul hae-yo? o-neul-bu-teo il-il hal-kka-yo? ㅋㅋ���",
       vietnamese: "Ôi trời đất ơi! Ăn nói ngọt ngào làm tim người ta loạn nhịp muốn xỉu luôn nè? Tính tính từ hôm nay là ngày đầu tiên hẹn hò luôn hay sao? ㅋㅋㅋ",
       feedback: "Ở Hàn Quốc, khi hai người chính thức yêu nhau họ sẽ nói: '오늘부터 1일' (Tính từ hôm nay là ngày thứ 1)! Thả thính đỉnh chóp luôn! 💖",
       suggestedReplies: [
@@ -757,7 +757,10 @@ async function startServer() {
     // Vite middleware for local development
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      // Express owns the HTTP server, so it cannot forward Vite's HMR upgrade
+      // requests. Disable HMR here to prevent the injected client from opening
+      // a WebSocket that is immediately closed by the middleware server.
+      server: { middlewareMode: true, hmr: false, watch: null },
       appType: "spa",
     });
     app.use(vite.middlewares);

@@ -211,8 +211,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 p-5 sm:p-6 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -250,7 +250,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-slate-200 bg-slate-50/70 px-6">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900 px-6 transition-colors">
           <button
             onClick={() => {
               playClickSound();
@@ -258,8 +258,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }}
             className={`flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
               activeSubTab === 'vocab_admin'
-                ? 'border-sky-500 text-sky-600 bg-white font-black'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-sky-500 text-sky-600 dark:text-sky-400 bg-white dark:bg-slate-800 font-black'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
@@ -277,8 +277,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             }}
             className={`flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-bold border-b-2 transition-all cursor-pointer ${
               activeSubTab === 'general'
-                ? 'border-sky-500 text-sky-600 bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-sky-500 text-sky-600 dark:text-sky-400 bg-white dark:bg-slate-800'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
             }`}
           >
             <Sliders className="w-4 h-4" />
@@ -291,20 +291,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeSubTab === 'general' ? (
             /* GENERAL & AUDIO SETTINGS */
             <div className="space-y-5">
-              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                <h4 className="text-sm font-black text-slate-800 flex items-center gap-2 mb-3">
-                  <Volume2 className="w-4 h-4 text-sky-500" />
+              <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 transition-colors">
+                <h4 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2 mb-3">
+                  <Volume2 className="w-4 h-4 text-sky-500 dark:text-sky-400" />
                   <span>Cài đặt giọng đọc tiếng Hàn & Hiệu ứng âm thanh</span>
                 </h4>
 
                 <div className="space-y-4">
                   {/* Voice Gender Setting */}
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 flex-wrap gap-2">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 flex-wrap gap-2">
                     <div>
-                      <div className="text-xs font-bold text-slate-800">
+                      <div className="text-xs font-bold text-slate-800 dark:text-white">
                         Giới tính giọng đọc tiếng Hàn
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
                         Giọng nam bản xứ chuẩn (Seoul) • Áp dụng cho bài nghe, chặng học, từ vựng và TOPIK
                       </div>
                     </div>

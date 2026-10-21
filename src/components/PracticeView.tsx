@@ -282,9 +282,9 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
   const currentArrangeQ = arrangeQuestions[arrangeIndex];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6 pb-24 md:pb-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-5 pb-24 md:pb-8">
       {/* Game Mode Navigation Tabs */}
-      <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-xs flex items-center justify-between gap-1 mb-6">
+      <div className="p-1.5 rounded-2xl flex items-center justify-between gap-1.5 mb-6 bg-gradient-to-r from-sky-500/10 via-amber-500/10 to-emerald-500/10 dark:bg-gradient-to-r dark:from-sky-950/40 dark:via-purple-950/30 dark:to-emerald-950/40 border border-slate-200/80 dark:border-indigo-500/30 backdrop-blur-md shadow-xs dark:shadow-[0_0_20px_rgba(99,102,241,0.15)]">
         <button
           onClick={() => {
             playClickSound();
@@ -292,8 +292,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeMode === 'quiz'
-              ? 'bg-sky-500 text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-50'
+              ? 'bg-sky-500 text-white shadow-md dark:shadow-[0_0_15px_rgba(14,165,233,0.5)]'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
           }`}
         >
           <span>🎯</span>
@@ -307,8 +307,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeMode === 'arrange'
-              ? 'bg-amber-400 text-slate-900 shadow-xs'
-              : 'text-slate-600 hover:bg-slate-50'
+              ? 'bg-amber-400 text-slate-900 shadow-md dark:shadow-[0_0_15px_rgba(251,191,36,0.4)]'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
           }`}
         >
           <span>🧩</span>
@@ -322,8 +322,8 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           }}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
             activeMode === 'match'
-              ? 'bg-emerald-500 text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-50'
+              ? 'bg-emerald-500 text-white shadow-md dark:shadow-[0_0_15px_rgba(16,185,129,0.5)]'
+              : 'text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
           }`}
         >
           <span>🃏</span>
@@ -336,7 +336,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               playClickSound();
               onNavigateToPuzzles();
             }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 hover:from-orange-100 hover:to-amber-100 border border-orange-200/80 shadow-xs"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/40 dark:to-amber-950/40 text-orange-700 dark:text-amber-300 hover:from-orange-100 hover:to-amber-100 dark:hover:from-orange-900/60 dark:hover:to-amber-900/60 border border-orange-200/80 dark:border-orange-500/30 shadow-xs"
           >
             <span>💡</span>
             <span>Game giải đố vui ➔</span>
@@ -344,26 +344,25 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
         )}
       </div>
 
-
       {/* 1. QUIZ MODE */}
       {activeMode === 'quiz' && (
         <div className="space-y-4">
           {!quizFinished && currentQ ? (
-            <div className="bg-white rounded-3xl p-5 sm:p-7 border border-sky-100 shadow-md">
+            <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-5 sm:p-7 border border-sky-100 dark:border-sky-500/30 shadow-md dark:shadow-[0_0_25px_rgba(14,165,233,0.15)]">
               {/* Header: Progress, Category & Voice Gender Switcher */}
               <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-black">
+                  <span className="px-3 py-1 rounded-full bg-sky-100 dark:bg-sky-950/70 border dark:border-sky-500/40 text-sky-700 dark:text-sky-300 text-xs font-black">
                     {currentQ.category}
                   </span>
-                  <span className="text-xs font-bold text-slate-500">
-                    Câu {currentQuizIndex + 1} / {quizQuestions.length} • Đúng: <strong className="text-emerald-600">{quizScore}</strong>
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    Câu {currentQuizIndex + 1} / {quizQuestions.length} • Đúng: <strong className="text-emerald-600 dark:text-emerald-400">{quizScore}</strong>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   {isQuizAutoAdvancing && (
-                    <span className="text-xs font-black text-sky-600 flex items-center gap-1 animate-pulse">
+                    <span className="text-xs font-black text-sky-600 dark:text-sky-400 flex items-center gap-1 animate-pulse">
                       <Zap className="w-3.5 h-3.5 text-amber-500" /> Tự chuyển câu...
                     </span>
                   )}
@@ -372,25 +371,25 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full h-2 bg-slate-100 rounded-full mb-5 overflow-hidden">
+              <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full mb-5 overflow-hidden">
                 <div
-                  className="h-full bg-sky-500 transition-all duration-300"
+                  className="h-full bg-sky-500 dark:bg-sky-400 transition-all duration-300"
                   style={{ width: `${((currentQuizIndex + 1) / quizQuestions.length) * 100}%` }}
                 />
               </div>
 
               {/* Question prompt */}
               <div className="mb-5">
-                <h3 className="text-lg sm:text-xl font-black text-slate-800 tracking-tight leading-snug">
+                <h3 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight leading-snug">
                   {currentQ.prompt}
                 </h3>
                 {currentQ.audioText && (
                   <button
                     onClick={() => speakKorean(currentQ.audioText!)}
-                    className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 mt-2.5 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/60 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-500/30 text-xs font-bold transition-colors cursor-pointer"
                     title="Nghe phát âm bằng giọng đang chọn"
                   >
-                    <Volume2 className="w-4 h-4 text-sky-500" />
+                    <Volume2 className="w-4 h-4 text-sky-500 dark:text-sky-400" />
                     <span>Nghe câu tiếng Hàn 🔊</span>
                   </button>
                 )}
@@ -403,14 +402,14 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                   const isCorrect = option === currentQ.answer;
 
                   let btnStyle =
-                    'bg-white border-slate-200 text-slate-800 hover:border-sky-400 hover:bg-sky-50/20';
+                    'bg-white dark:bg-slate-900/70 border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 hover:border-sky-400 dark:hover:border-sky-500 hover:bg-sky-50/20 dark:hover:bg-slate-800/80';
                   if (isAnswerSubmitted) {
                     if (isCorrect) {
-                      btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-black shadow-sm ring-2 ring-emerald-200';
+                      btnStyle = 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-500 dark:border-emerald-400 text-emerald-950 dark:text-emerald-200 font-black shadow-sm ring-2 ring-emerald-200 dark:ring-emerald-700/50';
                     } else if (isSelected && !isCorrect) {
-                      btnStyle = 'bg-rose-50 border-rose-400 text-rose-900 font-bold';
+                      btnStyle = 'bg-rose-50 dark:bg-rose-950/70 border-rose-400 dark:border-rose-500 text-rose-900 dark:text-rose-200 font-bold';
                     } else {
-                      btnStyle = 'opacity-50 bg-slate-50 border-slate-200 text-slate-400';
+                      btnStyle = 'opacity-50 bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500';
                     }
                   }
 
@@ -428,7 +427,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                               ? 'bg-emerald-500 text-white'
                               : isAnswerSubmitted && isSelected && !isCorrect
                               ? 'bg-rose-500 text-white'
-                              : 'bg-slate-100 text-slate-700'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                           }`}
                         >
                           {String.fromCharCode(65 + idx)}
@@ -459,26 +458,26 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 <div
                   className={`p-4 rounded-2xl mb-4 border ${
                     selectedOption === currentQ.answer
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-950'
-                      : 'bg-amber-50 border-amber-200 text-amber-950'
+                      ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/40 text-emerald-950 dark:text-emerald-200'
+                      : 'bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-500/40 text-amber-950 dark:text-amber-200'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1 gap-2 flex-wrap">
                     <div className="flex items-center gap-2 font-black text-sm">
                       {selectedOption === currentQ.answer ? (
                         <>
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           <span>Chính xác! (+10 XP)</span>
                         </>
                       ) : (
                         <>
-                          <HelpCircle className="w-4 h-4 text-amber-600" />
+                          <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                           <span>Chưa đúng rồi! Đáp án chuẩn: {currentQ.answer}</span>
                         </>
                       )}
                     </div>
                     {isQuizAutoAdvancing && (
-                      <span className="text-xs font-bold text-amber-700 animate-pulse flex items-center gap-1">
+                      <span className="text-xs font-bold text-amber-700 dark:text-amber-300 animate-pulse flex items-center gap-1">
                         <Zap className="w-3.5 h-3.5 text-amber-500" />
                         <span>Đang tự chuyển câu tiếp theo...</span>
                       </span>
@@ -503,26 +502,26 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             </div>
           ) : (
             /* Quiz Completed View */
-            <div className="bg-white rounded-3xl p-8 border border-sky-100 shadow-md text-center">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-100 border-2 border-amber-200 flex items-center justify-center text-4xl mb-4 shadow-xs">
+            <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-8 border border-sky-100 dark:border-sky-500/30 shadow-md dark:shadow-[0_0_25px_rgba(14,165,233,0.15)] text-center">
+              <div className="w-20 h-20 mx-auto rounded-3xl bg-amber-100 dark:bg-amber-950/70 border-2 border-amber-200 dark:border-amber-500/40 flex items-center justify-center text-4xl mb-4 shadow-xs">
                 🏆
               </div>
-              <h3 className="text-2xl font-black text-slate-800">Hoàn thành bài luyện tập!</h3>
-              <p className="text-sm text-slate-500 mt-1">
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white">Hoàn thành bài luyện tập!</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-300 mt-1">
                 Bạn đã hoàn thành xuất sắc vòng trắc nghiệm hôm nay.
               </p>
 
-              <div className="my-6 max-w-xs mx-auto p-4 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-around">
+              <div className="my-6 max-w-xs mx-auto p-4 rounded-2xl bg-sky-50 dark:bg-slate-900/80 border border-sky-100 dark:border-indigo-500/30 flex items-center justify-around">
                 <div>
-                  <div className="text-xs font-bold text-slate-500">Đúng</div>
-                  <div className="text-2xl font-black text-emerald-600">
+                  <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Đúng</div>
+                  <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
                     {quizScore} / {quizQuestions.length}
                   </div>
                 </div>
-                <div className="w-px h-8 bg-slate-200" />
+                <div className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
                 <div>
-                  <div className="text-xs font-bold text-slate-500">XP Nhận được</div>
-                  <div className="text-2xl font-black text-amber-500">+{quizScore * 10} XP</div>
+                  <div className="text-xs font-bold text-slate-500 dark:text-slate-400">XP Nhận được</div>
+                  <div className="text-2xl font-black text-amber-500 dark:text-amber-400">+{quizScore * 10} XP</div>
                 </div>
               </div>
 
@@ -540,16 +539,16 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 
       {/* 2. ARRANGE MODE (Ghép từ thành câu - 1000+ câu đảo từ ngẫu nhiên) */}
       {activeMode === 'arrange' && currentArrangeQ && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-amber-100 shadow-md space-y-6">
+        <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-6 sm:p-8 border border-amber-100 dark:border-amber-500/30 shadow-md dark:shadow-[0_0_25px_rgba(251,191,36,0.15)] space-y-6">
           {/* Top Bar with Category, Randomizer and Counter */}
-          <div className="space-y-3 border-b border-slate-100 pb-3">
+          <div className="space-y-3 border-b border-slate-100 dark:border-slate-800 pb-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-black shadow-xs flex items-center gap-1">
                   <Shuffle className="w-3.5 h-3.5" />
                   <span>Kho 1000+ câu đảo từ • Thứ tự ngẫu nhiên</span>
                 </span>
-                <span className="text-xs font-bold text-slate-400">
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-400">
                   Câu #{arrangeIndex + 1} / {arrangeQuestions.length}
                 </span>
               </div>
@@ -557,7 +556,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleReshuffleArrange}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-bold border border-orange-200 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-orange-50 dark:bg-orange-950/60 hover:bg-orange-100 dark:hover:bg-orange-900/60 text-orange-700 dark:text-orange-300 text-xs font-bold border border-orange-200 dark:border-orange-500/30 transition-colors cursor-pointer"
                   title="Xáo trộn ngẫu nhiên toàn bộ thứ tự câu hỏi"
                 >
                   <Shuffle className="w-3.5 h-3.5" />
@@ -565,7 +564,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 </button>
                 <button
                   onClick={handleNextRandomArrange}
-                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer border border-transparent dark:border-slate-700"
                 >
                   Đổi câu khác 🎲
                 </button>
@@ -583,7 +582,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
                       isActive
                         ? 'bg-amber-500 text-white border-amber-600 shadow-2xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                        : 'bg-slate-50 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700'
                     }`}
                   >
                     <span>{cat.icon}</span>
@@ -595,18 +594,18 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+            <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide">
               Hãy dịch câu sau sang tiếng Hàn:
             </span>
-            <h3 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mt-1">
               "{currentArrangeQ.prompt.replace('Sắp xếp các từ sau thành câu: ', '')}"
             </h3>
           </div>
 
           {/* Construction area (Drop / Selected Words) */}
-          <div className="min-h-24 p-4 rounded-2xl border-2 border-dashed border-sky-300 bg-sky-50/50 flex flex-wrap items-center gap-2.5">
+          <div className="min-h-24 p-4 rounded-2xl border-2 border-dashed border-sky-300 dark:border-sky-500/50 bg-sky-50/50 dark:bg-slate-900/60 flex flex-wrap items-center gap-2.5">
             {selectedWords.length === 0 ? (
-              <span className="text-sm font-medium text-sky-400 italic">
+              <span className="text-sm font-medium text-sky-400 dark:text-sky-300/80 italic">
                 Nhấn vào các từ bên dưới để ghép thành câu hoàn chỉnh...
               </span>
             ) : (
@@ -614,7 +613,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 <button
                   key={idx}
                   onClick={() => handleRemoveWord(word, idx)}
-                  className="px-4 py-2 bg-sky-500 text-white font-bold rounded-xl shadow-xs hover:bg-rose-500 transition-all cursor-pointer transform hover:scale-95"
+                  className="px-4 py-2 bg-sky-500 dark:bg-sky-600 text-white font-bold rounded-xl shadow-xs hover:bg-rose-500 dark:hover:bg-rose-600 transition-all cursor-pointer transform hover:scale-95"
                   title="Nhấn để gỡ bỏ"
                 >
                   {word}
@@ -625,7 +624,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 
           {/* Available Word Pool */}
           <div>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wide block mb-2">
+            <span className="text-xs font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wide block mb-2">
               Kho từ vựng:
             </span>
             <div className="flex flex-wrap gap-2.5">
@@ -633,7 +632,7 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 <button
                   key={idx}
                   onClick={() => handlePickWord(word, idx)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer transform hover:scale-105"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs transition-all cursor-pointer transform hover:scale-105"
                 >
                   {word}
                 </button>
@@ -646,19 +645,19 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
             <div
               className={`p-4 rounded-2xl border ${
                 isArrangeCorrect
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                  : 'bg-rose-50 border-rose-200 text-rose-900'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-500/40 text-emerald-900 dark:text-emerald-200'
+                  : 'bg-rose-50 dark:bg-rose-950/60 border-rose-200 dark:border-rose-500/40 text-rose-900 dark:text-rose-200'
               }`}
             >
               <div className="flex items-center gap-2 font-black text-sm mb-1">
                 {isArrangeCorrect ? (
                   <>
-                    <Check className="w-4 h-4 text-emerald-600" />
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Xuất sắc! Bạn đã ghép đúng câu (+15 XP)</span>
                   </>
                 ) : (
                   <>
-                    <X className="w-4 h-4 text-rose-600" />
+                    <X className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                     <span>
                       Chưa đúng thứ tự ngữ pháp rồi. Câu đúng là:{' '}
                       <span className="font-bold">{(currentArrangeQ.answer as string[]).join(' ')}</span>
@@ -676,9 +675,9 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               onClick={() => {
                 if (currentArrangeQ.audioText) speakKorean(currentArrangeQ.audioText);
               }}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold cursor-pointer border border-transparent dark:border-slate-700"
             >
-              <Volume2 className="w-4 h-4 text-slate-500" />
+              <Volume2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>Nghe mẫu phát âm</span>
             </button>
 
@@ -705,20 +704,20 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
 
       {/* 3. MATCHING PAIRS MODE */}
       {activeMode === 'match' && (
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-emerald-100 shadow-md space-y-6">
+        <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-6 sm:p-8 border border-emerald-100 dark:border-emerald-500/30 shadow-md dark:shadow-[0_0_25px_rgba(16,185,129,0.15)] space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
+              <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/70 border dark:border-emerald-500/40 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
                 Mini-game Lật thẻ nối từ
               </span>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Nhấn chọn 1 thẻ tiếng Hàn và 1 thẻ tiếng Việt tương ứng để ghép cặp.
               </p>
             </div>
 
             <button
               onClick={() => setMatchSetIndex((prev) => prev + 1)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Đổi bộ thẻ khác
             </button>
@@ -732,13 +731,13 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               const isWrong = matchWrongId === card.id;
 
               let cardStyle =
-                'bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100';
+                'bg-slate-50 dark:bg-slate-900/70 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800/80';
               if (isMatched) {
-                cardStyle = 'bg-emerald-100 border-emerald-300 text-emerald-800 opacity-40 scale-95 cursor-default';
+                cardStyle = 'bg-emerald-100 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 opacity-40 scale-95 cursor-default';
               } else if (isWrong) {
-                cardStyle = 'bg-rose-100 border-rose-400 text-rose-800 animate-shake';
+                cardStyle = 'bg-rose-100 dark:bg-rose-950/60 border-rose-400 dark:border-rose-600 text-rose-800 dark:text-rose-200 animate-shake';
               } else if (isSelected) {
-                cardStyle = 'bg-sky-100 border-sky-500 text-sky-900 shadow-md scale-102';
+                cardStyle = 'bg-sky-100 dark:bg-sky-950/80 border-sky-500 dark:border-sky-400 text-sky-900 dark:text-sky-200 shadow-md scale-102';
               }
 
               return (
@@ -750,12 +749,12 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 >
                   <span
                     className={`text-base sm:text-lg ${
-                      card.lang === 'ko' ? 'font-black text-slate-900' : 'font-semibold text-slate-700'
+                      card.lang === 'ko' ? 'font-black text-slate-900 dark:text-white' : 'font-semibold text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     {card.text}
                   </span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 mt-1">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 mt-1">
                     {card.lang === 'ko' ? '🇰🇷 Tiếng Hàn' : '🇻🇳 Tiếng Việt'}
                   </span>
                 </button>
@@ -764,12 +763,12 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
           </div>
 
           {/* Bottom stats */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-emerald-800 text-xs font-bold">
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
             <span>
               Đã ghép: {matchedPairIds.length} /{' '}
               {MATCH_PAIRS_SETS[matchSetIndex % MATCH_PAIRS_SETS.length].length} cặp
             </span>
-            <span className="flex items-center gap-1 text-amber-600">
+            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
               <Sparkles className="w-3.5 h-3.5" /> +5 XP mỗi cặp đúng
             </span>
           </div>

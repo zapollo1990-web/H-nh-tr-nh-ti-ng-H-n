@@ -70,6 +70,7 @@ interface LearningRoadmapViewProps {
   onRecordQuizResult: (isCorrect: boolean) => void;
   onAddXp: (amount: number) => void;
   onUnlockBadge?: (badgeId: string) => void;
+  theme?: 'light' | 'dark';
 }
 
 type LevelFilter = 'all' | 'beginner' | 'intermediate1' | 'intermediate2' | 'advanced';
@@ -81,6 +82,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
   onRecordQuizResult,
   onAddXp,
   onUnlockBadge,
+  theme = 'light',
 }) => {
   const [selectedStage, setSelectedStage] = useState<RoadmapStage | null>(null);
   const [activeStageTab, setActiveStageTab] = useState<StageTabType>('lessons');
@@ -894,7 +896,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12 animate-fade-in">
       {/* 5 COMPANION CHARACTERS BANNER */}
-      <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-pink-500/10 via-sky-500/10 to-purple-500/10 dark:from-pink-950/40 dark:via-sky-950/40 dark:to-purple-950/40 border border-pink-200/80 dark:border-purple-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+      <div className="p-3.5 sm:p-4 rounded-3xl bg-gradient-to-r from-pink-500/10 via-sky-500/10 to-purple-500/10 dark:bg-gradient-to-r dark:from-[#0f172a] dark:via-[#1e1b4b] dark:to-[#0f172a] border border-pink-200/90 dark:border-indigo-400/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs dark:shadow-[0_4px_25px_rgba(99,102,241,0.25)] transition-all">
         <div className="flex items-center gap-3">
           <div className="flex items-center -space-x-2 shrink-0">
             {COMPANION_LIST.map((buddy) => (
@@ -902,10 +904,19 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
             ))}
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-black text-slate-800 dark:text-neutral-100 flex items-center gap-1.5">
-              <span>5 Bạn Đồng Hành: Na 🌸 • Min 💻 • Sora 🌿 • Rin 🧢 • Lumi 💜</span>
+            <h4 className="text-xs sm:text-sm font-black text-slate-800 dark:text-white flex items-center gap-1.5 flex-wrap">
+              <span>5 Bạn Đồng Hành:</span>
+              <span className="text-pink-600 dark:text-pink-300 font-bold">Na 🌸</span>
+              <span className="text-slate-400 dark:text-indigo-300">•</span>
+              <span className="text-sky-600 dark:text-sky-300 font-bold">Min 💻</span>
+              <span className="text-slate-400 dark:text-indigo-300">•</span>
+              <span className="text-emerald-600 dark:text-emerald-300 font-bold">Sora 🌿</span>
+              <span className="text-slate-400 dark:text-indigo-300">•</span>
+              <span className="text-amber-600 dark:text-amber-300 font-bold">Rin 🧢</span>
+              <span className="text-slate-400 dark:text-indigo-300">•</span>
+              <span className="text-purple-600 dark:text-purple-300 font-bold">Lumi 💜</span>
             </h4>
-            <p className="text-[11px] text-slate-600 dark:text-neutral-300">
+            <p className="text-[11px] text-slate-600 dark:text-slate-100 font-medium mt-0.5">
               Cùng bạn vượt qua từng chặng học, giảng bài, mách mẹo nhớ và luyện đề!
             </p>
           </div>
@@ -915,7 +926,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
             playClickSound();
             setIsCompanionModalOpen(true);
           }}
-          className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 text-slate-800 dark:text-neutral-100 text-xs font-black shadow-xs hover:scale-102 transition-all cursor-pointer shrink-0 self-start sm:self-auto"
+          className="px-3.5 py-1.5 rounded-xl bg-white dark:bg-gradient-to-r dark:from-indigo-600 dark:to-purple-600 border border-slate-200 dark:border-indigo-400/80 text-slate-800 dark:text-white text-xs font-black shadow-xs hover:scale-102 hover:shadow-md dark:shadow-[0_0_15px_rgba(99,102,241,0.4)] transition-all cursor-pointer shrink-0 self-start sm:self-auto"
         >
           Chọn bạn đồng hành ✨
         </button>
@@ -1226,12 +1237,12 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                           <span
                             className={`inline-block px-2.5 py-1 rounded-xl text-[11px] font-black border transition-all ${
                               isStepDone
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200 shadow-2xs'
+                                ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800 shadow-2xs'
                                 : isStepActive
-                                ? 'bg-white text-slate-900 border-pink-300 shadow-sm font-black'
+                                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-pink-300 dark:border-pink-500 shadow-sm font-black'
                                 : isStepUnlocked
-                                ? 'bg-white text-slate-700 border-slate-200 shadow-2xs'
-                                : 'bg-slate-100 text-slate-400 border-slate-200'
+                                ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 border-slate-200 dark:border-slate-700 shadow-2xs'
+                                : 'bg-slate-100 dark:bg-slate-900/60 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
                             }`}
                             title={step.title}
                           >
@@ -1299,7 +1310,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
             </div>
 
             {/* Modal Tabs */}
-            <div className="flex border-b border-slate-200 bg-slate-50 px-3 sm:px-6 pt-2 gap-1 sm:gap-2 overflow-x-auto scrollbar-none">
+            <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 sm:px-6 pt-2 gap-1 sm:gap-2 overflow-x-auto scrollbar-none transition-colors">
               <button
                 onClick={() => {
                   playClickSound();
@@ -1307,8 +1318,8 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'lessons'
-                    ? 'border-sky-500 text-sky-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -1322,8 +1333,8 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'listening'
-                    ? 'border-sky-500 text-sky-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-sky-500 text-sky-600 dark:text-sky-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <Headphones className="w-3.5 h-3.5" />
@@ -1337,15 +1348,13 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'speaking'
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <Mic className="w-3.5 h-3.5" />
                 <span>Nói</span>
               </button>
-
-
 
               <button
                 onClick={() => {
@@ -1354,8 +1363,8 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'reading'
-                    ? 'border-emerald-500 text-emerald-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
@@ -1369,8 +1378,8 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'writing'
-                    ? 'border-amber-500 text-amber-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-amber-500 text-amber-600 dark:text-amber-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <PenTool className="w-3.5 h-3.5" />
@@ -1384,8 +1393,8 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                 }}
                 className={`pb-2 px-3 font-black text-xs border-b-2 flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                   activeStageTab === 'quiz'
-                    ? 'border-indigo-600 text-indigo-700'
-                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                    ? 'border-indigo-600 text-indigo-700 dark:text-indigo-400'
+                    : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white'
                 }`}
               >
                 <Award className="w-3.5 h-3.5" />
@@ -1401,10 +1410,10 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                   {selectedStage.lessons.map((lesson, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs space-y-2 hover:border-sky-300 transition-colors"
+                      className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-2xs space-y-2 hover:border-sky-300 dark:hover:border-sky-500 transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <h4 className="text-xs sm:text-sm font-black text-slate-800 flex items-center gap-1.5">
+                        <h4 className="text-xs sm:text-sm font-black text-slate-800 dark:text-white flex items-center gap-1.5">
                           <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center text-[10px] font-bold">
                             {idx + 1}
                           </span>
@@ -2443,6 +2452,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
           }
         }}
         onAddXp={onAddXp}
+        appTheme={theme}
       />
 
       {/* 2. SIGHT WORD MINI-GAME MODAL */}

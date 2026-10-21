@@ -376,8 +376,8 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col max-h-[92vh] transition-colors">
         {/* Header with Admin Hierarchy Information */}
         <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-5 sm:p-6 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -446,42 +446,42 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
         )}
 
         {/* Stat Cards - Distinguishing Admin Chính vs Admin Phụ vs Học viên */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-4 bg-slate-50 border-b border-slate-200">
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-3 rounded-2xl border border-amber-300 shadow-xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors">
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 p-3 rounded-2xl border border-amber-300 dark:border-amber-700 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-amber-800 flex items-center gap-1">
-                <Crown className="w-3 h-3 text-amber-600 fill-amber-600" />
+              <span className="text-[11px] font-black text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                <Crown className="w-3 h-3 text-amber-600 dark:text-amber-400 fill-amber-600" />
                 <span>Admin Chính</span>
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900">
+              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100">
                 Tối cao
               </span>
             </div>
-            <div className="text-base sm:text-lg font-black text-amber-900 mt-1">Trần Bảo Ngọc</div>
-            <div className="text-[10px] text-amber-700 font-medium">Tổng Quản Trị ({totalMainAdmin})</div>
+            <div className="text-base sm:text-lg font-black text-amber-900 dark:text-amber-200 mt-1">Trần Bảo Ngọc</div>
+            <div className="text-[10px] text-amber-700 dark:text-amber-400 font-medium">Tổng Quản Trị ({totalMainAdmin})</div>
           </div>
 
-          <div className="bg-white p-3 rounded-2xl border border-indigo-200 shadow-xs">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-indigo-200 dark:border-indigo-900/60 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-indigo-700 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-indigo-500" />
+              <span className="text-[11px] font-black text-indigo-700 dark:text-indigo-300 flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-indigo-500 dark:text-indigo-400" />
                 <span>Admin Phụ</span>
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800">
+              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-800 dark:text-indigo-200">
                 Đồng quản trị
               </span>
             </div>
-            <div className="text-lg sm:text-xl font-black text-indigo-700 mt-0.5">{totalSubAdmins}</div>
-            <div className="text-[10px] text-slate-500 font-medium">Yến Nhi, Tuyết Lệ, Gia Linh</div>
+            <div className="text-lg sm:text-xl font-black text-indigo-700 dark:text-indigo-300 mt-0.5">{totalSubAdmins}</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Yến Nhi, Tuyết Lệ, Gia Linh</div>
           </div>
 
-          <div className="bg-white p-3 rounded-2xl border border-sky-200 shadow-xs">
-            <span className="text-[11px] font-bold text-sky-600">Học Viên (Students)</span>
-            <div className="text-lg sm:text-xl font-black text-sky-600 mt-0.5">{totalStudents}</div>
-            <div className="text-[10px] text-slate-500 font-medium">Chỉ truy cập học bài</div>
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-sky-200 dark:border-sky-900/60 shadow-xs">
+            <span className="text-[11px] font-bold text-sky-600 dark:text-sky-300">Học Viên (Students)</span>
+            <div className="text-lg sm:text-xl font-black text-sky-600 dark:text-sky-300 mt-0.5">{totalStudents}</div>
+            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Chỉ truy cập học bài</div>
           </div>
 
-          <div className="bg-white p-3 rounded-2xl border border-emerald-200 shadow-xs flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl border border-emerald-200 dark:border-emerald-900/60 shadow-xs flex items-center justify-between">
             <div>
               <span className="text-[11px] font-bold text-emerald-600">Thêm Mới</span>
               <div className="text-xs font-bold text-slate-600">Học viên mới</div>
@@ -630,12 +630,12 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            <span className="text-xs font-bold text-slate-500 shrink-0">Lọc vai trò:</span>
-            <div className="flex bg-slate-100 p-1 rounded-xl shrink-0">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0">Lọc vai trò:</span>
+            <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shrink-0">
               <button
                 onClick={() => setRoleFilter('all')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  roleFilter === 'all' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-500'
+                  roleFilter === 'all' ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 Tất cả ({users.length})
@@ -643,7 +643,7 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
               <button
                 onClick={() => setRoleFilter('main_admin')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  roleFilter === 'main_admin' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-500'
+                  roleFilter === 'main_admin' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 <Crown className="w-3 h-3" />
@@ -652,7 +652,7 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
               <button
                 onClick={() => setRoleFilter('sub_admin')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                  roleFilter === 'sub_admin' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-500'
+                  roleFilter === 'sub_admin' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 <Shield className="w-3 h-3" />
@@ -661,7 +661,7 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
               <button
                 onClick={() => setRoleFilter('student')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                  roleFilter === 'student' ? 'bg-white text-sky-700 shadow-xs' : 'text-slate-500'
+                  roleFilter === 'student' ? 'bg-white dark:bg-slate-900 text-sky-700 dark:text-sky-300 shadow-xs' : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
                 Học viên ({totalStudents})
@@ -674,7 +674,7 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-2.5">
             {filteredUsers.length === 0 ? (
-              <div className="text-center py-12 text-slate-400 text-sm">
+              <div className="text-center py-12 text-slate-400 dark:text-slate-500 text-sm">
                 Không tìm thấy người chơi nào phù hợp với tìm kiếm.
               </div>
             ) : (
@@ -689,12 +689,12 @@ export const PlayerManagementModal: React.FC<PlayerManagementModalProps> = ({
                     key={user.id}
                     className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                       isMainAdmin
-                        ? 'bg-gradient-to-r from-amber-50/80 to-orange-50/50 border-amber-300 shadow-sm ring-1 ring-amber-300/50'
+                        ? 'bg-gradient-to-r from-amber-50/80 to-orange-50/50 dark:from-amber-950/40 dark:to-orange-950/20 border-amber-300 dark:border-amber-700 shadow-sm ring-1 ring-amber-300/50'
                         : isSubAdmin
-                        ? 'bg-indigo-50/40 border-indigo-200'
+                        ? 'bg-indigo-50/40 dark:bg-indigo-950/30 border-indigo-200 dark:border-indigo-800'
                         : isSuspended
-                        ? 'bg-slate-50 border-slate-200 opacity-60'
-                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-xs'
+                        ? 'bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 opacity-60'
+                        : 'bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 hover:border-slate-300 shadow-xs'
                     }`}
                   >
                     {/* User Identity & Badges */}

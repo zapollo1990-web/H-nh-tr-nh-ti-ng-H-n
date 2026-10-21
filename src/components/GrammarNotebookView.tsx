@@ -131,20 +131,20 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
                 Sổ Tay Ngữ Pháp & Sửa Lỗi
               </h2>
-              <span className="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/40">
                 {GRAMMAR_RULES.length} cấu trúc
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
               Tổng hợp điểm ngữ pháp quan trọng và công cụ AI sửa lỗi câu
             </p>
           </div>
 
           {/* View mode tabs */}
-          <div className="bg-slate-100 p-0.5 rounded-xl flex items-center border border-slate-200 text-xs font-bold self-start sm:self-auto">
+          <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl flex items-center border border-slate-200 dark:border-slate-700 text-xs font-bold self-start sm:self-auto">
             <button
               onClick={() => {
                 playClickSound();
@@ -152,8 +152,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'handbook'
-                  ? 'bg-white text-slate-900 shadow-2xs font-black'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs font-black'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
@@ -167,11 +167,11 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'ai-checker'
-                  ? 'bg-white text-slate-900 shadow-2xs font-black'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs font-black'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-300" />
               <span>AI sửa lỗi</span>
             </button>
 
@@ -182,11 +182,11 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                 activeTab === 'saved'
-                  ? 'bg-white text-slate-900 shadow-2xs font-black'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs font-black'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              <BookmarkCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <BookmarkCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Đã lưu ({savedMistakes.length})</span>
             </button>
           </div>
@@ -197,7 +197,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
       {activeTab === 'handbook' && (
         <div className="space-y-4">
           {/* LEVEL FILTER TABS */}
-          <div className="bg-slate-100 p-0.5 rounded-xl flex items-center gap-0.5 overflow-x-auto scrollbar-none border border-slate-200/80">
+          <div className="bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-xl flex items-center gap-0.5 overflow-x-auto scrollbar-none border border-slate-200/80 dark:border-slate-700">
             <button
               onClick={() => {
                 playClickSound();
@@ -205,8 +205,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'all'
-                  ? 'bg-white text-slate-900 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>Tất cả ({GRAMMAR_RULES.length})</span>
@@ -219,8 +219,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'beginner'
-                  ? 'bg-white text-emerald-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-emerald-600 text-emerald-700 dark:text-white shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>🌱 Sơ cấp ({BEGINNER_GRAMMAR_RULES.length})</span>
@@ -233,8 +233,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'intermediate'
-                  ? 'bg-white text-indigo-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-indigo-600 text-indigo-700 dark:text-white shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>🌿 Trung cấp ({INTERMEDIATE_GRAMMAR_RULES.length})</span>
@@ -247,8 +247,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all whitespace-nowrap cursor-pointer ${
                 selectedLevel === 'advanced'
-                  ? 'bg-white text-purple-700 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-purple-600 text-purple-700 dark:text-white shadow-2xs'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <span>🌳 Cao cấp ({ADVANCED_GRAMMAR_RULES.length})</span>
@@ -258,13 +258,13 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
           {/* Search bar & Category dropdown */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 dark:text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm theo tên, công thức (vd: 은/는, -아/어서)..."
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs"
+                className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl text-xs sm:text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs"
               />
             </div>
 
@@ -274,10 +274,10 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 playClickSound();
                 setSelectedCategory(e.target.value);
               }}
-              className="bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer"
+              className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs cursor-pointer"
             >
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="dark:bg-slate-900 dark:text-white">
                   {c.icon} {c.label}
                 </option>
               ))}
@@ -285,7 +285,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
           </div>
 
           {/* Result Count Status */}
-          <div className="flex items-center justify-between text-xs text-slate-500 px-1 font-semibold">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 px-1 font-semibold">
             <span>Hiển thị {filteredRules.length} chủ điểm ngữ pháp</span>
             {selectedCategory !== 'all' || selectedLevel !== 'all' || searchQuery ? (
               <button
@@ -294,7 +294,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                   setSelectedLevel('all');
                   setSearchQuery('');
                 }}
-                className="text-sky-600 hover:underline cursor-pointer"
+                className="text-sky-600 dark:text-cyan-300 hover:underline cursor-pointer"
               >
                 Đặt lại bộ lọc
               </button>
@@ -308,7 +308,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               return (
                 <div
                   key={rule.id}
-                  className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs hover:border-sky-200 transition-all space-y-4"
+                  className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-indigo-500/40 shadow-xs dark:shadow-[0_0_20px_rgba(99,102,241,0.18)] hover:border-sky-200 dark:hover:border-indigo-400/80 transition-all space-y-4"
                 >
                   {/* Title & Level Badge & Bookmark */}
                   <div className="flex items-start justify-between gap-2">
@@ -318,20 +318,20 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
                               rule.level === 'beginner'
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                ? 'bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/40'
                                 : rule.level === 'intermediate'
-                                ? 'bg-indigo-100 text-indigo-800 border border-indigo-200'
-                                : 'bg-purple-100 text-purple-800 border border-purple-200'
+                                ? 'bg-indigo-100 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/40'
+                                : 'bg-purple-100 dark:bg-purple-950/70 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-500/40'
                             }`}
                           >
                             {rule.levelLabel}
                           </span>
                         )}
-                        <h3 className="text-base sm:text-lg font-black text-slate-800">
+                        <h3 className="text-base sm:text-lg font-black text-slate-800 dark:text-white">
                           {rule.title}
                         </h3>
                       </div>
-                      <span className="inline-block px-2.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-xs font-bold border border-sky-100">
+                      <span className="inline-block px-2.5 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-cyan-300 text-xs font-bold border border-sky-100 dark:border-sky-500/40">
                         Công thức: {rule.formula}
                       </span>
                     </div>
@@ -340,8 +340,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                       onClick={() => onToggleBookmarkRule(rule.id)}
                       className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                         isBookmarked
-                          ? 'bg-amber-50 text-amber-600 border-amber-200'
-                          : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'
+                          ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-500/40 shadow-xs'
+                          : 'bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:text-slate-600 dark:hover:text-white'
                       }`}
                       title={isBookmarked ? 'Bỏ lưu' : 'Lưu quy tắc này'}
                     >
@@ -350,44 +350,44 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                   </div>
 
                   {/* Explanation */}
-                  <p className="text-xs sm:text-sm text-slate-600 whitespace-pre-line leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 whitespace-pre-line leading-relaxed font-medium">
                     {rule.explanationVi}
                   </p>
 
                   {/* Comparison Box: ❌ Mistake vs ⭕ Correction */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200 text-xs text-rose-900">
-                      <div className="flex items-center gap-1.5 font-bold mb-1 text-rose-700">
+                    <div className="p-3.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/40 text-xs text-rose-900 dark:text-rose-200">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-rose-700 dark:text-rose-300">
                         <XCircle className="w-4 h-4 shrink-0" />
                         <span>Lỗi sai phổ biến:</span>
                       </div>
-                      <p className="font-semibold">{rule.mistakeExample}</p>
-                      <p className="text-[11px] text-rose-700 mt-1 opacity-90">{rule.mistakeWhyVi}</p>
+                      <p className="font-semibold text-rose-950 dark:text-rose-100">{rule.mistakeExample}</p>
+                      <p className="text-[11px] text-rose-700 dark:text-rose-300 mt-1 opacity-90">{rule.mistakeWhyVi}</p>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-xs text-emerald-900">
-                      <div className="flex items-center gap-1.5 font-bold mb-1 text-emerald-700">
+                    <div className="p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 text-xs text-emerald-900 dark:text-emerald-200">
+                      <div className="flex items-center gap-1.5 font-bold mb-1 text-emerald-700 dark:text-emerald-300">
                         <CheckCircle className="w-4 h-4 shrink-0" />
                         <span>Cách dùng đúng chuẩn:</span>
                       </div>
-                      <p className="font-semibold">{rule.correctExample}</p>
+                      <p className="font-semibold text-emerald-950 dark:text-emerald-100">{rule.correctExample}</p>
                     </div>
                   </div>
 
                   {/* Real life examples */}
-                  <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block">
+                  <div className="bg-slate-50 dark:bg-slate-900/90 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2">
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wide block">
                       Ví dụ thực tế đời sống:
                     </span>
                     {rule.realLifeUsage.map((ex, idx) => (
                       <div key={idx} className="flex items-center justify-between gap-2 text-xs">
                         <div>
-                          <span className="font-bold text-slate-800">{ex.ko}</span>
-                          <span className="text-slate-500 ml-1.5">({ex.vi})</span>
+                          <span className="font-bold text-slate-800 dark:text-white">{ex.ko}</span>
+                          <span className="text-slate-500 dark:text-slate-300 ml-1.5">({ex.vi})</span>
                         </div>
                         <button
                           onClick={() => speakKorean(ex.ko)}
-                          className="p-1 text-slate-400 hover:text-sky-600 rounded-lg cursor-pointer"
+                          className="p-1 text-slate-400 dark:text-cyan-300 hover:text-sky-600 dark:hover:text-cyan-200 rounded-lg cursor-pointer"
                           title="Nghe câu ví dụ"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
@@ -397,8 +397,8 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                   </div>
 
                   {/* Pro Tip */}
-                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
-                    <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-500/40 text-xs text-amber-900 dark:text-amber-200 font-medium">
+                    <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-300 shrink-0" />
                     <span>{rule.proTip}</span>
                   </div>
                 </div>
@@ -411,17 +411,17 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
       {/* 2. AI GRAMMAR CHECKER TAB */}
       {activeTab === 'ai-checker' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-sky-100 shadow-md">
-            <h3 className="text-lg font-black text-slate-800 mb-1">
+          <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/70 rounded-3xl p-6 sm:p-8 border border-sky-100 dark:border-indigo-500/40 shadow-md dark:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-1">
               Nhập câu tiếng Hàn của bạn để AI kiểm tra ngữ pháp:
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-300 mb-4">
               AI sẽ phân tích chính tả, tiểu từ, đuôi câu kính ngữ và gợi ý cách diễn đạt tự nhiên hơn.
             </p>
 
             {/* Quick sample chips */}
             <div className="mb-4">
-              <span className="text-xs font-bold text-slate-400 block mb-1.5">
+              <span className="text-xs font-bold text-slate-400 dark:text-slate-300 block mb-1.5">
                 Hoặc thử các câu mẫu hay sai sau:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -432,7 +432,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                       setInputSentence(sample);
                       handleCheckGrammar(sample);
                     }}
-                    className="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-600 text-xs font-semibold border border-slate-200 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800/90 hover:bg-sky-50 dark:hover:bg-indigo-900/60 hover:text-sky-700 dark:hover:text-indigo-200 text-slate-600 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                   >
                     {sample}
                   </button>
@@ -447,14 +447,14 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 value={inputSentence}
                 onChange={(e) => setInputSentence(e.target.value)}
                 placeholder="Ví dụ: 저는 학교에 공부해요. hoặc 어제 친구와 밥을 먹었어요..."
-                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:bg-white transition-all"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-2xl text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-amber-400 focus:bg-white dark:focus:bg-slate-900 transition-all shadow-2xs"
               />
 
               <div className="flex justify-end">
                 <button
                   onClick={() => handleCheckGrammar()}
                   disabled={!inputSentence.trim() || isChecking}
-                  className="flex items-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-500 disabled:opacity-50 text-slate-900 font-extrabold rounded-2xl shadow-xs transition-all cursor-pointer"
+                  className="flex items-center gap-2 px-6 py-3 bg-amber-400 hover:bg-amber-500 dark:bg-amber-500 dark:hover:bg-amber-400 disabled:opacity-50 text-slate-900 dark:text-slate-950 font-extrabold rounded-2xl shadow-xs dark:shadow-[0_0_15px_rgba(245,158,11,0.4)] transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>{isChecking ? 'Đang phân tích...' : 'Soát lỗi ngữ pháp (+10 XP)'}</span>
@@ -465,24 +465,24 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
 
           {/* Result Card */}
           {checkResult && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-sky-200 shadow-md space-y-5 animate-fadeIn">
+            <div className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/80 rounded-3xl p-6 sm:p-8 border-2 border-sky-200 dark:border-indigo-400/60 shadow-md dark:shadow-[0_0_25px_rgba(99,102,241,0.25)] space-y-5 animate-fadeIn">
               {/* Status Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {checkResult.isCorrect ? (
-                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                      <CheckCircle className="w-4 h-4 text-emerald-600" /> Câu hoàn toàn chuẩn xác!
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/50 text-xs font-bold">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Câu hoàn toàn chuẩn xác!
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
-                      <XCircle className="w-4 h-4 text-rose-600" /> Cần chỉnh sửa một chút
+                    <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/50 text-xs font-bold">
+                      <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" /> Cần chỉnh sửa một chút
                     </span>
                   )}
                 </div>
 
                 <button
                   onClick={handleSaveToNotebook}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold transition-colors cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-500/40 text-xs font-bold transition-colors cursor-pointer"
                 >
                   <Bookmark className="w-3.5 h-3.5" />
                   <span>{savedSuccessMsg ? '✓ Đã lưu vào sổ tay' : 'Lưu vào sổ tay cá nhân'}</span>
@@ -490,40 +490,40 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               </div>
 
               {/* Corrected Sentence Box */}
-              <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200">
+              <div className="p-4 rounded-2xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-500/40">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-sky-700 uppercase tracking-wide">
+                  <span className="text-xs font-bold text-sky-700 dark:text-cyan-300 uppercase tracking-wide">
                     Câu chuẩn tự nhiên:
                   </span>
                   <button
                     onClick={() => speakKorean(checkResult.correctedSentence)}
-                    className="p-1.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-700 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-xl bg-sky-100 dark:bg-sky-900/70 hover:bg-sky-200 dark:hover:bg-sky-800 text-sky-700 dark:text-cyan-200 transition-colors cursor-pointer"
                     title="Nghe câu chuẩn"
                   >
                     <Volume2 className="w-4 h-4" />
                   </button>
                 </div>
-                <h4 className="text-xl sm:text-2xl font-black text-slate-800 mt-1">
+                <h4 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white mt-1">
                   {checkResult.correctedSentence}
                 </h4>
-                <p className="text-xs font-mono text-sky-600 mt-0.5">/{checkResult.romanization}/</p>
-                <p className="text-xs text-slate-600 mt-1">Nghĩa: {checkResult.vietnameseMeaning}</p>
+                <p className="text-xs font-mono text-sky-600 dark:text-cyan-300 mt-0.5">/{checkResult.romanization}/</p>
+                <p className="text-xs text-slate-600 dark:text-slate-200 mt-1">Nghĩa: {checkResult.vietnameseMeaning}</p>
               </div>
 
               {/* Detailed Vietnamese Explanation */}
               <div className="space-y-1.5">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wide">
                   Phân tích lỗi & Điểm ngữ pháp:
                 </span>
-                <p className="text-xs sm:text-sm text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100 leading-relaxed whitespace-pre-line">
+                <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/90 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 leading-relaxed whitespace-pre-line font-medium">
                   {checkResult.explanationVi}
                 </p>
               </div>
 
               {/* Pro Tip */}
               {checkResult.grammarRuleTip && (
-                <div className="flex items-center gap-2 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium">
-                  <Lightbulb className="w-4 h-4 text-amber-600 shrink-0" />
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-500/40 text-xs text-amber-900 dark:text-amber-200 font-medium">
+                  <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-300 shrink-0" />
                   <span>Mẹo nhớ: {checkResult.grammarRuleTip}</span>
                 </div>
               )}
@@ -531,22 +531,22 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               {/* Natural Alternatives */}
               {checkResult.naturalAlternatives && checkResult.naturalAlternatives.length > 0 && (
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wide">
                     Cách người bản xứ thường nói:
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {checkResult.naturalAlternatives.map((alt, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                        className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/90 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs"
                       >
                         <div>
-                          <p className="font-bold text-slate-800">{alt.korean}</p>
-                          <p className="text-slate-500 text-[11px] mt-0.5">{alt.vietnamese}</p>
+                          <p className="font-bold text-slate-800 dark:text-white">{alt.korean}</p>
+                          <p className="text-slate-500 dark:text-slate-300 text-[11px] mt-0.5">{alt.vietnamese}</p>
                         </div>
                         <button
                           onClick={() => speakKorean(alt.korean)}
-                          className="p-1 text-slate-400 hover:text-sky-600 cursor-pointer"
+                          className="p-1 text-slate-400 dark:text-cyan-300 hover:text-sky-600 dark:hover:text-cyan-200 cursor-pointer"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
                         </button>
@@ -559,24 +559,24 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               {/* Vocabulary Breakdown Table */}
               {checkResult.vocabularyBreakdown && checkResult.vocabularyBreakdown.length > 0 && (
                 <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-300 uppercase tracking-wide">
                     Từ vựng trong câu:
                   </span>
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
-                      <thead className="bg-slate-100 text-slate-600 font-bold">
+                      <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 font-bold">
                         <tr>
                           <th className="p-2.5 rounded-l-xl">Từ vựng</th>
                           <th className="p-2.5">Từ loại</th>
                           <th className="p-2.5 rounded-r-xl">Nghĩa tiếng Việt</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {checkResult.vocabularyBreakdown.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50">
-                            <td className="p-2.5 font-bold text-slate-800">{item.word}</td>
-                            <td className="p-2.5 text-slate-500">{item.type}</td>
-                            <td className="p-2.5 text-slate-700">{item.meaning}</td>
+                          <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <td className="p-2.5 font-bold text-slate-800 dark:text-white">{item.word}</td>
+                            <td className="p-2.5 text-slate-500 dark:text-slate-300">{item.type}</td>
+                            <td className="p-2.5 text-slate-700 dark:text-slate-200">{item.meaning}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -593,17 +593,17 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
       {activeTab === 'saved' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-800">
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">
               Các lỗi sai & ghi chú bạn đã lưu ({savedMistakes.length})
             </h3>
-            <span className="text-xs text-slate-500">Ôn lại thường xuyên để không mắc lại lỗi nhé</span>
+            <span className="text-xs text-slate-500 dark:text-slate-300">Ôn lại thường xuyên để không mắc lại lỗi nhé</span>
           </div>
 
           {savedMistakes.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center shadow-xs">
+            <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-10 border border-slate-200 dark:border-indigo-500/40 text-center shadow-xs dark:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
               <div className="text-4xl mb-2">📝</div>
-              <h4 className="text-base font-bold text-slate-800">Chưa có ghi chú nào được lưu!</h4>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              <h4 className="text-base font-bold text-slate-800 dark:text-white">Chưa có ghi chú nào được lưu!</h4>
+              <p className="text-xs text-slate-500 dark:text-slate-300 mt-1 max-w-sm mx-auto">
                 Khi sử dụng "AI Soát lỗi câu", bạn có thể nhấn "Lưu vào sổ tay cá nhân" để lưu lại những câu cần khắc phục.
               </p>
             </div>
@@ -612,33 +612,33 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
               {savedMistakes.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs flex items-start justify-between gap-3"
+                  className="bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/60 rounded-2xl p-4 border border-slate-200 dark:border-indigo-500/40 shadow-2xs dark:shadow-[0_0_15px_rgba(99,102,241,0.15)] flex items-start justify-between gap-3"
                 >
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-rose-600 line-through">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-rose-600 dark:text-rose-300 line-through">
                         {item.sentence}
                       </span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-sm font-black text-emerald-700">
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400" />
+                      <span className="text-sm font-black text-emerald-700 dark:text-emerald-300">
                         {item.correction}
                       </span>
                       <button
                         onClick={() => speakKorean(item.correction)}
-                        className="p-1 text-slate-400 hover:text-sky-600 cursor-pointer"
+                        className="p-1 text-slate-400 dark:text-cyan-300 hover:text-sky-600 dark:hover:text-cyan-200 cursor-pointer"
                         title="Nghe câu đúng"
                       >
                         <Volume2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <p className="text-xs text-slate-600">{item.note}</p>
-                    <span className="text-[10px] text-slate-400 block pt-1">{item.date}</span>
+                    <p className="text-xs text-slate-600 dark:text-slate-200">{item.note}</p>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-400 block pt-1">{item.date}</span>
                   </div>
 
                   <button
                     onClick={() => onDeleteMistake(item.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-slate-400 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/60 rounded-lg transition-colors cursor-pointer"
                     title="Xóa ghi chú này"
                   >
                     <Trash2 className="w-4 h-4" />

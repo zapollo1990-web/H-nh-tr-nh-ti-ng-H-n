@@ -166,7 +166,7 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
 
   return (
     <div className="fixed inset-0 z-50 w-screen h-screen min-h-screen flex flex-col overflow-hidden bg-gradient-to-br from-[#1E1B4B] via-[#0F172A] to-[#020617] text-white animate-fade-in transition-colors duration-500">
-      <div className="w-full h-full max-w-2xl mx-auto flex flex-col overflow-hidden bg-white/95 text-slate-800 shadow-2xl">
+      <div className="w-full h-full max-w-2xl mx-auto flex flex-col overflow-hidden bg-white/95 dark:bg-slate-900/95 text-slate-800 dark:text-white shadow-2xl transition-colors">
         {/* Header Bar */}
         <div className="p-4 bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -205,14 +205,14 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
           {!isGameCompleted ? (
             <>
               {/* Tour Prompt */}
-              <div className="p-3 rounded-2xl bg-rose-50 border border-rose-100 text-xs text-rose-900 font-medium flex items-center gap-2">
-                <Compass className="w-4 h-4 text-rose-600 shrink-0" />
+              <div className="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/40 text-xs text-rose-900 dark:text-rose-200 font-medium flex items-center gap-2">
+                <Compass className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span className="line-clamp-2">{gameConfig.themePrompt}</span>
               </div>
 
               {/* Progress & Target Word Goal Card */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
                   <span>Từ mục tiêu: {currentWordIdx + 1} / {targetWords.length}</span>
                   {comboStreak >= 2 && (
                     <span className="text-rose-600 flex items-center gap-1 font-black animate-bounce">
@@ -291,7 +291,7 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
 
               {/* Candy-style Letter Tiles Grid */}
               <div className="space-y-2">
-                <div className="text-xs font-black text-slate-700 flex items-center gap-1.5">
+                <div className="text-xs font-black text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-pink-500" />
                   <span>Bấm vào các chữ cái đúng theo thứ tự:</span>
                 </div>
@@ -301,9 +301,9 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
                     <button
                       key={tile.id}
                       onClick={() => handleTileClick(tile.syllable)}
-                      className="h-14 rounded-2xl bg-gradient-to-b from-white to-pink-50 hover:to-pink-100 text-slate-800 text-2xl font-black border-2 border-pink-200 hover:border-pink-400 shadow-sm hover:shadow-md transition-all active:scale-90 cursor-pointer flex items-center justify-center group"
+                      className="h-14 rounded-2xl bg-gradient-to-b from-white to-pink-50 hover:to-pink-100 dark:from-slate-800 dark:to-slate-700 dark:hover:to-slate-600 text-slate-800 dark:text-white text-2xl font-black border-2 border-pink-200 dark:border-pink-500/50 shadow-sm hover:shadow-md transition-all active:scale-90 cursor-pointer flex items-center justify-center group"
                     >
-                      <span className="group-hover:scale-110 transition-transform text-pink-950">
+                      <span className="group-hover:scale-110 transition-transform text-pink-950 dark:text-pink-100">
                         {tile.syllable}
                       </span>
                     </button>
@@ -313,14 +313,14 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
 
               {/* Words Found List */}
               {foundWordsList.length > 0 && (
-                <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center gap-2 flex-wrap">
-                  <span className="font-bold text-slate-800">Từ đã tìm:</span>
+                <div className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 flex items-center gap-2 flex-wrap">
+                  <span className="font-bold text-slate-800 dark:text-white">Từ đã tìm:</span>
                   {foundWordsList.map((w, wIdx) => (
                     <span
                       key={wIdx}
-                      className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-black text-xs border border-emerald-200 flex items-center gap-1"
+                      className="px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-black text-xs border border-emerald-200 dark:border-emerald-800 flex items-center gap-1"
                     >
-                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       {w}
                     </span>
                   ))}
@@ -340,24 +340,24 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
                   <Star className="w-8 h-8 fill-amber-400 drop-shadow-md animate-bounce delay-100" />
                   <Star className="w-7 h-7 fill-amber-400 drop-shadow-md animate-bounce delay-200" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 mt-2">
+                <h4 className="text-xl font-black text-slate-900 dark:text-white mt-2">
                   Xuất Sắc! Hoàn Thành Tham Quan
                 </h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-300">
                   Bạn đã tinh mắt tìm đúng toàn bộ từ vựng tại {gameConfig.locationName}!
                 </p>
               </div>
 
               {/* Rewards */}
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-around max-w-xs mx-auto">
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 flex items-center justify-around max-w-xs mx-auto">
                 <div className="text-center">
-                  <span className="text-xs text-slate-500 font-bold">Điểm đạt</span>
-                  <div className="text-lg font-black text-slate-900">{score}</div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">Điểm đạt</span>
+                  <div className="text-lg font-black text-slate-900 dark:text-white">{score}</div>
                 </div>
-                <div className="h-8 w-px bg-amber-200" />
+                <div className="h-8 w-px bg-amber-200 dark:bg-amber-800" />
                 <div className="text-center">
-                  <span className="text-xs text-slate-500 font-bold">Phần thưởng</span>
-                  <div className="text-lg font-black text-amber-600">+60 XP</div>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-bold">Phần thưởng</span>
+                  <div className="text-lg font-black text-amber-600 dark:text-amber-400">+60 XP</div>
                 </div>
               </div>
 
@@ -365,7 +365,7 @@ export const TourSightWordMiniGameModal: React.FC<TourSightWordMiniGameModalProp
               <div className="flex items-center justify-center gap-3 pt-2">
                 <button
                   onClick={handleRestartGame}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Chơi lại</span>

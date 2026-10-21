@@ -282,20 +282,20 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
                 Sổ Tay Từ Vựng
               </h2>
-              <span className="text-xs font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
+              <span className="text-xs font-bold text-sky-600 dark:text-sky-300 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-500/40">
                 {cards.length} từ
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Đã thuộc <strong className="text-emerald-600 font-bold">{masteredCount}</strong>/{cards.length} từ ({progressPercent}%)
+            <p className="text-xs text-slate-500 dark:text-slate-300 mt-0.5">
+              Đã thuộc <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{masteredCount}</strong>/{cards.length} từ ({progressPercent}%)
             </p>
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
-            <div className="bg-slate-100 p-0.5 rounded-xl flex items-center border border-slate-200 text-xs font-bold">
+            <div className="bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-xl flex items-center border border-slate-200 dark:border-slate-700 text-xs font-bold">
               <button
                 onClick={() => {
                   playClickSound();
@@ -303,8 +303,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'flashcard'
-                    ? 'bg-white text-slate-900 shadow-2xs font-black'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs font-black'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Layers className="w-3.5 h-3.5" />
@@ -317,8 +317,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
                   viewMode === 'dictionary'
-                    ? 'bg-white text-slate-900 shadow-2xs font-black'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-white dark:bg-indigo-600 text-slate-900 dark:text-white shadow-2xs font-black'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <BookOpen className="w-3.5 h-3.5" />
@@ -332,18 +332,18 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
           {/* Search Input */}
           <div className="relative sm:col-span-6">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 dark:text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tra từ tiếng Hàn, phiên âm, tiếng Việt..."
-              className="w-full pl-9 pr-8 py-2 bg-white rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs"
+              className="w-full pl-9 pr-8 py-2 bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-indigo-500/40 text-xs sm:text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -355,10 +355,10 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer truncate"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs cursor-pointer truncate"
             >
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="dark:bg-slate-900 dark:text-white">
                   {c.icon} {c.label}
                 </option>
               ))}
@@ -370,29 +370,29 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 shadow-2xs cursor-pointer truncate"
+              className="w-full bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs cursor-pointer truncate"
             >
-              <option value="all">Tất cả ({cards.length})</option>
-              <option value="unmastered">Cần ôn ({cards.length - masteredCount})</option>
-              <option value="mastered">Đã thuộc ({masteredCount})</option>
+              <option value="all" className="dark:bg-slate-900 dark:text-white">Tất cả ({cards.length})</option>
+              <option value="unmastered" className="dark:bg-slate-900 dark:text-white">Cần ôn ({cards.length - masteredCount})</option>
+              <option value="mastered" className="dark:bg-slate-900 dark:text-white">Đã thuộc ({masteredCount})</option>
             </select>
           </div>
         </div>
 
         {/* Row 3: Quick tools */}
         <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span>Tìm thấy: <strong className="text-slate-900">{filteredCards.length}</strong> từ</span>
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-300">
+            <span>Tìm thấy: <strong className="text-slate-900 dark:text-white">{filteredCards.length}</strong> từ</span>
             <span>•</span>
             <select
               value={selectedTopik}
               onChange={(e) => setSelectedTopik(e.target.value)}
-              className="bg-transparent border-0 text-xs text-slate-600 font-bold focus:outline-none cursor-pointer p-0"
+              className="bg-transparent border-0 text-xs text-slate-600 dark:text-slate-200 font-bold focus:outline-none cursor-pointer p-0"
             >
-              <option value="all">Mọi cấp độ</option>
-              <option value="Sơ cấp 1">Sơ cấp 1</option>
-              <option value="Sơ cấp 2">Sơ cấp 2</option>
-              <option value="Trung cấp">Trung cấp</option>
+              <option value="all" className="dark:bg-slate-900 dark:text-white">Mọi cấp độ</option>
+              <option value="Sơ cấp 1" className="dark:bg-slate-900 dark:text-white">Sơ cấp 1</option>
+              <option value="Sơ cấp 2" className="dark:bg-slate-900 dark:text-white">Sơ cấp 2</option>
+              <option value="Trung cấp" className="dark:bg-slate-900 dark:text-white">Trung cấp</option>
             </select>
           </div>
 
@@ -401,8 +401,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               onClick={() => setShowRomanization(!showRomanization)}
               className={`px-2.5 py-1 rounded-lg border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
                 showRomanization
-                  ? 'bg-amber-50 text-amber-800 border-amber-200'
-                  : 'bg-white text-slate-500 border-slate-200'
+                  ? 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-500/40'
+                  : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-700'
               }`}
               title="Bật/Tắt phiên âm La-tinh"
             >
@@ -417,7 +417,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                   className={`px-2.5 py-1 rounded-lg border text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 ${
                     isAutoPlaying
                       ? 'bg-emerald-500 text-white border-emerald-500 shadow-2xs animate-pulse'
-                      : 'bg-white text-slate-500 border-slate-200'
+                      : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-700'
                   }`}
                   title="Tự động lật thẻ"
                 >
@@ -427,7 +427,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
                 <button
                   onClick={handleShuffle}
-                  className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1"
                   title="Trộn thẻ ngẫu nhiên"
                 >
                   <Shuffle className="w-3.5 h-3.5" />
@@ -441,10 +441,10 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
       {/* Main Flashcard / Dictionary Display Area */}
       {filteredCards.length === 0 ? (
-        <div className="bg-white rounded-3xl p-10 border border-slate-200 text-center shadow-xs">
+        <div className="bg-white dark:bg-slate-900/90 rounded-3xl p-10 border border-slate-200 dark:border-indigo-500/40 text-center shadow-xs dark:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
           <div className="text-4xl mb-3">🔍</div>
-          <h3 className="text-lg font-bold text-slate-800">Không tìm thấy từ vựng nào!</h3>
-          <p className="text-sm text-slate-500 mt-1">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Không tìm thấy từ vựng nào!</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-300 mt-1">
             Hãy thử tìm với từ khóa khác hoặc xóa bộ lọc để xem toàn bộ danh mục.
           </p>
           <button
@@ -455,7 +455,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               setSelectedTopik('all');
               setSearchQuery('');
             }}
-            className="mt-4 px-4 py-2 bg-sky-500 text-white rounded-xl text-sm font-bold shadow-xs hover:bg-sky-600 transition-all cursor-pointer"
+            className="mt-4 px-4 py-2 bg-sky-500 dark:bg-indigo-600 text-white rounded-xl text-sm font-bold shadow-xs hover:bg-sky-600 dark:hover:bg-indigo-500 transition-all cursor-pointer"
           >
             Xem tất cả từ vựng
           </button>
@@ -463,7 +463,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
       ) : viewMode === 'dictionary' ? (
         /* DICTIONARY LIST VIEW */
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-500 px-1 font-medium">
+          <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300 px-1 font-medium">
             <span>Tìm thấy {filteredCards.length} từ vựng</span>
             <span>Bấm vào biểu tượng loa để nghe phát âm</span>
           </div>
@@ -474,43 +474,45 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               return (
                 <div
                   key={card.id}
-                  className={`bg-white rounded-2xl p-4 border transition-all shadow-xs hover:shadow-md ${
-                    isMastered ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'
+                  className={`rounded-2xl p-4 border transition-all shadow-xs hover:shadow-md ${
+                    isMastered
+                      ? 'bg-emerald-50/30 dark:bg-gradient-to-br dark:from-slate-900 dark:to-emerald-950/40 border-emerald-200 dark:border-emerald-500/50 dark:shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                      : 'bg-white dark:bg-gradient-to-br dark:from-[#0f172a] dark:to-[#1e1b4b]/60 border-slate-200 dark:border-indigo-500/40 dark:shadow-[0_0_15px_rgba(99,102,241,0.15)]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap mb-1">
-                        <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[11px] font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-100 dark:border-sky-500/30 text-[11px] font-bold">
                           {card.category}
                         </span>
                         {card.partOfSpeech && (
-                          <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 text-[11px] font-medium">
+                          <span className="px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-500/30 text-[11px] font-medium">
                             {card.partOfSpeech}
                           </span>
                         )}
                         {card.topikLevel && (
-                          <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 text-[11px] font-medium">
+                          <span className="px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-500/30 text-[11px] font-medium">
                             {card.topikLevel}
                           </span>
                         )}
                         {card.isCustomAdmin && (
-                          <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-600 text-[11px] font-bold flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-300 border border-rose-100 dark:border-rose-500/30 text-[11px] font-bold flex items-center gap-1">
                             <Award className="w-3 h-3" /> Admin thêm
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-baseline gap-2.5 mt-1.5">
-                        <h4 className="text-xl font-black text-slate-900 font-sans tracking-tight">
+                        <h4 className="text-xl font-black text-slate-900 dark:text-white font-sans tracking-tight">
                           {card.hangul}
                         </h4>
-                        <span className="text-xs font-mono font-semibold text-sky-600">
+                        <span className="text-xs font-mono font-semibold text-sky-600 dark:text-cyan-300">
                           /{card.romanization}/
                         </span>
                       </div>
 
-                      <p className="text-sm font-bold text-amber-900 mt-1">
+                      <p className="text-sm font-bold text-amber-900 dark:text-amber-300 mt-1">
                         {card.vietnamese}
                       </p>
                     </div>
@@ -518,7 +520,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                     <div className="flex flex-col items-center gap-1.5">
                       <button
                         onClick={() => speakKorean(card.hangul)}
-                        className="p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 transition-colors cursor-pointer"
+                        className="p-2 rounded-xl bg-sky-50 dark:bg-indigo-900/60 hover:bg-sky-100 dark:hover:bg-indigo-800 text-sky-600 dark:text-indigo-200 border border-sky-100 dark:border-indigo-500/40 transition-colors cursor-pointer"
                         title="Nghe phát âm chuẩn"
                       >
                         <Volume2 className="w-4 h-4" />
@@ -535,8 +537,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                         }}
                         className={`p-2 rounded-xl transition-colors cursor-pointer ${
                           isMastered
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-slate-100 hover:bg-slate-200 text-slate-400'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/80 text-emerald-700 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-500/50'
+                            : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                         }`}
                         title={isMastered ? 'Đã thuộc từ này' : 'Đánh dấu đã thuộc'}
                       >
@@ -546,23 +548,23 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                   </div>
 
                   {card.exampleKo && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs">
-                      <div className="flex items-center justify-between text-slate-600 font-medium">
-                        <span className="text-slate-800 font-semibold">{card.exampleKo}</span>
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                      <div className="flex items-center justify-between text-slate-600 dark:text-slate-200 font-medium">
+                        <span className="text-slate-800 dark:text-white font-semibold">{card.exampleKo}</span>
                         <button
                           onClick={() => speakKorean(card.exampleKo)}
-                          className="text-sky-600 hover:text-sky-700 ml-2 cursor-pointer"
+                          className="text-sky-600 dark:text-cyan-300 hover:text-sky-700 dark:hover:text-cyan-200 ml-2 cursor-pointer"
                           title="Đọc câu ví dụ"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <p className="text-slate-500 mt-0.5">{card.exampleVi}</p>
+                      <p className="text-slate-500 dark:text-slate-300 mt-0.5">{card.exampleVi}</p>
                     </div>
                   )}
 
                   {card.tips && (
-                    <div className="mt-2 text-[11px] text-amber-800 bg-amber-50/70 rounded-lg px-2.5 py-1 border border-amber-100 font-medium">
+                    <div className="mt-2 text-[11px] text-amber-800 dark:text-amber-200 bg-amber-50/70 dark:bg-amber-950/40 rounded-lg px-2.5 py-1 border border-amber-100 dark:border-amber-500/30 font-medium">
                       💡 {card.tips}
                     </div>
                   )}
@@ -585,25 +587,25 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               }`}
             >
               {/* FRONT SIDE */}
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-sky-50/40 rounded-3xl p-6 sm:p-8 border-2 border-sky-200 shadow-md flex flex-col justify-between backface-hidden">
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white via-sky-50/30 to-sky-100/30 dark:bg-gradient-to-b dark:from-[#0f172a] dark:via-[#1e1b4b] dark:to-[#0b0f19] rounded-3xl p-6 sm:p-8 border-2 border-sky-200 dark:border-indigo-400/60 shadow-md dark:shadow-[0_0_30px_rgba(99,102,241,0.25)] flex flex-col justify-between backface-hidden">
                 {/* Top card header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-bold uppercase tracking-wider">
+                    <span className="px-3 py-1 rounded-full bg-sky-100 dark:bg-indigo-900/70 text-sky-700 dark:text-indigo-200 border border-sky-200 dark:border-indigo-400/40 text-xs font-bold uppercase tracking-wider">
                       {activeCard.category}
                     </span>
                     {activeCard.partOfSpeech && (
-                      <span className="px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-semibold">
+                      <span className="px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/70 text-purple-700 dark:text-purple-200 border border-purple-200 dark:border-purple-400/40 text-xs font-semibold">
                         {activeCard.partOfSpeech}
                       </span>
                     )}
                     {activeCard.topikLevel && (
-                      <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold">
+                      <span className="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/70 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-400/40 text-xs font-semibold">
                         {activeCard.topikLevel}
                       </span>
                     )}
                     {activeCard.isCustomAdmin && (
-                      <span className="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold flex items-center gap-1">
+                      <span className="px-2.5 py-1 rounded-full bg-rose-100 dark:bg-rose-900/70 text-rose-700 dark:text-rose-200 border border-rose-200 dark:border-rose-400/40 text-xs font-bold flex items-center gap-1">
                         <Award className="w-3 h-3" /> Admin thêm
                       </span>
                     )}
@@ -611,11 +613,11 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
                   <div className="flex items-center gap-2">
                     {isCurrentMastered && (
-                      <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                      <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-500/50">
                         <BookmarkCheck className="w-3.5 h-3.5" /> Đã thuộc
                       </span>
                     )}
-                    <span className="text-xs font-bold text-slate-400">
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-300">
                       {currentIndex + 1} / {filteredCards.length}
                     </span>
                   </div>
@@ -624,13 +626,13 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                 {/* Center Content: Hangul & Romanization */}
                 <div className="text-center my-auto py-2">
                   <div className="inline-flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap">
-                    <h3 className="text-4xl sm:text-5xl font-black text-slate-800 tracking-normal font-sans">
+                    <h3 className="text-4xl sm:text-5xl font-black text-slate-800 dark:text-white tracking-normal font-sans">
                       {activeCard.hangul}
                     </h3>
                     <button
                       type="button"
                       onClick={(e) => handleSpeak(e, activeCard.hangul)}
-                      className="p-3 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white shadow-md shadow-sky-200 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                      className="p-3 rounded-2xl bg-sky-500 hover:bg-sky-600 dark:bg-indigo-600 dark:hover:bg-indigo-500 text-white shadow-md shadow-sky-200 dark:shadow-[0_0_15px_rgba(99,102,241,0.5)] hover:scale-110 active:scale-95 transition-all cursor-pointer"
                       title="Nghe phát âm tiếng Hàn"
                     >
                       <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -645,7 +647,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                           : vocabSpeechFeedback?.isEvaluated &&
                             (vocabSpeechFeedback.accuracy || 0) >= 60
                           ? 'bg-emerald-600 text-white shadow-emerald-200 hover:bg-emerald-700'
-                          : 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200'
+                          : 'bg-purple-600 hover:bg-purple-700 text-white shadow-purple-200 dark:shadow-[0_0_15px_rgba(168,85,247,0.4)]'
                       }`}
                       title={
                         isVocabRecording
@@ -658,7 +660,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                   </div>
 
                   {showRomanization && (
-                    <p className="text-sm sm:text-base font-semibold text-sky-600 mt-2 tracking-wide font-mono">
+                    <p className="text-sm sm:text-base font-semibold text-sky-600 dark:text-cyan-300 mt-2 tracking-wide font-mono">
                       /{activeCard.romanization}/
                     </p>
                   )}
@@ -667,10 +669,10 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                   {vocabSpeechFeedback && (
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="mt-3 max-w-xs mx-auto p-2.5 rounded-2xl bg-white/95 border border-purple-200 shadow-sm text-xs space-y-1 animate-fadeIn cursor-default"
+                      className="mt-3 max-w-xs mx-auto p-2.5 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-purple-200 dark:border-purple-500/50 shadow-sm text-xs space-y-1 animate-fadeIn cursor-default"
                     >
                       {isVocabRecording ? (
-                        <div className="text-rose-600 font-bold flex items-center justify-center gap-1.5 animate-pulse">
+                        <div className="text-rose-600 dark:text-rose-300 font-bold flex items-center justify-center gap-1.5 animate-pulse">
                           <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
                           <span>🎙️ Đang nghe bạn đọc... Hãy đọc to từ này</span>
                         </div>
@@ -679,24 +681,24 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                           <div
                             className={`font-black flex items-center justify-center gap-1 ${
                               (vocabSpeechFeedback.accuracy || 0) >= 60
-                                ? 'text-emerald-700'
-                                : 'text-amber-700'
+                                ? 'text-emerald-700 dark:text-emerald-300'
+                                : 'text-amber-700 dark:text-amber-300'
                             }`}
                           >
                             {(vocabSpeechFeedback.accuracy || 0) >= 60 ? (
                               <>
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                 <span>{vocabSpeechFeedback.accuracy}% Chuẩn xác! (+10 XP)</span>
                               </>
                             ) : (
                               <>
-                                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                                <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                                 <span>{vocabSpeechFeedback.accuracy}% Cần luyện thêm</span>
                               </>
                             )}
                           </div>
                           {vocabSpeechFeedback.transcript && (
-                            <div className="text-[11px] text-slate-500 font-mono">
+                            <div className="text-[11px] text-slate-500 dark:text-slate-300 font-mono">
                               Bạn đã đọc: "{vocabSpeechFeedback.transcript}"
                             </div>
                           )}
@@ -706,7 +708,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                   )}
 
                   {activeCard.tips && (
-                    <div className="mt-4 max-w-sm mx-auto bg-amber-50/80 border border-amber-200/80 rounded-xl px-3 py-1.5 text-xs text-amber-800 font-medium">
+                    <div className="mt-4 max-w-sm mx-auto bg-amber-50/80 dark:bg-amber-950/60 border border-amber-200/80 dark:border-amber-500/40 rounded-xl px-3 py-1.5 text-xs text-amber-800 dark:text-amber-200 font-medium">
                       💡 {activeCard.tips}
                     </div>
                   )}
@@ -714,23 +716,23 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
                 {/* Bottom flip hint */}
                 <div className="text-center">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                    <RotateCcw className="w-3 h-3 text-sky-500" /> Nhấn vào thẻ để xem nghĩa tiếng Việt
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 px-3 py-1 rounded-full border border-slate-200/60 dark:border-slate-700">
+                    <RotateCcw className="w-3 h-3 text-sky-500 dark:text-cyan-300" /> Nhấn vào thẻ để xem nghĩa tiếng Việt
                   </span>
                 </div>
               </div>
 
               {/* BACK SIDE (Rotated 180 deg) */}
-              <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white to-amber-50/50 rounded-3xl p-6 sm:p-8 border-2 border-amber-200 shadow-md flex flex-col justify-between backface-hidden rotate-y-180">
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-white via-amber-50/30 to-amber-100/30 dark:bg-gradient-to-b dark:from-[#0f172a] dark:via-[#1f1917] dark:to-[#0b0f19] rounded-3xl p-6 sm:p-8 border-2 border-amber-200 dark:border-amber-400/60 shadow-md dark:shadow-[0_0_30px_rgba(245,158,11,0.25)] flex flex-col justify-between backface-hidden rotate-y-180">
                 {/* Back card header */}
                 <div className="flex items-center justify-between">
-                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
+                  <span className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-500/40 text-xs font-bold">
                     Nghĩa & Ví dụ thực tế
                   </span>
 
                   <button
                     onClick={(e) => handleSpeak(e, activeCard.hangul)}
-                    className="p-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 transition-colors cursor-pointer"
+                    className="p-2 rounded-xl bg-amber-100 dark:bg-amber-950/80 hover:bg-amber-200 dark:hover:bg-amber-900 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-500/40 transition-colors cursor-pointer"
                     title="Nghe lại phát âm"
                   >
                     <Volume2 className="w-4 h-4" />
@@ -740,36 +742,36 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
                 {/* Vietnamese meaning & Sentence example */}
                 <div className="text-center my-auto space-y-4">
                   <div>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+                    <span className="text-xs font-bold text-slate-400 dark:text-slate-300 uppercase tracking-wide">
                       Ý nghĩa tiếng Việt
                     </span>
-                    <h3 className="text-2xl sm:text-3xl font-black text-amber-900 mt-0.5">
+                    <h3 className="text-2xl sm:text-3xl font-black text-amber-900 dark:text-amber-200 mt-0.5">
                       {activeCard.vietnamese}
                     </h3>
                   </div>
 
                   {activeCard.exampleKo && (
-                    <div className="bg-white rounded-2xl p-3.5 border border-amber-200/70 shadow-2xs text-left max-w-md mx-auto">
-                      <div className="flex items-center justify-between text-xs font-bold text-amber-700 mb-1">
+                    <div className="bg-white dark:bg-slate-900/90 rounded-2xl p-3.5 border border-amber-200/70 dark:border-amber-500/40 shadow-2xs text-left max-w-md mx-auto">
+                      <div className="flex items-center justify-between text-xs font-bold text-amber-700 dark:text-amber-300 mb-1">
                         <span>Câu ví dụ:</span>
                         <button
                           onClick={(e) => handleSpeak(e, activeCard.exampleKo)}
-                          className="hover:text-amber-900 p-0.5 rounded cursor-pointer"
+                          className="hover:text-amber-900 dark:hover:text-amber-100 p-0.5 rounded cursor-pointer"
                           title="Đọc câu ví dụ"
                         >
-                          <Volume2 className="w-3.5 h-3.5 text-amber-600" />
+                          <Volume2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                         </button>
                       </div>
-                      <p className="text-sm font-bold text-slate-800">{activeCard.exampleKo}</p>
-                      <p className="text-xs text-slate-600 mt-0.5">{activeCard.exampleVi}</p>
+                      <p className="text-sm font-bold text-slate-800 dark:text-white">{activeCard.exampleKo}</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{activeCard.exampleVi}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Bottom flip hint */}
                 <div className="text-center">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                    <RotateCcw className="w-3 h-3 text-amber-500" /> Nhấn để lật lại mặt trước
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-200 bg-slate-100 dark:bg-slate-800/80 px-3 py-1 rounded-full border border-slate-200/60 dark:border-slate-700">
+                    <RotateCcw className="w-3 h-3 text-amber-500 dark:text-amber-300" /> Nhấn để lật lại mặt trước
                   </span>
                 </div>
               </div>
@@ -780,7 +782,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
           <div className="flex items-center justify-between gap-3 pt-2">
             <button
               onClick={handlePrev}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-xs active:scale-95 cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5" />
               <span className="hidden sm:inline">Thẻ trước</span>
@@ -791,8 +793,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
               onClick={handleMasterClick}
               className={`flex-1 max-w-xs flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-black transition-all shadow-xs cursor-pointer active:scale-95 ${
                 isCurrentMastered
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200'
-                  : 'bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 text-white shadow-sky-200'
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200 dark:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                  : 'bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-600 dark:from-indigo-600 dark:to-purple-600 dark:hover:from-indigo-500 dark:hover:to-purple-500 text-white shadow-sky-200 dark:shadow-[0_0_15px_rgba(99,102,241,0.4)]'
               }`}
             >
               <CheckCircle2 className="w-5 h-5" />
@@ -801,7 +803,7 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({
 
             <button
               onClick={handleNext}
-              className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-all shadow-xs active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-100 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-xs active:scale-95 cursor-pointer"
             >
               <span className="hidden sm:inline">Thẻ sau</span>
               <ChevronRight className="w-5 h-5" />

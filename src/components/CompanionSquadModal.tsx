@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Check, Heart, Sparkles, Star } from 'lucide-react';
+import { X, Check, Star, Sparkles } from 'lucide-react';
 import {
   COMPANION_LIST,
   CompanionId,
@@ -14,6 +14,23 @@ interface CompanionSquadModalProps {
   onClose: () => void;
   onSelectCompanion?: (id: CompanionId) => void;
 }
+
+const getBrightRoleColor = (id: CompanionId) => {
+  switch (id) {
+    case 'na':
+      return 'text-rose-600 dark:text-rose-300';
+    case 'rin':
+      return 'text-amber-600 dark:text-amber-300';
+    case 'min':
+      return 'text-sky-600 dark:text-sky-300';
+    case 'lumi':
+      return 'text-purple-600 dark:text-purple-300';
+    case 'sora':
+      return 'text-emerald-600 dark:text-emerald-300';
+    default:
+      return 'text-slate-600 dark:text-slate-300';
+  }
+};
 
 export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
   isOpen,
@@ -36,8 +53,8 @@ export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
   const currentBuddy = COMPANION_LIST.find((c) => c.id === selectedId) || COMPANION_LIST[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-neutral-900 rounded-3xl max-w-xl w-full flex flex-col shadow-2xl border border-slate-200 dark:border-neutral-800 overflow-hidden max-h-[92vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden max-h-[92vh]">
         {/* Header banner */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-pink-500 via-sky-500 to-purple-600 text-white relative">
           <div className="flex items-center justify-between">
@@ -70,39 +87,39 @@ export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
 
         {/* Body content */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
-          {/* Active Companion Feature Banner */}
-          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-neutral-800/80 border border-slate-200/80 dark:border-neutral-700 flex items-center gap-4">
+          {/* Active Companion Feature Banner - Khung nền đổi màu ấn tượng trong nền tối */}
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-gradient-to-r dark:from-slate-800/95 dark:to-indigo-950/80 border border-slate-200/80 dark:border-indigo-500/50 dark:shadow-[0_0_20px_rgba(99,102,241,0.2)] flex items-center gap-4 transition-all">
             <CompanionAvatar characterId={currentBuddy.id} size={64} showBadge />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-black text-slate-900 dark:text-white">
                   {currentBuddy.name}
                 </span>
                 <span
-                  className="text-[10px] font-black px-2 py-0.5 rounded-full text-white"
+                  className="text-[10px] font-black px-2 py-0.5 rounded-full text-white shadow-xs"
                   style={{ backgroundColor: currentBuddy.primaryColor }}
                 >
                   {currentBuddy.role}
                 </span>
-                <span className="text-xs text-amber-500 flex items-center gap-0.5 ml-auto font-black">
+                <span className="text-xs text-amber-500 dark:text-amber-300 flex items-center gap-0.5 ml-auto font-black">
                   <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   Bạn chính
                 </span>
               </div>
-              <p className="text-xs text-slate-600 dark:text-neutral-300 mt-1 italic">
+              <p className="text-xs text-slate-700 dark:text-amber-200 mt-1 italic font-semibold">
                 "{currentBuddy.catchphrase}"
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-neutral-400 mt-0.5">
+              <p className="text-[11px] text-slate-600 dark:text-slate-100 mt-0.5 font-medium">
                 Chuyên môn: {currentBuddy.specialty}
               </p>
             </div>
           </div>
 
-          <div className="text-xs font-bold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">
+          <div className="text-xs font-black text-slate-600 dark:text-sky-300 uppercase tracking-wider">
             Chọn bạn đồng hành chính của bạn:
           </div>
 
-          {/* List of 5 Companions */}
+          {/* List of 5 Companions - Khung nền đổi màu & màu chữ sáng trong nền tối */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {COMPANION_LIST.map((buddy) => {
               const isSelected = buddy.id === selectedId;
@@ -112,8 +129,8 @@ export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
                   onClick={() => handleChoose(buddy.id)}
                   className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-3 relative ${
                     isSelected
-                      ? 'border-sky-500 bg-sky-50/70 dark:bg-sky-950/40 shadow-sm scale-101'
-                      : 'border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-800/50 hover:border-slate-300 dark:hover:border-neutral-700'
+                      ? 'border-sky-500 bg-sky-50/80 dark:bg-gradient-to-r dark:from-sky-950/90 dark:to-indigo-950/90 dark:border-sky-400 dark:shadow-[0_0_15px_rgba(56,189,248,0.35)] scale-101'
+                      : 'border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800/80 hover:border-slate-300 hover:dark:bg-slate-800 hover:dark:border-indigo-400/60'
                   }`}
                 >
                   <CompanionAvatar characterId={buddy.id} size={48} />
@@ -123,15 +140,15 @@ export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
                         {buddy.name}
                       </span>
                       {isSelected ? (
-                        <span className="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center text-xs">
+                        <span className="w-5 h-5 rounded-full bg-sky-500 text-white flex items-center justify-center text-xs shadow-xs">
                           <Check className="w-3 h-3 stroke-[3]" />
                         </span>
                       ) : null}
                     </div>
-                    <div className="text-xs font-bold" style={{ color: buddy.primaryColor }}>
+                    <div className={`text-xs font-bold ${getBrightRoleColor(buddy.id)}`}>
                       {buddy.role}
                     </div>
-                    <div className="text-[11px] text-slate-500 dark:text-neutral-400 truncate mt-0.5">
+                    <div className="text-[11px] text-slate-600 dark:text-slate-100 truncate mt-0.5 font-medium">
                       {buddy.shortDesc}
                     </div>
                   </div>
@@ -140,30 +157,30 @@ export const CompanionSquadModal: React.FC<CompanionSquadModalProps> = ({
             })}
           </div>
 
-          {/* Role cooperation description */}
-          <div className="p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 space-y-1">
-            <div className="font-black flex items-center gap-1.5 text-indigo-700 dark:text-indigo-300">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          {/* Role cooperation description - Khung nền đổi màu tím/chàm sang trọng & chữ sáng rõ ràng */}
+          <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-gradient-to-br dark:from-slate-900/95 dark:to-purple-950/80 border border-indigo-100 dark:border-purple-500/50 dark:shadow-[0_0_20px_rgba(168,85,247,0.2)] text-xs space-y-1.5 transition-all">
+            <div className="font-black flex items-center gap-1.5 text-indigo-700 dark:text-purple-300 text-xs sm:text-sm">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500 dark:text-purple-300" />
               Cách 5 người bạn cùng hỗ trợ bạn trong suốt bài học:
             </div>
-            <p className="text-[11px] leading-relaxed text-indigo-800/80 dark:text-indigo-300/80">
-              • <strong>Na (Hồng):</strong> Giảng giải từ vựng, ngữ pháp và phát âm chuẩn.<br />
-              • <strong>Rin (Vàng):</strong> Mẹo nhớ từ nhanh, hướng dẫn làm bài tập chi tiết.<br />
-              • <strong>Min (Xanh dương):</strong> Chuyên gia luyện đề trắc nghiệm và bấm giờ kiểm tra chặng.<br />
-              • <strong>Lumi (Tím):</strong> Cổ vũ tinh thần, khen ngợi và truyền động lực tích cực.<br />
-              • <strong>Sora (Xanh lá):</strong> Quản lý thời gian, giữ vững chuỗi học tập hàng ngày!
-            </p>
+            <div className="text-[11px] sm:text-xs leading-relaxed space-y-1 mt-1 text-slate-700 dark:text-slate-100 font-medium">
+              <p>• <strong className="text-pink-600 dark:text-pink-300 font-bold">Na (Hồng):</strong> Giảng giải từ vựng, ngữ pháp và phát âm chuẩn Seoul.</p>
+              <p>• <strong className="text-amber-600 dark:text-amber-300 font-bold">Rin (Vàng):</strong> Mẹo nhớ từ nhanh, hướng dẫn làm bài tập chi tiết.</p>
+              <p>• <strong className="text-sky-600 dark:text-sky-300 font-bold">Min (Xanh dương):</strong> Chuyên gia luyện đề trắc nghiệm và bấm giờ kiểm tra chặng.</p>
+              <p>• <strong className="text-purple-600 dark:text-purple-300 font-bold">Lumi (Tím):</strong> Cổ vũ tinh thần, khen ngợi và truyền động lực tích cực.</p>
+              <p>• <strong className="text-emerald-600 dark:text-emerald-300 font-bold">Sora (Xanh lá):</strong> Quản lý thời gian, giữ vững chuỗi học tập hàng ngày!</p>
+            </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-slate-50 dark:bg-neutral-900 border-t border-slate-200 dark:border-neutral-800 flex justify-end">
+        <div className="p-4 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex justify-end">
           <button
             onClick={() => {
               playClickSound();
               onClose();
             }}
-            className="px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all cursor-pointer shadow-xs"
+            className="px-5 py-2 rounded-xl bg-slate-900 dark:bg-gradient-to-r dark:from-sky-500 dark:to-indigo-500 text-white font-black text-xs hover:bg-slate-800 dark:hover:from-sky-400 dark:hover:to-indigo-400 transition-all cursor-pointer shadow-xs dark:shadow-[0_0_12px_rgba(56,189,248,0.3)]"
           >
             Đồng ý & Tiếp tục học
           </button>

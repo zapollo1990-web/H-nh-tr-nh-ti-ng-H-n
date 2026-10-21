@@ -50,8 +50,14 @@ export default function App() {
       localStorage.setItem('korean_journey_theme', theme);
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
+      const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', theme === 'dark' ? '#0b0f19' : '#ffffff');
       }
     }
   }, [theme]);
@@ -346,8 +352,8 @@ export default function App() {
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 ${
         theme === 'dark'
-          ? 'dark bg-neutral-950 text-neutral-100 selection:bg-purple-900 selection:text-white'
-          : 'bg-[#F8FAFC] text-slate-800 selection:bg-sky-200 selection:text-sky-900'
+          ? 'dark bg-[#0b0f19] text-slate-100 selection:bg-purple-900 selection:text-white'
+          : 'bg-[#F8FAFC] text-slate-900 selection:bg-sky-200 selection:text-sky-900'
       }`}
     >
       {/* Top Navigation Bar with 3 Main Tabs: Học tập, Từ vựng & ngữ pháp, Tôi */}
@@ -380,6 +386,7 @@ export default function App() {
               onAddXp={handleAddXp}
               onRecordQuizResult={handleRecordQuizResult}
               onUnlockBadge={handleUnlockBadge}
+              theme={theme}
             />
           </div>
         )}

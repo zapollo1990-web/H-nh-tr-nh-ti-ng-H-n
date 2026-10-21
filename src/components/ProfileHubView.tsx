@@ -137,7 +137,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
   return (
     <div className="space-y-4 max-w-5xl mx-auto pb-12 animate-fade-in">
       {/* 1. THẺ HỒ SƠ TINH GỌN (COMPACT PROFILE CARD) */}
-      <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-neutral-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-3.5">
           <div className="relative shrink-0">
             <div
@@ -177,7 +177,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
 
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black text-slate-900 truncate">
+              <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">
                 {adminUser ? adminUser.name : 'Người Dùng Khách'}
               </h2>
               <span
@@ -288,49 +288,49 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
 
       {/* 2. CHỈ SỐ HỌC TẬP TINH GỌN (4 THẺ NGẮN GỌN THAY VÌ KHỐI ĐEN NẶNG NỀ) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-neutral-800 shadow-2xs flex items-center gap-3 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
             <Flame className="w-5 h-5 fill-amber-500 text-amber-500" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-slate-400">Chuỗi học</div>
-            <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-              {progress.streak} <span className="text-xs font-normal text-slate-500">ngày</span>
+            <div className="text-[11px] font-bold text-slate-400 dark:text-neutral-400">Chuỗi học</div>
+            <div className="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
+              {progress.streak} <span className="text-xs font-normal text-slate-500 dark:text-neutral-400">ngày</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-neutral-800 shadow-2xs flex items-center gap-3 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
             <Target className="w-5 h-5 text-emerald-600" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-slate-400">Độ chuẩn xác</div>
-            <div className="text-base sm:text-lg font-black text-emerald-600 leading-tight">
+            <div className="text-[11px] font-bold text-slate-400 dark:text-neutral-400">Độ chuẩn xác</div>
+            <div className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 leading-tight">
               {accuracyPercent}%
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-neutral-800 shadow-2xs flex items-center gap-3 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5 text-sky-500" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-slate-400">Tổng điểm</div>
-            <div className="text-base sm:text-lg font-black text-sky-600 leading-tight">
-              {progress.totalXp} <span className="text-xs font-normal text-slate-500">XP</span>
+            <div className="text-[11px] font-bold text-slate-400 dark:text-neutral-400">Tổng điểm</div>
+            <div className="text-base sm:text-lg font-black text-sky-600 dark:text-sky-400 leading-tight">
+              {progress.totalXp} <span className="text-xs font-normal text-slate-500 dark:text-neutral-400">XP</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 shadow-2xs flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3 sm:p-3.5 border border-slate-200/90 dark:border-neutral-800 shadow-2xs flex items-center gap-3 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
             <Award className="w-5 h-5 text-purple-600" />
           </div>
           <div className="min-w-0">
-            <div className="text-[11px] font-bold text-slate-400">Danh hiệu</div>
-            <div className="text-base sm:text-lg font-black text-purple-600 leading-tight">
+            <div className="text-[11px] font-bold text-slate-400 dark:text-neutral-400">Danh hiệu</div>
+            <div className="text-base sm:text-lg font-black text-purple-600 dark:text-purple-400 leading-tight">
               {unlockedCount} / {ACHIEVEMENT_BADGES.length}
             </div>
           </div>
@@ -338,7 +338,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
       </div>
 
       {/* 3. ĐIỀU HƯỚNG 4 DANH MỤC RÕ RÀNG (KHÔNG RỐI MẮT) */}
-      <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-2xs grid grid-cols-2 sm:grid-cols-4 gap-1">
+      <div className="bg-white dark:bg-neutral-900 rounded-2xl p-1.5 border border-slate-200 dark:border-neutral-800 shadow-2xs grid grid-cols-2 sm:grid-cols-4 gap-1 transition-colors">
         <button
           onClick={() => {
             playClickSound();
@@ -347,7 +347,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
           className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer ${
             activeSubTab === 'badges'
               ? 'bg-amber-500 text-white shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              : 'text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800'
           }`}
         >
           <Award className="w-4 h-4 shrink-0" />
@@ -362,7 +362,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
           className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer ${
             activeSubTab === 'topik_test'
               ? 'bg-amber-500 text-white shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              : 'text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800'
           }`}
         >
           <BookOpen className="w-4 h-4 shrink-0" />
@@ -377,7 +377,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
           className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer ${
             activeSubTab === 'games'
               ? 'bg-amber-500 text-white shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              : 'text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800'
           }`}
         >
           <Gamepad2 className="w-4 h-4 shrink-0" />
@@ -392,7 +392,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
           className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl text-xs font-black transition-all cursor-pointer ${
             activeSubTab === 'community'
               ? 'bg-amber-500 text-white shadow-2xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              : 'text-slate-600 dark:text-neutral-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-neutral-800'
           }`}
         >
           <Users className="w-4 h-4 shrink-0" />
@@ -406,15 +406,15 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
         {activeSubTab === 'badges' && (
           <div className="space-y-4 animate-fade-in">
             {/* Lưới danh hiệu gọn gàng */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-neutral-800 shadow-2xs space-y-3 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-amber-500" />
-                  <h3 className="text-sm font-black text-slate-800">
+                  <h3 className="text-sm font-black text-slate-800 dark:text-white">
                     Danh hiệu đạt được ({unlockedCount}/{ACHIEVEMENT_BADGES.length})
                   </h3>
                 </div>
-                <span className="text-[11px] font-bold text-slate-400">
+                <span className="text-[11px] font-bold text-slate-400 dark:text-neutral-400">
                   {Math.round((unlockedCount / ACHIEVEMENT_BADGES.length) * 100)}% hoàn thành
                 </span>
               </div>
@@ -490,10 +490,10 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
             </div>
 
             {/* Cẩm nang mẹo học (Accordion gọn, không trải dài vô tận) */}
-            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
+            <div className="bg-white dark:bg-neutral-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-neutral-800 shadow-2xs space-y-3 transition-colors">
               <div className="flex items-center gap-2">
                 <Lightbulb className="w-4 h-4 text-sky-500" />
-                <h3 className="text-sm font-black text-slate-800">
+                <h3 className="text-sm font-black text-slate-800 dark:text-white">
                   Mẹo học tiếng Hàn thực chiến ({LEARNING_TIPS.length} bài học ngắn)
                 </h3>
               </div>
@@ -502,14 +502,14 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
                 {LEARNING_TIPS.map((tip) => (
                   <div
                     key={tip.id}
-                    className="p-3.5 rounded-xl border border-slate-200 hover:border-sky-300 transition-colors space-y-2 bg-slate-50/40"
+                    className="p-3.5 rounded-xl border border-slate-200 dark:border-neutral-800 hover:border-sky-300 dark:hover:border-sky-500 transition-colors space-y-2 bg-slate-50/40 dark:bg-neutral-800/40"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="text-xl shrink-0">{tip.icon}</span>
                         <div className="min-w-0">
-                          <h4 className="text-xs font-black text-slate-800 truncate">{tip.title}</h4>
-                          <span className="text-[10px] font-bold text-sky-600">{tip.koreanTitle}</span>
+                          <h4 className="text-xs font-black text-slate-800 dark:text-white truncate">{tip.title}</h4>
+                          <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400">{tip.koreanTitle}</span>
                         </div>
                       </div>
                       {tip.exampleKo && (
@@ -518,7 +518,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
                             playClickSound();
                             speakKorean(tip.exampleKo!);
                           }}
-                          className="p-1.5 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-700 transition-colors cursor-pointer shrink-0"
+                          className="p-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/60 text-sky-700 dark:text-sky-300 transition-colors cursor-pointer shrink-0"
                           title="Nghe phát âm"
                         >
                           <Volume2 className="w-3.5 h-3.5" />
@@ -526,12 +526,12 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
                       )}
                     </div>
 
-                    <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">{tip.summary}</p>
+                    <p className="text-xs text-slate-600 dark:text-neutral-300 leading-relaxed line-clamp-2">{tip.summary}</p>
 
                     {tip.exampleKo && (
-                      <div className="p-2 rounded-lg bg-white border border-slate-200/80 text-[11px]">
-                        <span className="font-bold text-slate-900">{tip.exampleKo}</span>
-                        <span className="text-slate-500 ml-1.5">({tip.exampleVi})</span>
+                      <div className="p-2 rounded-lg bg-white dark:bg-neutral-800 border border-slate-200/80 dark:border-neutral-700 text-[11px]">
+                        <span className="font-bold text-slate-900 dark:text-white">{tip.exampleKo}</span>
+                        <span className="text-slate-500 dark:text-neutral-400 ml-1.5">({tip.exampleVi})</span>
                       </div>
                     )}
                   </div>
@@ -573,11 +573,11 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
 
       {/* QUICK LOGIN MODAL */}
       {showQuickLogin && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 space-y-3.5">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm bg-white dark:bg-neutral-900 rounded-2xl p-5 shadow-2xl border border-slate-100 dark:border-neutral-800 space-y-3.5 transition-colors">
             <div className="text-center">
-              <h3 className="text-base font-black text-slate-800">Đăng Nhập Tài Khoản</h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <h3 className="text-base font-black text-slate-800 dark:text-white">Đăng Nhập Tài Khoản</h3>
+              <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">
                 Lưu trữ tiến độ học, tỉ lệ đúng và chuỗi học tập
               </p>
             </div>

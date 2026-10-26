@@ -2,18 +2,27 @@ import { GrammarRule } from '../types';
 import { BEGINNER_GRAMMAR_RULES } from './grammarNotesBeginner';
 import { INTERMEDIATE_GRAMMAR_RULES } from './grammarNotesIntermediate';
 import { ADVANCED_GRAMMAR_RULES } from './grammarNotesAdvanced';
+import { ANIMALS_PLANTS_GRAMMAR_RULES } from './grammarNotesAnimalsPlants';
 
 // TỔNG HỢP TOÀN BỘ NGỮ PHÁP TIẾNG HÀN TỪ SƠ CẤP ĐẾN CAO CẤP (TOPIK I - II)
 export const GRAMMAR_RULES: GrammarRule[] = [
+  ...ANIMALS_PLANTS_GRAMMAR_RULES,
   ...BEGINNER_GRAMMAR_RULES,
   ...INTERMEDIATE_GRAMMAR_RULES,
   ...ADVANCED_GRAMMAR_RULES,
 ];
 
-export { BEGINNER_GRAMMAR_RULES, INTERMEDIATE_GRAMMAR_RULES, ADVANCED_GRAMMAR_RULES };
+export {
+  BEGINNER_GRAMMAR_RULES,
+  INTERMEDIATE_GRAMMAR_RULES,
+  ADVANCED_GRAMMAR_RULES,
+  ANIMALS_PLANTS_GRAMMAR_RULES,
+};
 
 export const GRAMMAR_CATEGORIES = [
   { id: 'all', label: 'Tất cả chủ đề', icon: '📚' },
+  { id: 'animals', label: 'Động vật & So sánh loài vật (보다, 처럼, 마리...)', icon: '🐶' },
+  { id: 'plants', label: 'Thực vật & Thiên nhiên (송이, 그루, -아/어지다, 키우다...)', icon: '🌿' },
   { id: 'particle', label: 'Tiểu từ (은/는, 이/가, 을/를, 에/에서, 에게, -(으)로...)', icon: '📍' },
   { id: 'tense', label: 'Thời thì (Hiện tại, Quá khứ, Tương lai, Tiếp diễn -고 있다...)', icon: '⏳' },
   { id: 'negation', label: 'Phủ định (안 vs -지 않다 vs 못 vs -(으)ㄹ 수 없다)', icon: '🚫' },

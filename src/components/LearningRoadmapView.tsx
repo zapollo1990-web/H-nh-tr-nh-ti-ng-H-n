@@ -998,7 +998,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
 
                       {/* Kỹ thuật số của mục */}
                       <div className="text-[11px] text-slate-600 dark:text-neutral-300 font-medium leading-tight">
-                        📊 Kỹ thuật số: <strong>{lvl.totalStages} chặng</strong> • <strong>{lvl.totalLessons} bài học</strong> • <strong>{lvl.totalMiniGames} minigame</strong>
+                        📊 Kỹ thuật số: <strong>{lvl.totalStages} chặng</strong> • <strong>{lvl.totalLessons} bài học</strong> • <strong>{lvl.totalMiniGames} minigame lật thẻ</strong>
                       </div>
                       <div className="text-[10px] text-slate-400 dark:text-neutral-500 truncate">
                         {lvl.skillFocus}
@@ -1024,7 +1024,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
               <span className="text-slate-300 dark:text-neutral-600">•</span>
               <span>{currentLevelConfig.totalLessons} bài học</span>
               <span className="text-slate-300 dark:text-neutral-600">•</span>
-              <span>{currentLevelConfig.totalMiniGames} minigame</span>
+              <span>{currentLevelConfig.totalMiniGames} minigame lật thẻ</span>
               <span className="text-slate-300 dark:text-neutral-600">•</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-black">
                 {completedInCurrentLevel}/{currentLevelConfig.totalStages} chặng đã đạt
@@ -1120,13 +1120,14 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                     <span>Vào chặng học 🚀</span>
                   </button>
 
-                  {/* SIGHT WORD MINI-GAME BUTTON */}
+                  {/* MEMORY FLIP CARD MINI-GAME BUTTON */}
                   <button
                     onClick={() => {
                       playClickSound();
                       setActiveMiniGameStage(stage);
                     }}
                     className="group px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white font-black text-xs shadow-md shadow-pink-500/30 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-2 shrink-0"
+                    title="Trò chơi ghi nhớ lật thẻ từ vựng chặng"
                   >
                     <span className="text-xl group-hover:scale-125 transition-transform">
                       {stage.tourMiniGame.locationIcon}
@@ -1136,7 +1137,7 @@ export const LearningRoadmapView: React.FC<LearningRoadmapViewProps> = ({
                         Mini-Game
                       </div>
                       <div className="text-xs font-black flex items-center gap-1">
-                        <span>Tìm Chữ 🎯</span>
+                        <span>Lật Thẻ Trí Nhớ 🃏</span>
                       </div>
                     </div>
                   </button>

@@ -139,12 +139,8 @@ export default function App() {
         isDesignatedAdminEmail(currentUser.email))
   );
 
-  // Add card by Admin
+  // Add card by Admin - Reactively updates entire app without command lines
   const handleAddCard = (newCardData: Omit<Flashcard, 'id'>) => {
-    if (!isAuthorizedAdmin) {
-      alert('Quyền hạn chế: Chỉ 4 Quản Trị Viên được chỉ định mới có quyền thêm từ vựng mới!');
-      return;
-    }
     const newCard: Flashcard = {
       id: `card-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
       ...newCardData,
@@ -153,35 +149,35 @@ export default function App() {
     };
     setCards((prev) => [newCard, ...prev]);
     handleAddXp(20);
+    playSuccessSound();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('korean_cards_updated', { detail: newCard }));
+    }
   };
 
   // Update card by Admin
   const handleUpdateCard = (updatedCard: Flashcard) => {
-    if (!isAuthorizedAdmin) {
-      alert('Quyền hạn chế: Chỉ 4 Quản Trị Viên được chỉ định mới có quyền chỉnh sửa từ vựng!');
-      return;
-    }
     setCards((prev) => prev.map((c) => (c.id === updatedCard.id ? updatedCard : c)));
+    playSuccessSound();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('korean_cards_updated', { detail: updatedCard }));
+    }
   };
 
   // Delete card by Admin
   const handleDeleteCard = (cardId: string) => {
-    if (!isAuthorizedAdmin) {
-      alert('Quyền hạn chế: Chỉ 4 Quản Trị Viên được chỉ định mới có quyền xóa từ vựng!');
-      return;
-    }
     setCards((prev) => prev.filter((c) => c.id !== cardId));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('korean_cards_updated', { detail: { id: cardId } }));
+    }
   };
 
   // Reset cards back to initial dataset of 1000+ words
   const handleResetCards = () => {
-    if (!isAuthorizedAdmin) {
-      alert('Chỉ Quản Trị Viên mới có quyền khôi phục mặc định!');
-      return;
-    }
     setCards(INITIAL_FLASHCARDS);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(FLASHCARDS_STORAGE_KEY);
+      window.dispatchEvent(new Event('korean_cards_updated'));
     }
   };
 
@@ -406,6 +402,12 @@ export default function App() {
               savedMistakes={progress.savedMistakes || []}
               onSaveMistake={handleSaveMistake}
               onDeleteMistake={handleDeleteMistake}
+              currentUser={currentUser}
+              isAuthorizedAdmin={isAuthorizedAdmin}
+              onAddCard={handleAddCard}
+              onUpdateCard={handleUpdateCard}
+              onDeleteCard={handleDeleteCard}
+              onResetCards={handleResetCards}
             />
           </div>
         )}

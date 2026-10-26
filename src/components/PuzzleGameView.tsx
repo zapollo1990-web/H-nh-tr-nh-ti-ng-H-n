@@ -270,17 +270,26 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
   // ==========================================
   const [emojiIndex, setEmojiIndex] = useState(0);
   const activeEmojiPuzzle = EMOJI_PUZZLES[emojiIndex % EMOJI_PUZZLES.length];
-  const targetWordLength = activeEmojiPuzzle.wordKo.length;
+  const targetWordLength = activeEmojiPuzzle?.wordKo?.length || 2;
   const [selectedLetters, setSelectedLetters] = useState<string[]>([]);
   const [isEmojiSolved, setIsEmojiSolved] = useState(false);
   const [isEmojiWrong, setIsEmojiWrong] = useState(false);
   const [emojiStreak, setEmojiStreak] = useState(0);
+  const [shuffledEmojiTiles, setShuffledEmojiTiles] = useState<string[]>([]);
 
   useEffect(() => {
     setSelectedLetters([]);
     setIsEmojiSolved(false);
     setIsEmojiWrong(false);
-  }, [emojiIndex]);
+    if (activeEmojiPuzzle) {
+      const copy = [...activeEmojiPuzzle.scrambledLetters];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      setShuffledEmojiTiles(copy);
+    }
+  }, [emojiIndex, activeEmojiPuzzle]);
 
   const handleSelectEmojiTile = (letter: string) => {
     if (isEmojiSolved || selectedLetters.length >= targetWordLength) return;
@@ -335,13 +344,22 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
   const [lives, setLives] = useState(5);
   const [isSecretWon, setIsSecretWon] = useState(false);
   const [isSecretLost, setIsSecretLost] = useState(false);
+  const [shuffledSecretTiles, setShuffledSecretTiles] = useState<string[]>([]);
 
   useEffect(() => {
     setGuessedSyllables([]);
     setLives(5);
     setIsSecretWon(false);
     setIsSecretLost(false);
-  }, [secretIndex]);
+    if (activeSecretPuzzle?.candidateSyllables) {
+      const copy = [...activeSecretPuzzle.candidateSyllables];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      setShuffledSecretTiles(copy);
+    }
+  }, [secretIndex, activeSecretPuzzle]);
 
   const handleGuessSyllable = (syllable: string) => {
     if (isSecretWon || isSecretLost || guessedSyllables.includes(syllable)) return;
@@ -1109,7 +1127,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
                   Nhấn vào các chữ cái bên dưới theo đúng thứ tự:
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2.5 max-w-sm mx-auto">
-                  {activeEmojiPuzzle.scrambledLetters.map((letter, idx) => (
+                  {(shuffledEmojiTiles.length > 0 ? shuffledEmojiTiles : activeEmojiPuzzle.scrambledLetters).map((letter, idx) => (
                     <button
                       key={idx}
                       id={`emoji-tile-${idx}`}
@@ -1286,7 +1304,7 @@ export const PuzzleGameView: React.FC<PuzzleGameViewProps> = ({ onAddXp }) => {
                   Chọn một âm tiết tiếng Hàn để thử giải mã:
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 max-w-md mx-auto">
-                  {activeSecretPuzzle.candidateSyllables.map((syl) => {
+                  {(shuffledSecretTiles.length > 0 ? shuffledSecretTiles : activeSecretPuzzle.candidateSyllables).map((syl) => {
                     const isGuessed = guessedSyllables.includes(syl);
                     const isCorrect = isGuessed && secretWord.includes(syl);
                     const isWrong = isGuessed && !secretWord.includes(syl);

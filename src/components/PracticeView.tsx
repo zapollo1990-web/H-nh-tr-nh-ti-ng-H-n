@@ -731,13 +731,16 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
               const isWrong = matchWrongId === card.id;
 
               let cardStyle =
-                'bg-slate-50 dark:bg-slate-900/70 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800/80';
+                card.lang === 'vi'
+                  ? 'bg-[#FFFBEB] dark:bg-[#FFFDF0] border-amber-300 text-black shadow-xs hover:border-amber-400 hover:bg-[#FEF3C7]'
+                  : 'bg-[#F0F9FF] dark:bg-[#F3F9FF] border-sky-300 text-slate-900 shadow-xs hover:border-sky-400 hover:bg-[#E0F2FE]';
+
               if (isMatched) {
-                cardStyle = 'bg-emerald-100 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300 opacity-40 scale-95 cursor-default';
+                cardStyle = 'bg-[#E8F8F5] border-emerald-300 text-emerald-950 opacity-50 scale-95 cursor-default ring-1 ring-emerald-300';
               } else if (isWrong) {
-                cardStyle = 'bg-rose-100 dark:bg-rose-950/60 border-rose-400 dark:border-rose-600 text-rose-800 dark:text-rose-200 animate-shake';
+                cardStyle = 'bg-[#FFEAEB] border-rose-400 text-rose-950 ring-2 ring-rose-400 animate-shake';
               } else if (isSelected) {
-                cardStyle = 'bg-sky-100 dark:bg-sky-950/80 border-sky-500 dark:border-sky-400 text-sky-900 dark:text-sky-200 shadow-md scale-102';
+                cardStyle = 'bg-[#FEF3C7] border-amber-500 text-black ring-2 ring-amber-400 shadow-md scale-105';
               }
 
               return (
@@ -749,12 +752,18 @@ export const PracticeView: React.FC<PracticeViewProps> = ({
                 >
                   <span
                     className={`text-base sm:text-lg ${
-                      card.lang === 'ko' ? 'font-black text-slate-900 dark:text-white' : 'font-semibold text-slate-700 dark:text-slate-200'
+                      card.lang === 'ko' ? 'font-black text-slate-900' : 'font-black text-black'
                     }`}
                   >
                     {card.text}
                   </span>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-400 mt-1">
+                  <span
+                    className={`text-[10px] uppercase font-black px-1.5 py-0.5 rounded-md mt-1 ${
+                      card.lang === 'ko'
+                        ? 'bg-sky-100 text-sky-800'
+                        : 'bg-amber-200 text-black font-black'
+                    }`}
+                  >
                     {card.lang === 'ko' ? '🇰🇷 Tiếng Hàn' : '🇻🇳 Tiếng Việt'}
                   </span>
                 </button>

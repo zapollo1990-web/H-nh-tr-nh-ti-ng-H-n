@@ -30,6 +30,12 @@ import { speakKorean, playClickSound, playSuccessSound, playFanfareSound, playIn
 import { VoiceGenderToggle } from './VoiceGenderToggle';
 import { calculateSpeechAccuracy } from '../utils/stageSkillsGenerator';
 import { VoiceRecorder } from '../utils/voiceRecorder';
+import { StudyThemeBar } from './StudyThemeBar';
+import {
+  StudyBackgroundTheme,
+  BG_THEMES,
+  getSavedStudyTheme,
+} from '../data/studyThemes';
 
 interface AiConversationViewProps {
   onAddXp: (amount: number) => void;
@@ -46,6 +52,10 @@ const QUICK_FUN_PROMPTS = [
 ];
 
 export const AiConversationView: React.FC<AiConversationViewProps> = ({ onAddXp }) => {
+  // Background Theme (Giống 5 Bạn Đồng Hành)
+  const [studyTheme, setStudyTheme] = useState<StudyBackgroundTheme>(() => getSavedStudyTheme());
+  const currentBg = BG_THEMES[studyTheme] || BG_THEMES.classroom;
+
   // Main Navigation: Free Chat vs Speaking Challenge Mode
   const [activeTab, setActiveTab] = useState<'chat' | 'challenge'>('challenge');
 
@@ -499,7 +509,7 @@ export const AiConversationView: React.FC<AiConversationViewProps> = ({ onAddXp 
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 sm:py-5 pb-24 md:pb-8">
+    <div className={`rounded-3xl p-3 sm:p-5 transition-colors duration-500 max-w-4xl mx-auto pb-24 md:pb-8 ${currentBg.bgClass}`}>
       {/* Clean compact header */}
       <div className="space-y-3 mb-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -517,9 +527,15 @@ export const AiConversationView: React.FC<AiConversationViewProps> = ({ onAddXp 
             </p>
           </div>
 
-          {/* Voice & Display toggles */}
+          {/* Voice, Display toggles & Flexible 5-Companion Theme Switcher */}
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
             <VoiceGenderToggle className="shadow-2xs text-xs" />
+
+            {/* Flexible Background Theme Bar (Giống 5 Bạn Đồng Hành: 6 tông màu Sáng/Tối) */}
+            <StudyThemeBar
+              currentTheme={studyTheme}
+              onThemeChange={(newTheme) => setStudyTheme(newTheme)}
+            />
 
             {activeTab === 'chat' && (
               <>

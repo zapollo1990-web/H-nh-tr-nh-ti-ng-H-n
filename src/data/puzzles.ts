@@ -1,6 +1,12 @@
 import { KoreanRiddle, EmojiPuzzle, WordGuessPuzzle } from '../types';
+import {
+  EXPANDED_EMOJI_PUZZLES,
+  EXPANDED_WORD_GUESS_PUZZLES,
+  EXPANDED_KOREAN_RIDDLES,
+} from './hundredPuzzles';
 
 export const KOREAN_RIDDLES: KoreanRiddle[] = [
+  ...EXPANDED_KOREAN_RIDDLES,
   {
     id: 'rd-1',
     category: 'wordplay',
@@ -124,6 +130,7 @@ export const KOREAN_RIDDLES: KoreanRiddle[] = [
 ];
 
 export const EMOJI_PUZZLES: EmojiPuzzle[] = [
+  ...EXPANDED_EMOJI_PUZZLES,
   {
     id: 'em-1',
     emojis: '🌧️ + ☀️',
@@ -247,6 +254,7 @@ export const EMOJI_PUZZLES: EmojiPuzzle[] = [
 ];
 
 export const WORD_GUESS_PUZZLES: WordGuessPuzzle[] = [
+  ...EXPANDED_WORD_GUESS_PUZZLES,
   {
     id: 'wg-1',
     category: 'Cảm xúc & Tình cảm',

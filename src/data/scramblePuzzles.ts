@@ -1,5 +1,6 @@
 import { ScramblePuzzle } from '../types';
 import rawVocabData from './massiveVocab.json';
+import { ANIMALS_PLANTS_VOCAB } from './animalsPlantsVocab';
 
 export interface CategoryInfo {
   id: string;
@@ -10,6 +11,8 @@ export interface CategoryInfo {
 }
 
 export const CATEGORY_MAP: Record<string, { label: string; icon: string; color: string }> = {
+  animals: { label: 'Động vật bốn phương', icon: '🐶', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' },
+  plants: { label: 'Thực vật & Hoa lá', icon: '🌿', color: 'text-green-700 bg-green-50 border-green-200' },
   food: { label: 'Ẩm thực & Món ăn', icon: '🍲', color: 'text-amber-600 bg-amber-50 border-amber-200' },
   daily: { label: 'Đời sống sinh hoạt', icon: '🏠', color: 'text-emerald-600 bg-emerald-50 border-emerald-200' },
   travel: { label: 'Du lịch & Giao thông', icon: '✈️', color: 'text-sky-600 bg-sky-50 border-sky-200' },
@@ -68,8 +71,9 @@ function cleanSentence(sentence: string): string {
  */
 function buildMasterPuzzleBank(): ScramblePuzzle[] {
   const bank: ScramblePuzzle[] = [];
+  const fullVocab = [...ANIMALS_PLANTS_VOCAB, ...(rawVocabData as any[])];
 
-  rawVocabData.forEach((item, index) => {
+  fullVocab.forEach((item, index) => {
     const cat = item.category || 'daily';
     const catMeta = CATEGORY_MAP[cat] || {
       label: 'Đa chủ đề',

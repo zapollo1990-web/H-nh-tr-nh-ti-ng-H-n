@@ -1,6 +1,8 @@
 export type VocabCategory =
   | 'hangeul'
   | 'greetings'
+  | 'animals'
+  | 'plants'
   | 'food'
   | 'numbers'
   | 'daily'
@@ -10,7 +12,8 @@ export type VocabCategory =
   | 'emotions'
   | 'work'
   | 'verbs'
-  | 'adjectives';
+  | 'adjectives'
+  | string;
 
 export interface Flashcard {
   id: string;
@@ -18,8 +21,8 @@ export interface Flashcard {
   romanization: string;
   vietnamese: string;
   category: VocabCategory;
-  partOfSpeech?: 'Danh từ' | 'Động từ' | 'Tính từ' | 'Phó từ' | 'Đại từ' | 'Cụm từ';
-  topikLevel?: 'Sơ cấp 1' | 'Sơ cấp 2' | 'Trung cấp';
+  partOfSpeech?: 'Danh từ' | 'Động từ' | 'Tính từ' | 'Phó từ' | 'Đại từ' | 'Cụm từ' | string;
+  topikLevel?: 'Sơ cấp 1' | 'Sơ cấp 2' | 'Trung cấp' | string;
   exampleKo: string;
   exampleVi: string;
   tips?: string;
@@ -276,6 +279,9 @@ export interface CropType {
   options: string[];
   correctIndex: number;
   factKo: string;
+  isMutant?: boolean;
+  weatherRequirement?: WeatherType;
+  growthCategory?: 'vegetable' | 'fruit' | 'mutant';
 }
 
 export interface FarmPlot {
@@ -284,7 +290,11 @@ export interface FarmPlot {
   stage: 'empty' | 'seed' | 'growing' | 'ready';
   plantedAt?: number;
   needsAction?: 'water' | 'fertilize' | 'harvest' | null;
+  isWeatherMutant?: boolean;
+  weatherCondition?: string;
 }
+
+export type WeatherType = 'sunny' | 'rainy' | 'snowy' | 'rainbow' | 'foggy';
 
 export interface FishSpecies {
   id: string;
@@ -292,12 +302,41 @@ export interface FishSpecies {
   nameVi: string;
   romanization: string;
   emoji: string;
-  rarity: 'common' | 'rare' | 'legendary';
+  rarity: 'common' | 'rare' | 'legendary' | 'mutant';
   xpReward: number;
   coinReward: number;
   descriptionVi: string;
   habitKo: string;
   speed: number;
+  weatherRequirement?: WeatherType;
+  isMutant?: boolean;
+}
+
+export interface FarmFishingShopItem {
+  id: string;
+  nameKo: string;
+  nameVi: string;
+  type: 'rod' | 'hook' | 'bait' | 'tool';
+  price: number;
+  icon: string;
+  descriptionVi: string;
+  effectDescription: string;
+  bonusStats?: {
+    reelSpeed?: number;
+    rareChance?: number;
+    growthBoost?: number;
+    weatherMutantBonus?: number;
+  };
+}
+
+export interface GameLeaderboardItem {
+  id: string;
+  name: string;
+  avatar: string;
+  coins: number;
+  rareCatches: number;
+  mutantHarvests: number;
+  title: string;
 }
 
 export interface FishingChallenge {

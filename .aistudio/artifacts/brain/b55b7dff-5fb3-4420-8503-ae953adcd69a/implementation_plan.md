@@ -1,97 +1,91 @@
-# Kế Hoạch Triển Khai: Ngân Hàng Đề Thi TOPIK Các Năm (2014 Đến Nay)
+# Báo Cáo Triển Khai Tính Năng: Câu Cá & Vườn Rau Củ Biến Dị, Đấu Đối Kháng 1v1 & Kho Giải Đố Mới
 
-Tài liệu này vạch ra kế hoạch phát triển và bổ sung kho dữ liệu đề thi TOPIK chính thức từ năm 2014 đến nay, tổ chức khoa học theo từng năm và kỳ thi thực tế, đồng thời nâng cấp giao diện phòng thi thử với đồng hồ đếm ngược, bảng điều hướng câu hỏi, chấm điểm tự động và giải thích đáp án chi tiết.
-
----
-
-## 1. Tổng Quan & Mục Tiêu
-
-### A. Bối cảnh
-Người học tiếng Hàn cần rèn luyện với các đề thi thật qua các năm để làm quen với cấu trúc đề thi chính thức của Viện Giáo dục Quốc tế Quốc gia Hàn Quốc (NIIED) từ khi chuyển đổi sang định dạng đề mới (từ Kỳ 35 năm 2014) đến các kỳ thi chuẩn hóa gần đây (2024 - 2026).
-
-### B. Kết quả mong đợi
-- **Kho đề thi mở rộng phong phú**: Bổ sung bộ đề các năm: 2014 (Kỳ 35), 2015 (Kỳ 41), 2016 - 2017 (Kỳ 47, Kỳ 52), 2018 - 2019 (Kỳ 60, Kỳ 64), 2022 (Kỳ 83), 2023 - 2024 (Kỳ 91, Kỳ 94), và 2025 - 2026 (Kỳ thi chuẩn hóa mới).
-- **Phân loại 2 chiều tiện ích**:
-  1. *Theo Cấp độ*: TOPIK I (Cấp 1 & 2) và TOPIK II (Cấp 3, 4, 5, 6).
-  2. *Theo Năm thi / Kỳ thi thực tế*: 2014, 2015, 2016 - 2018, 2019 - 2022, 2023 - 2026.
-- **Trải nghiệm phòng thi thực tế**:
-  - Đồng hồ đếm ngược thời gian thực (15 - 35 phút tùy cấp độ).
-  - Bảng điều hướng câu hỏi nhanh (Question Grid Navigator) giúp thí sinh dễ dàng kiểm tra câu đã làm / chưa làm.
-  - Chấm điểm tự động tức thì, phân tích tỉ lệ câu đúng/sai, kèm giải thích ngữ pháp và từ vựng chi tiết bằng tiếng Việt.
-  - Tích hợp phát âm giọng đọc tiếng Hàn cho từng câu hỏi và pháo hoa chúc mừng khi đạt điểm mục tiêu.
+Tài liệu này tổng hợp đầy đủ các nâng cấp tính năng giải trí học tập vừa được phát triển hoàn tất theo yêu cầu:
 
 ---
 
-## 2. Kiến Trúc Dữ Liệu & Danh Mục Đề Thi Qua Các Năm
-
-### A. Mở rộng Type Definition (`src/types.ts`)
-Bổ sung các trường siêu dữ liệu vào `TopikTest` và `TopikQuestion`:
-- `year`: Năm tổ chức thi (ví dụ: `2014`, `2015`, `2018`, `2019`, `2022`, `2023`, `2024`, `2026`).
-- `examRound`: Số hiệu kỳ thi chính thức (ví dụ: `35`, `41`, `47`, `52`, `60`, `64`, `83`, `91`, `94`).
-- `examSession`: Nhãn hiển thị kỳ thi (ví dụ: `"Kỳ thi thứ 35 (Năm 2014)"`, `"Kỳ thi thứ 64 (Năm 2019)"`).
-- `sectionType`: Phân nhóm kỹ năng (`'reading'` - Đọc hiểu, `'grammar_vocab'` - Từ vựng & Ngữ pháp).
-
-### B. Danh Mục Các Bộ Đề Thi Bổ Sung (`src/data/topikPastExamsData.ts`)
-1. **Kỳ 35 (Năm 2014 - Kỳ thi bản lề đổi mới TOPIK)**:
-   - *TOPIK I (Kỳ 35 - 2014)*: Các câu hỏi căn bản về biển báo sinh hoạt, chọn chủ đề bài đọc, từ nối và tiểu từ.
-   - *TOPIK II (Kỳ 35 - 2014)*: Đọc hiểu văn bản xã hội ngắn, điền trợ từ liên kết câu, trật tự câu văn.
-2. **Kỳ 41 & Kỳ 47 (Năm 2015 - 2016)**:
-   - *TOPIK I (Kỳ 41 - 2015)*: Đoạn văn quảng cáo, tin nhắn điện thoại, tìm thông tin giống bài đọc.
-   - *TOPIK II (Kỳ 47 - 2016)*: Điền cụm từ vào chỗ trống, sắp xếp đoạn văn logic `[가-나-다-라]`, thành ngữ thông dụng.
-3. **Kỳ 52 & Kỳ 60 (Năm 2017 - 2018)**:
-   - *TOPIK I (Kỳ 52 - 2017)*: Đọc hiểu biểu đồ sinh hoạt, thư điện tử trao đổi công việc, lịch trình du lịch.
-   - *TOPIK II (Kỳ 60 - 2018)*: Phân tích tư tưởng tác giả, thành ngữ 4 chữ Hán-Hàn (사자성어), bài báo khoa học đời sống.
-4. **Kỳ 64 & Kỳ 83 (Năm 2019 - 2022)**:
-   - *TOPIK I (Kỳ 64 - 2019)*: Đối thoại đời thường, đặt lịch hẹn, thói quen tiêu dùng.
-   - *TOPIK II (Kỳ 83 - 2022)*: Quán dụng ngữ (관용구), tâm lý học đường, đọc bài luận kinh tế tuần hoàn.
-5. **Kỳ 91 & Đề Chuẩn Hóa Mới (2023 - 2026)**:
-   - *TOPIK I (Kỳ 91 - 2023)*: Câu hỏi đời sống số, ứng dụng công nghệ, tin nhắn thông báo thông minh.
-   - *TOPIK II (Kỳ 94 - 2024)*: Đọc hiểu trí tuệ nhân tạo, biến đổi khí hậu, phân tích biểu đồ xu hướng giới trẻ MZ.
-   - *TOPIK II (Đề Chuẩn Hóa 2025 - 2026)*: Bài đọc chuyên sâu cấp độ 5-6, biện luận học thuật, triết học hiện đại.
+## 1. Hệ Thống Thời Tiết & Cá Biến Dị (Weather Mutant Fish)
+- **5 Trạng thái thời tiết động**: Nắng rực rỡ (`sunny` ☀️), Mưa bão sấm sét (`rainy` 🌧️⚡), Bão tuyết băng giá (`snowy` ❄️), Cầu vồng kỳ diệu (`rainbow` 🌈), Sương mù huyền bí (`foggy` 🌫️).
+- **Hiệu ứng đồ họa canvas sống động**:
+  - Hạt mưa rơi xiên kèm gợn sóng biển.
+  - Hoa tuyết rơi bồng bềnh phủ trắng bến cảng Busan.
+  - Vòm cầu vồng 7 sắc lung linh trên bầu trời.
+  - Màn sương mù mờ ảo và tia nắng lung linh.
+- **7 Loài cá biến dị theo thời tiết**:
+  1. `번개 뱀장어` (Cá Lôi Điện - Sấm sét bão mưa ⚡)
+  2. `서리 결정 연어` (Cá Hồi Pha Lê Băng Giá - Bão tuyết ❄️)
+  3. `무지개 용 잉어` (Cá Chép Rồng Cầu Vồng 7 Sắc 🌈)
+  4. `태양 황금 개복치` (Cá Mặt Trời Kim Quang ☀️)
+  5. `안개 유령 오징어` (Mực Ma Sương Mù 🌫️)
+  6. `오로라 은하 돌고래` (Cá Heo Ngân Hà Băng Tuyết 🌌🐬)
+  7. `용암 불꽃 낙지` (Bạch Tuộc Dung Nham Núi Lửa 🔥🐙)
+- Cá biến dị tỏa hào quang vàng rực rỡ dưới lòng biển sâu, mang lại lượng xu K-Coins và XP vượt trội!
 
 ---
 
-## 3. Nâng Cấp Giao Diện Phòng Thi Thử (`src/components/TopikMockTestView.tsx`)
-
-### A. Thanh Bộ Lọc & Tìm Kiếm Đề Thi Đa Chiều
-- **Bộ lọc Cấp độ (Segmented Filter Tabs)**:
-  - *Tất cả đề thi* (Tổng số lượng đề).
-  - *TOPIK I Sơ cấp (Cấp 1 & 2)*.
-  - *TOPIK II Trung cấp (Cấp 3 & 4)*.
-  - *TOPIK II Cao cấp (Cấp 5 & 6)*.
-- **Thanh Chọn Năm Thi & Kỳ Thi (Timeline Selector)**:
-  - Các mốc năm: `Tất cả năm`, `2014 - 2016`, `2017 - 2019`, `2020 - 2022`, `2023 - 2026`.
-  - Hiển thị nhãn rõ ràng: Năm thi, Kỳ thi chính thức (Kỳ 35, Kỳ 41, Kỳ 64...).
-- **Tìm kiếm nhanh**: Ô tìm kiếm theo từ khóa tên bài thi hoặc số hiệu kỳ thi.
-
-### B. Thẻ Hiển Thị Đề Thi (Exam Card Design)
-- Tuân thủ nguyên tắc thiết kế giáo dục (Education & Interactive Simulations):
-  - Tiêu đề kỳ thi rõ ràng, phông chữ thanh lịch.
-  - Thông tin thời lượng thi (phút), số lượng câu hỏi, số điểm mục tiêu.
-  - Nút bấm `Vào Phòng Thi Ngay` nổi bật với hiệu ứng mượt mà.
-
-### C. Giao Diện Phòng Thi Đang Làm (Active Exam Room)
-- **Header cố định**:
-  - Tên đề thi & số hiệu kỳ thi.
-  - Đồng hồ đếm ngược với cảnh báo màu vàng/đỏ khi sắp hết thời gian.
-  - Nút nộp bài sớm `Nộp Bài Thi`.
-- **Thanh Điều Hướng Câu Hỏi (Question Grid Navigator)**:
-  - Cho phép thí sinh chuyển nhanh đến bất kỳ câu hỏi nào.
-  - Đánh dấu trạng thái câu đã chọn đáp án (màu xanh lá) và câu chưa làm (màu trắng).
-- **Vùng Hiển Thị Câu Hỏi**:
-  - Hỗ trợ câu hỏi tiếng Hàn rõ nét, nút loa 🔊 nghe phát âm câu tiếng Hàn.
-  - 4 phương án lựa chọn được thiết kế dạng nút bấm tương tác lớn, dễ bấm cả trên điện thoại lẫn máy tính.
-- **Màn Hình Kết Quả & Giải Thích Chi Tiết**:
-  - Thẻ điểm số tổng quan: Phần trăm chính xác, số câu đúng/sai, xếp hạng đạt/chưa đạt.
-  - Danh sách từng câu hỏi kèm đáp án của thí sinh, đáp án đúng (tô xanh) và phần **Giải thích chi tiết bằng tiếng Việt** (ngữ pháp, từ vựng, mẹo giải đề).
-  - Hiệu ứng pháo hoa rực rỡ và cộng điểm XP khi vượt qua bài thi.
+## 2. Tiệm Bách Hóa K-Coins (Shop K-Coins 🛒)
+Tích hợp cửa hàng mua sắm vật dụng với tiền tệ tích lũy K-Coins:
+- **Cần câu (Rods)**:
+  - Cần Tre Tân Thủ (Bamboo Rod - 0🪙)
+  - Cần Sợi Carbon Siêu Nhẹ (180🪙 - Kéo nhanh +40%)
+  - Cần Hoàng Kim Nạm Ngọc (450🪙 - Tăng +35% cơ hội gặp cá hiếm)
+  - Cần Thần Biển Poseidon (900🪙 - Tăng +75% cơ hội săn Cá Biến Dị)
+- **Lưỡi câu (Hooks)**:
+  - Lưỡi Thép Titan Cường Lực (80🪙)
+  - Lưỡi Nam Châm Siêu Dẫn (250🪙 - Tự hút rương vàng Joseon)
+  - Lưỡi Phát Quang Biển Sâu (320🪙 - Tăng gấp đôi tỉ lệ cá đêm/sương mù)
+- **Mồi câu (Baits)**:
+  - Mồi Giun Đất Tươi (30🪙 - gói 10)
+  - Mồi Tôm Phát Quang (120🪙 - gói 5)
+  - Mồi Bò Hanwoo Thượng Hạng (200🪙 - gói 3)
+  - Mồi Cầu Vồng Kỳ Diệu (350🪙 - gói 2, thu hút ngay cá biến dị)
+- **Dụng cụ nông nghiệp (Farm Tools)**:
+  - Bình Tưới Tiên Nữ: Tưới ngay lập tức toàn bộ khu vườn!
+  - Phân Bón Hoàng Kim: Tăng +60% xu K-Coins thu hoạch cây trồng!
+  - Thuốc Kích Thích Biến Dị Thời Tiết: Hóa phép cây thường thành Cây Biến Dị siêu giá trị!
 
 ---
 
-## 4. Kế Hoạch Triển Khai Từng Bước
+## 3. Đấu Đối Kháng 1v1: Câu Cá & Trồng Cây (PvP Battle ⚔️)
+- So tài 60 giây đối kháng tốc độ cùng các bạn đồng hành:
+  - 🐧 Pororo (Bậc thầy câu cá tuyết)
+  - 🦖 Crong (Khủng long nhanh nhạy)
+  - 🌸 Loopy (Phù thủy làm vườn)
+  - 🐻‍❄️ Poby (Thần ngư biển sâu)
+- Trả lời nhanh các câu hỏi trắc nghiệm tiếng Hàn về đời sống biển, nông sản để kéo cá lớn (+150 điểm).
+- Thanh điểm đối kháng so kè trực tiếp với bình luận sinh động của đối thủ.
+- Phần thưởng chiến thắng: +100 K-Coins và +60 XP kèm hiệu ứng pháo hoa rực rỡ!
 
-1. **Bước 1**: Cập nhật kiểu dữ liệu `TopikTest` và `TopikQuestion` trong `src/types.ts` để lưu trữ thêm thông tin năm thi (`year`), số hiệu kỳ thi (`examRound`), và nhãn kỳ thi (`examSession`).
-2. **Bước 2**: Xây dựng tệp dữ liệu đề thi các năm `src/data/topikPastExamsData.ts` chứa các bộ đề chọn lọc từ Kỳ 35 (2014) đến các kỳ thi 2024 - 2026.
-3. **Bước 3**: Tích hợp dữ liệu vào `src/data/topikTests.ts`, tổng hợp toàn bộ các bộ đề thi TOPIK.
-4. **Bước 4**: Nâng cấp component `src/components/TopikMockTestView.tsx` với bộ lọc năm thi, bộ lọc cấp độ, thẻ đề thi trực quan, thanh điều hướng câu hỏi và bảng kết quả chi tiết.
-5. **Bước 5**: Kiểm tra tính tương thích, biên dịch (`compile_applet`) và kiểm tra cú pháp (`lint_applet`) đảm bảo không phát sinh lỗi.
+---
+
+## 4. Bảng Xếp Hạng Cần Thủ & Nông Dân Siêu Cấp (Leaderboard 🏆)
+- Bảng vinh danh các cao thủ hàng đầu với số lượng cá hiếm và cây biến dị thu hoạch.
+- Tự động đồng bộ và tính hạng của người học theo thời gian thực.
+
+---
+
+## 5. Thử Thách 5 Từ Vựng Nhận Hạt Giống Hiếm Biến Dị (Vocab Quest 🎁)
+- Hệ thống đố nhanh 5 từ vựng mới trích xuất từ kho Động vật & Thực vật (`ANIMALS_PLANTS_VOCAB`).
+- Có phát âm tiếng Hàn, phiên âm romanization và câu ví dụ.
+- Hoàn thành đủ 5 từ vựng tặng ngay gói Hạt Giống Biến Dị Thời Tiết (Dưa Hấu Sấm Sét, Dâu Tây Băng Tuyết, Cà Chua Cầu Vồng, v.v.) + 80 K-Coins!
+
+---
+
+## 6. Mở Rộng Vườn Rau Củ & Trái Cây Đa Dạng
+- Bổ sung 7 loại rau củ trái cây tươi ngon:
+  - 🍅 Cà chua Hàn Quốc (`토마토`)
+  - 🍇 Nho mẫu đơn (`포도`)
+  - 🥒 Dưa leo giòn (`오이`)
+  - 🍆 Cà tím (`가지`)
+  - 🎃 Bí đỏ hạt dẻ (`단호박`)
+  - 🍑 Đào tiên mọng nước (`복숭아`)
+  - 🍊 Quýt đường Jeju (`귤`)
+- 5 Loại cây biến dị thời tiết (`번개 수박`, `설화 딸기`, `무지개 토마토`, `태양 황금삼`, `환영 안개버섯`).
+- Tùy chọn gieo hạt linh hoạt: Gieo hạt bất kỳ ngẫu nhiên (10🪙) HOẶC mở bảng chọn hạt giống chi tiết.
+
+---
+
+## 7. Kho 100+ Câu Đố Mới & Cơ Chế Đảo Chữ Ngẫu Nhiên
+- Bổ sung 40 câu Đoán chữ Emoji, 40 câu Từ bí mật, 25 câu Su-su-kke-kki (105 câu mới).
+- Cơ chế xáo trộn Fisher-Yates đảo các ô chữ cái và âm tiết ngẫu nhiên không theo quy luật, tăng độ hào hứng khi giải đố.
+- Bổ sung chủ đề Động vật 🐶 và Thực vật 🌿 vào danh mục phân loại câu đố.

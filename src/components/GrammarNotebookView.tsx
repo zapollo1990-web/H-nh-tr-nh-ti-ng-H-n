@@ -263,7 +263,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm theo tên, công thức (vd: 은/는, -아/어서)..."
+                placeholder="Tìm ngữ pháp: động vật, thực vật, hơn kém, 은/는, -아/어서..."
                 className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl text-xs sm:text-sm font-medium text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs"
               />
             </div>
@@ -274,7 +274,7 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 playClickSound();
                 setSelectedCategory(e.target.value);
               }}
-              className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs cursor-pointer"
+              className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/40 rounded-xl px-2.5 py-2 text-xs text-slate-700 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-400 dark:focus:ring-indigo-400 shadow-2xs cursor-pointer truncate max-w-xs"
             >
               {categories.map((c) => (
                 <option key={c.id} value={c.id} className="dark:bg-slate-900 dark:text-white">
@@ -282,6 +282,43 @@ export const GrammarNotebookView: React.FC<GrammarNotebookViewProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Quick Topic Pill Bar for Grammar (Bao gồm Động vật 🐶 & Thực vật 🌿) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar scroll-smooth">
+            {categories.map((c) => {
+              const isSelected = selectedCategory === c.id;
+              const count =
+                c.id === 'all'
+                  ? GRAMMAR_RULES.length
+                  : GRAMMAR_RULES.filter((r) => r.category === c.id).length;
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    playClickSound();
+                    setSelectedCategory(c.id);
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all cursor-pointer shrink-0 border ${
+                    isSelected
+                      ? 'bg-purple-600 text-white border-purple-600 shadow-xs scale-102'
+                      : 'bg-white dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>{c.icon}</span>
+                  <span>{c.label.split('(')[0].trim()}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                      isSelected
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Result Count Status */}

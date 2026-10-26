@@ -9,7 +9,7 @@ import {
   BG_THEMES,
   getSavedStudyTheme,
 } from '../data/studyThemes';
-import { Flashcard } from '../types';
+import { Flashcard, AppUser } from '../types';
 import { playClickSound } from '../utils/audio';
 
 interface VocabularyHubViewProps {
@@ -30,6 +30,12 @@ interface VocabularyHubViewProps {
   }>;
   onSaveMistake?: (mistake: { sentence: string; correction: string; note: string }) => void;
   onDeleteMistake?: (id: string) => void;
+  currentUser?: AppUser | null;
+  isAuthorizedAdmin?: boolean;
+  onAddCard?: (newCardData: Omit<Flashcard, 'id'>) => void;
+  onUpdateCard?: (updatedCard: Flashcard) => void;
+  onDeleteCard?: (cardId: string) => void;
+  onResetCards?: () => void;
 }
 
 export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
@@ -44,6 +50,12 @@ export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
   savedMistakes = [],
   onSaveMistake = () => {},
   onDeleteMistake = () => {},
+  currentUser,
+  isAuthorizedAdmin = false,
+  onAddCard,
+  onUpdateCard,
+  onDeleteCard,
+  onResetCards,
 }) => {
   const [subTab, setSubTab] = useState<'vocab' | 'grammar' | 'practice'>('vocab');
   const [studyTheme, setStudyTheme] = useState<StudyBackgroundTheme>(() => getSavedStudyTheme());
@@ -122,6 +134,12 @@ export const VocabularyHubView: React.FC<VocabularyHubViewProps> = ({
           masteredCardIds={masteredCardIds}
           onToggleMastered={onToggleMastered}
           onAddXp={onAddXp}
+          currentUser={currentUser}
+          isAuthorizedAdmin={isAuthorizedAdmin}
+          onAddCard={onAddCard}
+          onUpdateCard={onUpdateCard}
+          onDeleteCard={onDeleteCard}
+          onResetCards={onResetCards}
         />
       ) : subTab === 'grammar' ? (
         <GrammarNotebookView

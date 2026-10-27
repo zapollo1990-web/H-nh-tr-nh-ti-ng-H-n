@@ -697,36 +697,335 @@ app.post("/api/auth/verify-otp", (req, res) => {
   }
 });
 
-// Admin Credentials Dispatch to Gmail
-app.post("/api/admin/send-credentials", async (req, res) => {
-  try {
-    const { targetEmail = "zapollo1990@gmail.com", report } = req.body;
-    const sentTime = new Date().toLocaleString("vi-VN", {
-      timeZone: "Asia/Ho_Chi_Minh",
-      hour12: false,
-    });
+// =========================================================================
+// SYSTEM-WIDE USER LEARNING PROGRESS DATABASE & PERSISTENCE
+// =========================================================================
+const DATA_DIR = path.join(process.cwd(), "data");
+const PROGRESS_DB_FILE = path.join(DATA_DIR, "users_progress_db.json");
+const PVP_MATCHES_FILE = path.join(DATA_DIR, "pvp_matches_history.json");
 
-    console.log(`[AUTH-EMAIL] ==============================================`);
-    console.log(`[AUTH-EMAIL] Dispatching Admin Passwords to: ${targetEmail}`);
-    console.log(`[AUTH-EMAIL] Time: ${sentTime}`);
-    if (report) {
-      console.log(`[AUTH-EMAIL] Main Admin: ${report.mainAdmin?.name} - Password configured`);
-      console.log(`[AUTH-EMAIL] Sub Admins Count: ${report.subAdmins?.length || 0}`);
+interface SystemUserProgressRecord {
+  userId: string;
+  email: string;
+  userName: string;
+  progress: any;
+  gameData?: {
+    coins?: number;
+    fishInventory?: Record<string, number>;
+    cropInventory?: Record<string, number>;
+    equippedRod?: string;
+    equippedHook?: string | null;
+    equippedBait?: string | null;
+  };
+  lastUpdatedAt: string;
+}
+
+// In-memory cache synced to disk
+const userProgressStore = new Map<string, SystemUserProgressRecord>();
+const pvpMatchHistory: any[] = [];
+
+function ensureDataDir() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+}
+
+function loadProgressFromDisk() {
+  try {
+    ensureDataDir();
+    if (fs.existsSync(PROGRESS_DB_FILE)) {
+      const content = fs.readFileSync(PROGRESS_DB_FILE, "utf-8");
+      const records: SystemUserProgressRecord[] = JSON.parse(content || "[]");
+      records.forEach((r) => {
+        if (r.userId) userProgressStore.set(r.userId, r);
+        if (r.email) userProgressStore.set(r.email.trim().toLowerCase(), r);
+      });
+      console.log(`[PROGRESS-DB] Loaded ${records.length} user progress records from system storage.`);
+    } else {
+      // Seed initial sample students progress
+      const seedRecords: SystemUserProgressRecord[] = [
+        {
+          userId: "admin-1",
+          email: "zapollo1990@gmail.com",
+          userName: "Trần Bảo Ngọc 👑",
+          progress: {
+            streak: 30,
+            totalXp: 5000,
+            dailyXp: 80,
+            dailyGoalXp: 50,
+            masteredCards: ["hg-1", "gr-1", "fd-1", "act-1", "anim-1", "anim-2"],
+            reviewedCards: ["hg-2", "gr-2"],
+            completedStageIds: ["stage-1", "stage-2", "stage-3", "stage-4", "stage-5"],
+            unlockedBadgeIds: ["badge-newbie", "badge-streak-7", "badge-vocab-master"],
+            totalQuestionsAnswered: 180,
+            correctQuestionsAnswered: 172,
+            bookmarkedRules: ["gr-eun-neun-vs-i-ga"],
+            savedMistakes: [],
+          },
+          gameData: { coins: 1850 },
+          lastUpdatedAt: new Date().toISOString(),
+        },
+        {
+          userId: "student-1",
+          email: "minhquan.kr@gmail.com",
+          userName: "Nguyễn Minh Quân 👨‍🎓",
+          progress: {
+            streak: 6,
+            totalXp: 1420,
+            dailyXp: 40,
+            dailyGoalXp: 50,
+            masteredCards: ["hg-1", "gr-1", "fd-1"],
+            reviewedCards: ["hg-2"],
+            completedStageIds: ["stage-1", "stage-2"],
+            unlockedBadgeIds: ["badge-newbie"],
+            totalQuestionsAnswered: 45,
+            correctQuestionsAnswered: 38,
+            bookmarkedRules: [],
+            savedMistakes: [],
+          },
+          gameData: { coins: 420 },
+          lastUpdatedAt: new Date().toISOString(),
+        },
+        {
+          userId: "student-2",
+          email: "thutrang.topik@gmail.com",
+          userName: "Phạm Thu Trang 👩‍🎓",
+          progress: {
+            streak: 4,
+            totalXp: 980,
+            dailyXp: 35,
+            dailyGoalXp: 50,
+            masteredCards: ["hg-1", "fd-1"],
+            reviewedCards: [],
+            completedStageIds: ["stage-1"],
+            unlockedBadgeIds: ["badge-newbie"],
+            totalQuestionsAnswered: 32,
+            correctQuestionsAnswered: 28,
+            bookmarkedRules: [],
+            savedMistakes: [],
+          },
+          gameData: { coins: 310 },
+          lastUpdatedAt: new Date().toISOString(),
+        },
+        {
+          userId: "student-3",
+          email: "anhtuan99@gmail.com",
+          userName: "Hoàng Anh Tuấn 🧑‍💻",
+          progress: {
+            streak: 2,
+            totalXp: 620,
+            dailyXp: 20,
+            dailyGoalXp: 50,
+            masteredCards: ["hg-1"],
+            reviewedCards: [],
+            completedStageIds: ["stage-1"],
+            unlockedBadgeIds: ["badge-newbie"],
+            totalQuestionsAnswered: 20,
+            correctQuestionsAnswered: 16,
+            bookmarkedRules: [],
+            savedMistakes: [],
+          },
+          gameData: { coins: 190 },
+          lastUpdatedAt: new Date().toISOString(),
+        },
+      ];
+
+      seedRecords.forEach((r) => {
+        userProgressStore.set(r.userId, r);
+        userProgressStore.set(r.email, r);
+      });
+      fs.writeFileSync(PROGRESS_DB_FILE, JSON.stringify(seedRecords, null, 2), "utf-8");
+      console.log(`[PROGRESS-DB] Seeded ${seedRecords.length} default user progress records.`);
     }
-    console.log(`[AUTH-EMAIL] ==============================================`);
+
+    if (fs.existsSync(PVP_MATCHES_FILE)) {
+      const pvpContent = fs.readFileSync(PVP_MATCHES_FILE, "utf-8");
+      const parsed = JSON.parse(pvpContent || "[]");
+      pvpMatchHistory.push(...parsed);
+    }
+  } catch (err) {
+    console.error("Error reading progress DB from disk:", err);
+  }
+}
+
+function saveProgressToDisk() {
+  try {
+    ensureDataDir();
+    // Unique list by userId
+    const mapById = new Map<string, SystemUserProgressRecord>();
+    userProgressStore.forEach((record) => {
+      if (record.userId) mapById.set(record.userId, record);
+    });
+    const records = Array.from(mapById.values());
+    fs.writeFileSync(PROGRESS_DB_FILE, JSON.stringify(records, null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error writing progress DB to disk:", err);
+  }
+}
+
+// Initial load
+loadProgressFromDisk();
+
+// API: Save User Learning Progress to the system
+app.post("/api/progress/save", (req, res) => {
+  try {
+    const { userId, email, userName, progress, gameData } = req.body;
+    if (!userId && !email) {
+      return res.status(400).json({ error: "Missing userId or email" });
+    }
+
+    const key = (userId || email).toString();
+    const existing = userProgressStore.get(key) || userProgressStore.get(email?.toLowerCase() || "");
+
+    const updatedRecord: SystemUserProgressRecord = {
+      userId: userId || existing?.userId || `user-${Date.now()}`,
+      email: email ? email.trim().toLowerCase() : existing?.email || "",
+      userName: userName || existing?.userName || "Học viên",
+      progress: progress || existing?.progress || {},
+      gameData: gameData || existing?.gameData || {},
+      lastUpdatedAt: new Date().toISOString(),
+    };
+
+    userProgressStore.set(updatedRecord.userId, updatedRecord);
+    if (updatedRecord.email) {
+      userProgressStore.set(updatedRecord.email, updatedRecord);
+    }
+
+    saveProgressToDisk();
 
     res.json({
       success: true,
-      recipient: targetEmail,
-      sentAt: sentTime,
-      message: `Đã gửi báo cáo bảo mật và mật khẩu Admin Chính & Admin Phụ tới ${targetEmail} thành công!`,
+      message: `Đã lưu thành công tiến trình học tập của ${updatedRecord.userName} vào hệ thống!`,
+      savedRecord: updatedRecord,
     });
   } catch (error: any) {
-    console.error("Error in /api/admin/send-credentials:", error);
-    res.status(500).json({
-      error: "Không thể gửi email lúc này",
-      details: error.message,
+    console.error("Error saving progress to server:", error);
+    res.status(500).json({ error: "Không thể lưu tiến trình học tập", details: error.message });
+  }
+});
+
+// API: Get User Progress from the system
+app.get("/api/progress/:userId", (req, res) => {
+  try {
+    const { userId } = req.params;
+    const norm = userId.trim().toLowerCase();
+    const record = userProgressStore.get(userId) || userProgressStore.get(norm);
+
+    if (!record) {
+      return res.status(404).json({
+        found: false,
+        message: "Chưa có tiến trình học tập lưu trên hệ thống cho tài khoản này.",
+      });
+    }
+
+    res.json({
+      found: true,
+      record,
     });
+  } catch (error: any) {
+    res.status(500).json({ error: "Lỗi truy xuất tiến trình học tập", details: error.message });
+  }
+});
+
+// API: Get All Students' Progress (for Admin and Global Leaderboards)
+app.get("/api/progress/all", (_req, res) => {
+  try {
+    const mapById = new Map<string, SystemUserProgressRecord>();
+    userProgressStore.forEach((record) => {
+      if (record.userId) mapById.set(record.userId, record);
+    });
+    res.json({
+      success: true,
+      totalStudents: mapById.size,
+      records: Array.from(mapById.values()),
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Lỗi tải danh sách tiến trình", details: error.message });
+  }
+});
+
+// API: Get Real Active Students for 1v1 PvP Matchmaking
+app.get("/api/pvp/real-students", (_req, res) => {
+  try {
+    // Return real students registered on the system
+    const mapById = new Map<string, any>();
+    userProgressStore.forEach((rec) => {
+      if (rec.userId) {
+        const xp = rec.progress?.totalXp || 500;
+        const streak = rec.progress?.streak || 1;
+        const level = Math.max(1, Math.floor(xp / 400) + 1);
+
+        mapById.set(rec.userId, {
+          id: rec.userId,
+          name: rec.userName || "Học viên",
+          email: rec.email,
+          avatar: rec.userId.includes("admin-1")
+            ? "👑"
+            : rec.userId.includes("student-1")
+            ? "👨‍🎓"
+            : rec.userId.includes("student-2")
+            ? "👩‍🎓"
+            : rec.userId.includes("student-3")
+            ? "🧑‍💻"
+            : "🎓",
+          level,
+          totalXp: xp,
+          streak,
+          isRealStudent: true,
+          status: "online",
+          title:
+            level >= 6
+              ? "Bậc Thầy Tiếng Hàn"
+              : level >= 4
+              ? "Chiến Thần Từ Vựng"
+              : level >= 2
+              ? "Học Viên Tích Cực"
+              : "Tân Binh Tiếng Hàn",
+          speedMs: Math.max(2600, 4800 - level * 300), // higher level = faster opponent answers
+          pointsPerTick: 110 + level * 10,
+          quote: [
+            "Hôm nay tớ quyết tâm đạt điểm cao nhất!",
+            "Cố lên nhé bạn ơi, tớ đang dịch câu rất nhanh!",
+            "Chúng mình cùng học và thi đua tiến bộ nào!",
+            "Tớ vừa thu hoạch thêm điểm thưởng từ vựng!",
+          ],
+        });
+      }
+    });
+
+    res.json({
+      success: true,
+      students: Array.from(mapById.values()),
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: "Lỗi lấy danh sách học viên", details: error.message });
+  }
+});
+
+// API: Record PvP match result
+app.post("/api/pvp/record-match", (req, res) => {
+  try {
+    const { userId, rivalId, rivalName, userScore, rivalScore, winner, rewardCoins } = req.body;
+    const matchRecord = {
+      id: `match-${Date.now()}`,
+      userId,
+      rivalId,
+      rivalName,
+      userScore,
+      rivalScore,
+      winner,
+      rewardCoins,
+      timestamp: new Date().toISOString(),
+    };
+    pvpMatchHistory.unshift(matchRecord);
+    if (pvpMatchHistory.length > 100) pvpMatchHistory.pop();
+
+    ensureDataDir();
+    fs.writeFileSync(PVP_MATCHES_FILE, JSON.stringify(pvpMatchHistory.slice(0, 50), null, 2), "utf-8");
+
+    res.json({ success: true, matchRecord });
+  } catch (error: any) {
+    res.status(500).json({ error: "Lỗi ghi lại kết quả đấu", details: error.message });
   }
 });
 

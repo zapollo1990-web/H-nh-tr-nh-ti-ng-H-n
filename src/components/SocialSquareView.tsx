@@ -4,7 +4,7 @@ import {
   INITIAL_SOCIAL_POSTS,
   KOREAN_CHEER_PHRASES,
 } from '../data/socialNetwork';
-import { StudyFriend, SocialPost } from '../types';
+import { StudyFriend, SocialPost, AppUser } from '../types';
 import { speakKorean } from '../utils/audio';
 import {
   Users,
@@ -22,12 +22,17 @@ import {
   Smile,
   Coffee,
   ThumbsUp,
+  Copy,
+  CheckCheck,
+  UserCheck,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SocialSquareViewProps {
   totalXp: number;
   streak: number;
   onAddXp: (amount: number) => void;
+  currentUser?: AppUser | null;
 }
 
 const STORAGE_POSTS_KEY = 'korean_journey_social_posts_v1';
@@ -37,6 +42,7 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
   totalXp,
   streak,
   onAddXp,
+  currentUser,
 }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'friends' | 'leaderboard'>('feed');
 
@@ -191,15 +197,48 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
   };
 
   // -------------------------------------------------------------
-  // FRIEND ACTIONS
   // -------------------------------------------------------------
+  // USER ID & FRIEND ACTIONS
+  // -------------------------------------------------------------
+  const myUserId = currentUser?.id || 'admin-1';
+  const myUserName = currentUser?.name || 'Bạn (나)';
+  const [isCopiedMyId, setIsCopiedMyId] = useState(false);
+
+  const handleCopyMyId = (idToCopy?: string) => {
+    const target = idToCopy || myUserId;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(target);
+    }
+    setIsCopiedMyId(true);
+    showToast(`Đã sao chép ID người dùng: "${target}"! Chia sẻ cho bạn bè để kết bạn nhé.`);
+    setTimeout(() => setIsCopiedMyId(false), 2500);
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [friendFilter, setFriendFilter] = useState<'all' | 'friends' | 'recommended'>('all');
+  const [friendFilter, setFriendFilter] = useState<'all' | 'friends' | 'pending' | 'recommended'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Dedicated User ID Search State
+  const [idSearchInput, setIdSearchInput] = useState('');
+  const [idSearchResult, setIdSearchResult] = useState<StudyFriend | null>(null);
+  const [isSearchingId, setIsSearchingId] = useState(false);
+  const [dbStudents, setDbStudents] = useState<any[]>([]);
+
+  // Load registered system students from backend
+  useEffect(() => {
+    fetch('/api/pvp/real-students')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.students && Array.isArray(data.students)) {
+          setDbStudents(data.students);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   const handleToggleFriendStatus = (friendId: string) => {
@@ -213,13 +252,107 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
             showToast(`Đã thu hồi lời mời kết bạn gửi đến ${f.name}`);
             return { ...f, friendStatus: 'none' };
           } else {
-            showToast(`Đã gửi lời mời kết bạn tới ${f.name}! 🎉`);
+            showToast(`Đã gửi lời mời kết bạn tới ${f.name} (ID: ${f.id})! 🎉`);
+            onAddXp(15);
             return { ...f, friendStatus: 'pending' };
           }
         }
         return f;
       })
     );
+
+    // Keep idSearchResult synced
+    setIdSearchResult((prev) => {
+      if (prev && prev.id === friendId) {
+        return {
+          ...prev,
+          friendStatus: prev.friendStatus === 'friend' ? 'none' : prev.friendStatus === 'pending' ? 'none' : 'pending',
+        };
+      }
+      return prev;
+    });
+  };
+
+  const handleSearchByUserId = (customQuery?: string) => {
+    const raw = (customQuery !== undefined ? customQuery : idSearchInput).trim();
+    if (!raw) {
+      setIdSearchResult(null);
+      return;
+    }
+    const query = raw.toLowerCase();
+
+    if (query === myUserId.toLowerCase()) {
+      showToast('Đây là ID người dùng của bạn! Hãy gửi mã ID này cho bạn bè để họ tìm kiếm và kết bạn với bạn.');
+      return;
+    }
+
+    setIsSearchingId(true);
+
+    // 1. Check in friends list (by ID or handle)
+    const existing = friends.find(
+      (f) =>
+        f.id.toLowerCase() === query ||
+        f.handle.toLowerCase() === query ||
+        f.handle.toLowerCase() === `@${query}`
+    );
+
+    if (existing) {
+      setIdSearchResult(existing);
+      setIsSearchingId(false);
+      showToast(`Đã tìm thấy bạn học: ${existing.name} (ID: ${existing.id})`);
+      return;
+    }
+
+    // 2. Check in registered DB students
+    const foundDb = dbStudents.find(
+      (s) => s.id.toLowerCase() === query || s.name.toLowerCase().includes(query)
+    );
+
+    if (foundDb) {
+      const newFriend: StudyFriend = {
+        id: foundDb.id,
+        name: foundDb.name,
+        handle: `@${foundDb.id.replace(/[^a-zA-Z0-9]/g, '_')}`,
+        avatarEmoji: foundDb.avatar || '🎓',
+        avatarBg: 'bg-indigo-100 border-indigo-300',
+        level: foundDb.level || 4,
+        streak: foundDb.streak || 5,
+        xp: foundDb.totalXp || 1200,
+        statusMsg: 'Học viên thật hệ thống • Đang hoạt động trên cộng đồng!',
+        isOnline: true,
+        friendStatus: 'none',
+        bioKo: `Người dùng hệ thống • ID: ${foundDb.id}`,
+        favoriteWord: '친구 (Bạn bè)',
+        lastActive: 'Vừa xong',
+      };
+      setFriends((prev) => [newFriend, ...prev.filter((f) => f.id !== newFriend.id)]);
+      setIdSearchResult(newFriend);
+      setIsSearchingId(false);
+      showToast(`Đã tìm thấy học viên hệ thống: ${foundDb.name} (ID: ${foundDb.id}) 🎉`);
+      return;
+    }
+
+    // 3. Any custom user ID (Free add by ID)
+    const dynamicFriend: StudyFriend = {
+      id: raw,
+      name: `Học viên [${raw}]`,
+      handle: `@${raw.replace(/[^a-zA-Z0-9_]/g, '_')}`,
+      avatarEmoji: ['🐱', '🐰', '🐯', '🦊', '🐼', '🐨', '🦄'][Math.floor(Math.random() * 7)],
+      avatarBg: 'bg-purple-100 border-purple-300',
+      level: Math.floor(Math.random() * 5) + 1,
+      streak: Math.floor(Math.random() * 8) + 1,
+      xp: Math.floor(Math.random() * 600) + 300,
+      statusMsg: `Học viên mới tham gia cộng đồng với ID: ${raw}`,
+      isOnline: true,
+      friendStatus: 'none',
+      bioKo: `Thành viên học tập tự do • ID: ${raw}`,
+      favoriteWord: '함께 (Cùng nhau)',
+      lastActive: 'Vừa xong',
+    };
+    setFriends((prev) => [dynamicFriend, ...prev.filter((f) => f.id !== dynamicFriend.id)]);
+    setIdSearchResult(dynamicFriend);
+    setIsSearchingId(false);
+    showToast(`Đã tìm thấy người dùng với ID: ${raw}! Bạn có thể gửi lời mời kết bạn ngay.`);
   };
 
   const handleSendGiftToFriend = (friend: StudyFriend) => {
@@ -228,16 +361,19 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
   };
 
   const myFriendsCount = friends.filter((f) => f.friendStatus === 'friend').length;
+  const pendingRequestsCount = friends.filter((f) => f.friendStatus === 'pending').length;
 
   const filteredFriends = friends.filter((f) => {
     const matchesSearch =
       f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
       f.handle.toLowerCase().includes(searchQuery.toLowerCase()) ||
       f.bioKo?.toLowerCase().includes(searchQuery.toLowerCase());
 
     if (!matchesSearch) return false;
 
     if (friendFilter === 'friends') return f.friendStatus === 'friend';
+    if (friendFilter === 'pending') return f.friendStatus === 'pending';
     if (friendFilter === 'recommended') return f.friendStatus === 'none';
     return true;
   });
@@ -436,19 +572,59 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
                           Lv.{post.authorLevel}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 flex-wrap">
                         <span>{post.authorHandle}</span>
+                        <span>•</span>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyMyId(post.authorId)}
+                          className="font-mono text-[10px] px-1.5 py-0.5 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Sao chép ID người dùng"
+                        >
+                          <span>ID: {post.authorId}</span>
+                          <Copy className="w-2.5 h-2.5" />
+                        </button>
                         <span>•</span>
                         <span>{post.timestamp}</span>
                       </div>
                     </div>
                   </div>
 
-                  {post.authorBadge && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 hidden sm:inline-block">
-                      {post.authorBadge}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {post.authorId !== myUserId && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFriendStatus(post.authorId)}
+                        className={`px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                          friends.find((f) => f.id === post.authorId)?.friendStatus === 'friend'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : friends.find((f) => f.id === post.authorId)?.friendStatus === 'pending'
+                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                            : 'bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200'
+                        }`}
+                      >
+                        {friends.find((f) => f.id === post.authorId)?.friendStatus === 'friend' ? (
+                          <>
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>Bạn bè</span>
+                          </>
+                        ) : friends.find((f) => f.id === post.authorId)?.friendStatus === 'pending' ? (
+                          <span>Đã mời ⏳</span>
+                        ) : (
+                          <>
+                            <UserPlus className="w-3 h-3" />
+                            <span>Kết bạn</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {post.authorBadge && (
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200 hidden sm:inline-block">
+                        {post.authorBadge}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Achievement Highlight */}
@@ -604,6 +780,184 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
       {/* 4. FRIENDS LIST & ADD BUDDIES */}
       {activeTab === 'friends' && (
         <div className="space-y-6 max-w-4xl mx-auto">
+          {/* YOUR USER ID BANNER & SHARE */}
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 text-white rounded-3xl p-5 sm:p-6 shadow-md space-y-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl border border-white/30">
+                  {currentUser?.avatar || '🐰'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-purple-200">ID Người Dùng Của Bạn:</span>
+                    <span className="px-2.5 py-0.5 rounded-lg bg-white text-purple-900 font-mono font-black text-sm shadow-xs">
+                      {myUserId}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-black text-white mt-0.5">
+                    {myUserName} • {currentUser?.email || 'apollo@gmail.com'}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleCopyMyId(myUserId)}
+                className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap self-stretch sm:self-auto justify-center"
+              >
+                {isCopiedMyId ? (
+                  <>
+                    <CheckCheck className="w-4 h-4 text-emerald-800" />
+                    <span>Đã sao chép ID! ✓</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    <span>Sao Chép ID Của Bạn 📋</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-purple-100 font-medium">
+              💡 Gửi mã ID <span className="font-mono font-bold text-amber-300">"{myUserId}"</span> cho bạn bè trên Zalo, Facebook hoặc diễn đàn để họ nhập tìm kiếm và kết bạn với bạn ngay tức thì!
+            </p>
+          </div>
+
+          {/* SEARCH & ADD FRIEND BY USER ID */}
+          <div className="bg-white rounded-3xl p-5 sm:p-6 border-2 border-purple-200/90 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-black">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-black text-sm sm:text-base text-slate-800">
+                    Tìm Kiếm & Kết Bạn Tự Do Bằng ID Người Dùng
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Nhập ID học viên để tìm kiếm và kết nối bạn học trên toàn hệ thống
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={idSearchInput}
+                  onChange={(e) => setIdSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleSearchByUserId();
+                    }
+                  }}
+                  placeholder="Nhập ID người dùng (VD: student-1, student-2, admin-1, friend-minji...)"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-slate-50 border border-purple-200 focus:border-purple-500 focus:bg-white text-xs font-semibold text-slate-800 focus:outline-hidden"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => handleSearchByUserId()}
+                disabled={isSearchingId || !idSearchInput.trim()}
+                className="px-5 py-2.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span>Tìm học viên</span>
+              </button>
+            </div>
+
+            {/* Quick Suggested Student IDs */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+              <span className="text-[11px] font-bold text-slate-400">Gợi ý ID mẫu:</span>
+              {[
+                { id: 'student-1', label: 'student-1 (Minh Quân)' },
+                { id: 'student-2', label: 'student-2 (Mai Anh)' },
+                { id: 'student-3', label: 'student-3 (Hoàng Nam)' },
+                { id: 'student-4', label: 'student-4 (Thu Hà)' },
+                { id: 'friend-minji', label: 'friend-minji (Minji)' },
+                { id: 'friend-joon', label: 'friend-joon (Joon)' },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setIdSearchInput(item.id);
+                    handleSearchByUserId(item.id);
+                  }}
+                  className="px-2.5 py-1 rounded-xl text-[11px] font-mono font-bold bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-800 border border-slate-200 hover:border-purple-300 transition-all cursor-pointer"
+                >
+                  +{item.id}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Result Card if Found */}
+            {idSearchResult && (
+              <div className="p-4 rounded-2xl bg-purple-50/80 border border-purple-200 space-y-3 animate-scale-in">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl border-2 shadow-2xs ${idSearchResult.avatarBg}`}>
+                      {idSearchResult.avatarEmoji}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-black text-sm text-slate-900">{idSearchResult.name}</h4>
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-purple-200 text-purple-900 border border-purple-300">
+                          ID: {idSearchResult.id}
+                        </span>
+                        <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800">
+                          Lv.{idSearchResult.level}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 font-mono mt-0.5">{idSearchResult.handle} • {idSearchResult.bioKo}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => handleCopyMyId(idSearchResult.id)}
+                      className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 cursor-pointer"
+                      title="Sao chép ID"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleToggleFriendStatus(idSearchResult.id)}
+                      className={`flex-1 sm:flex-none px-4 py-2 rounded-xl font-extrabold text-xs shadow-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                        idSearchResult.friendStatus === 'friend'
+                          ? 'bg-emerald-600 text-white hover:bg-rose-600'
+                          : idSearchResult.friendStatus === 'pending'
+                          ? 'bg-amber-100 text-amber-900 hover:bg-amber-200 border border-amber-300'
+                          : 'bg-purple-600 hover:bg-purple-700 text-white'
+                      }`}
+                    >
+                      {idSearchResult.friendStatus === 'friend' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Bạn bè ✓ (Huỷ)</span>
+                        </>
+                      ) : idSearchResult.friendStatus === 'pending' ? (
+                        <span>Đã gửi lời mời (Thu hồi)</span>
+                      ) : (
+                        <>
+                          <UserPlus className="w-3.5 h-3.5" />
+                          <span>Gửi Lời Mời Kết Bạn (+15 XP)</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Filter and Search Bar */}
           <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="relative w-full sm:w-72">
@@ -612,21 +966,22 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm bạn theo tên, handle..."
+                placeholder="Tìm bạn theo ID, tên, handle..."
                 className="w-full pl-9 pr-4 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 focus:outline-hidden focus:border-purple-400"
               />
             </div>
 
-            <div className="flex items-center gap-1.5 w-full sm:w-auto">
+            <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
               {[
                 { id: 'all' as const, label: 'Tất cả' },
-                { id: 'friends' as const, label: 'Bạn bè của tôi' },
+                { id: 'friends' as const, label: `Bạn bè (${myFriendsCount})` },
+                { id: 'pending' as const, label: `Lời mời (${pendingRequestsCount})` },
                 { id: 'recommended' as const, label: 'Đề xuất mới' },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setFriendFilter(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                     friendFilter === tab.id
                       ? 'bg-purple-600 text-white shadow-xs'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -663,7 +1018,18 @@ export const SocialSquareView: React.FC<SocialSquareViewProps> = ({
                           Lv.{friend.level}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 font-mono">{friend.handle}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-xs text-slate-400 font-mono">{friend.handle}</p>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyMyId(friend.id)}
+                          className="px-1.5 py-0.5 rounded bg-slate-100 hover:bg-purple-100 text-purple-700 font-mono text-[10px] font-bold border border-slate-200 flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Sao chép ID người dùng"
+                        >
+                          <span>ID: {friend.id}</span>
+                          <Copy className="w-2.5 h-2.5" />
+                        </button>
+                      </div>
                       <p className="text-[11px] text-slate-500 mt-0.5">{friend.bioKo}</p>
                     </div>
                   </div>

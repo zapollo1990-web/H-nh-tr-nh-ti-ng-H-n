@@ -566,6 +566,7 @@ export const ProfileHubView: React.FC<ProfileHubViewProps> = ({
               totalXp={progress.totalXp}
               streak={progress.streak}
               onAddXp={onAddXp}
+              currentUser={adminUser}
             />
           </div>
         )}

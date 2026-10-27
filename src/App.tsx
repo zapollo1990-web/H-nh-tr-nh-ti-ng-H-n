@@ -21,6 +21,11 @@ import {
   registerUser,
   updatePlayer
 } from './services/authService';
+import {
+  loadUserLearningProgress,
+  saveUserLearningProgress,
+  getDefaultProgress
+} from './services/progressService';
 import { playSuccessSound } from './utils/audio';
 
 const STORAGE_KEY = 'korean_journey_progress_v2';
@@ -101,15 +106,23 @@ export default function App() {
     }
   }, [cards]);
 
-  // Keep session synced
-  const handleUserLoginSuccess = (user: AppUser) => {
+  // Keep session synced and load specific user learning progress from system
+  const handleUserLoginSuccess = async (user: AppUser) => {
     setCurrentUser(user);
     setCurrentUserSession(user);
+    try {
+      const userProgress = await loadUserLearningProgress(user.id, user.email);
+      setProgress(userProgress);
+    } catch (e) {
+      console.error('Failed to load user progress on login:', e);
+    }
   };
 
   const handleUserLogout = () => {
     clearCurrentUserSession();
     setCurrentUser(null);
+    const todayStr = new Date().toISOString().split('T')[0];
+    setProgress(getDefaultProgress(todayStr));
   };
 
   // Quick social login fallback with password verification
@@ -221,19 +234,34 @@ export default function App() {
     };
   });
 
-  // Save progress changes to LocalStorage
+  // On initial mount, if user is already logged in, load their server progress
+  useEffect(() => {
+    if (currentUser?.id) {
+      loadUserLearningProgress(currentUser.id, currentUser.email).then((loaded) => {
+        if (loaded) setProgress(loaded);
+      });
+    }
+  }, [currentUser?.id]);
+
+  // Save progress changes to LocalStorage and System Server
   useEffect(() => {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     }
-    // Also sync with user session if logged in
+    // Sync with user session & server if logged in
     if (currentUser) {
+      saveUserLearningProgress(
+        currentUser.id,
+        currentUser.email,
+        currentUser.name,
+        progress
+      );
       updatePlayer(currentUser.id, {
         totalXp: progress.totalXp,
         streak: progress.streak,
       });
     }
-  }, [progress.totalXp, progress.streak]);
+  }, [progress, currentUser]);
 
   // Check and increment daily streak on new day
   useEffect(() => {

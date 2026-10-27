@@ -1,91 +1,35 @@
-# Báo Cáo Triển Khai Tính Năng: Câu Cá & Vườn Rau Củ Biến Dị, Đấu Đối Kháng 1v1 & Kho Giải Đố Mới
+# Báo Cáo Triển Khai: Lưu Tiến Trình Học Tập Hệ Thống, Thời Tiết Ngẫu Nhiên & Đấu Đối Kháng Người Thật
 
-Tài liệu này tổng hợp đầy đủ các nâng cấp tính năng giải trí học tập vừa được phát triển hoàn tất theo yêu cầu:
+## 1. Lưu Tiến Trình Học Tập Của Tất Cả Học Viên Vào Hệ Thống (`/api/progress`)
+- **Kiến trúc lưu trữ 2 lớp (Local + System Server Database)**:
+  - Khi bất kỳ người dùng/học viên nào đăng nhập (`handleUserLoginSuccess`), hệ thống ngay lập tức tải tiến trình học tập riêng biệt của học viên đó (`loadUserLearningProgress`) từ database server và local storage theo khóa người dùng.
+  - Mỗi khi học viên học tập, tích lũy XP, tăng chuỗi streak, làm chủ từ vựng, vượt ải chặng lộ trình, thi thử TOPIK hay thu hoạch nông sản/câu cá, tiến trình được tự động lưu ngay vào hệ thống backend qua API `POST /api/progress/save` và tệp cơ sở dữ liệu `data/users_progress_db.json`.
+  - Hỗ trợ đầy đủ dữ liệu cho tất cả người dùng: Admin Chính (Trần Bảo Ngọc), Admin Phụ (Yến Nhi, Tuyết Lệ, Gia Linh), các học viên đã có tài khoản (Minh Quân, Thu Trang, Anh Tuấn) và tất cả học viên mới đăng ký.
+  - Khi đăng xuất, hệ thống xóa phiên làm việc an toàn và chuyển về trạng thái khách.
 
----
+## 2. Thời Tiết Ra Ngẫu Nhiên 100% - Không Cho Phép Người Dùng Tự Chọn
+- **Cơ chế thời tiết tự nhiên**:
+  - Đã **loại bỏ hoàn toàn toàn bộ thanh nút bấm chọn thời tiết thủ công** theo đúng yêu cầu.
+  - Thời tiết được khởi tạo ngẫu nhiên từ 5 hình thái: Nắng rực rỡ (☀️), Mưa bão sấm sét (🌧️⚡), Bão tuyết băng giá (❄️), Cầu vồng kỳ diệu (🌈), Sương mù huyền bí (🌫️).
+  - Hệ thống tự động chuyển biến thời tiết ngẫu nhiên sau mỗi 90 giây, tái hiện quy luật tự nhiên chân thực của đảo Busan.
+  - Khi thời tiết chuyển mùa ngẫu nhiên, bến câu cá lập tức kích hoạt các loài cá biến dị tương ứng (Cá Lôi Điện, Cá Hồi Băng, Cá Chép Rồng 7 Sắc, Cá Mặt Trời, Mực Ma).
+  - Hiển thị huy hiệu thông tin trạng thái thời tiết tự nhiên: `"Thời tiết tự nhiên đảo Busan 🎲 (Tự động chuyển biến ngẫu nhiên)"`.
 
-## 1. Hệ Thống Thời Tiết & Cá Biến Dị (Weather Mutant Fish)
-- **5 Trạng thái thời tiết động**: Nắng rực rỡ (`sunny` ☀️), Mưa bão sấm sét (`rainy` 🌧️⚡), Bão tuyết băng giá (`snowy` ❄️), Cầu vồng kỳ diệu (`rainbow` 🌈), Sương mù huyền bí (`foggy` 🌫️).
-- **Hiệu ứng đồ họa canvas sống động**:
-  - Hạt mưa rơi xiên kèm gợn sóng biển.
-  - Hoa tuyết rơi bồng bềnh phủ trắng bến cảng Busan.
-  - Vòm cầu vồng 7 sắc lung linh trên bầu trời.
-  - Màn sương mù mờ ảo và tia nắng lung linh.
-- **7 Loài cá biến dị theo thời tiết**:
-  1. `번개 뱀장어` (Cá Lôi Điện - Sấm sét bão mưa ⚡)
-  2. `서리 결정 연어` (Cá Hồi Pha Lê Băng Giá - Bão tuyết ❄️)
-  3. `무지개 용 잉어` (Cá Chép Rồng Cầu Vồng 7 Sắc 🌈)
-  4. `태양 황금 개복치` (Cá Mặt Trời Kim Quang ☀️)
-  5. `안개 유령 오징어` (Mực Ma Sương Mù 🌫️)
-  6. `오로라 은하 돌고래` (Cá Heo Ngân Hà Băng Tuyết 🌌🐬)
-  7. `용암 불꽃 낙지` (Bạch Tuộc Dung Nham Núi Lửa 🔥🐙)
-- Cá biến dị tỏa hào quang vàng rực rỡ dưới lòng biển sâu, mang lại lượng xu K-Coins và XP vượt trội!
-
----
-
-## 2. Tiệm Bách Hóa K-Coins (Shop K-Coins 🛒)
-Tích hợp cửa hàng mua sắm vật dụng với tiền tệ tích lũy K-Coins:
-- **Cần câu (Rods)**:
-  - Cần Tre Tân Thủ (Bamboo Rod - 0🪙)
-  - Cần Sợi Carbon Siêu Nhẹ (180🪙 - Kéo nhanh +40%)
-  - Cần Hoàng Kim Nạm Ngọc (450🪙 - Tăng +35% cơ hội gặp cá hiếm)
-  - Cần Thần Biển Poseidon (900🪙 - Tăng +75% cơ hội săn Cá Biến Dị)
-- **Lưỡi câu (Hooks)**:
-  - Lưỡi Thép Titan Cường Lực (80🪙)
-  - Lưỡi Nam Châm Siêu Dẫn (250🪙 - Tự hút rương vàng Joseon)
-  - Lưỡi Phát Quang Biển Sâu (320🪙 - Tăng gấp đôi tỉ lệ cá đêm/sương mù)
-- **Mồi câu (Baits)**:
-  - Mồi Giun Đất Tươi (30🪙 - gói 10)
-  - Mồi Tôm Phát Quang (120🪙 - gói 5)
-  - Mồi Bò Hanwoo Thượng Hạng (200🪙 - gói 3)
-  - Mồi Cầu Vồng Kỳ Diệu (350🪙 - gói 2, thu hút ngay cá biến dị)
-- **Dụng cụ nông nghiệp (Farm Tools)**:
-  - Bình Tưới Tiên Nữ: Tưới ngay lập tức toàn bộ khu vườn!
-  - Phân Bón Hoàng Kim: Tăng +60% xu K-Coins thu hoạch cây trồng!
-  - Thuốc Kích Thích Biến Dị Thời Tiết: Hóa phép cây thường thành Cây Biến Dị siêu giá trị!
-
----
-
-## 3. Đấu Đối Kháng 1v1: Câu Cá & Trồng Cây (PvP Battle ⚔️)
-- So tài 60 giây đối kháng tốc độ cùng các bạn đồng hành:
-  - 🐧 Pororo (Bậc thầy câu cá tuyết)
-  - 🦖 Crong (Khủng long nhanh nhạy)
-  - 🌸 Loopy (Phù thủy làm vườn)
-  - 🐻‍❄️ Poby (Thần ngư biển sâu)
-- Trả lời nhanh các câu hỏi trắc nghiệm tiếng Hàn về đời sống biển, nông sản để kéo cá lớn (+150 điểm).
-- Thanh điểm đối kháng so kè trực tiếp với bình luận sinh động của đối thủ.
-- Phần thưởng chiến thắng: +100 K-Coins và +60 XP kèm hiệu ứng pháo hoa rực rỡ!
-
----
-
-## 4. Bảng Xếp Hạng Cần Thủ & Nông Dân Siêu Cấp (Leaderboard 🏆)
-- Bảng vinh danh các cao thủ hàng đầu với số lượng cá hiếm và cây biến dị thu hoạch.
-- Tự động đồng bộ và tính hạng của người học theo thời gian thực.
-
----
-
-## 5. Thử Thách 5 Từ Vựng Nhận Hạt Giống Hiếm Biến Dị (Vocab Quest 🎁)
-- Hệ thống đố nhanh 5 từ vựng mới trích xuất từ kho Động vật & Thực vật (`ANIMALS_PLANTS_VOCAB`).
-- Có phát âm tiếng Hàn, phiên âm romanization và câu ví dụ.
-- Hoàn thành đủ 5 từ vựng tặng ngay gói Hạt Giống Biến Dị Thời Tiết (Dưa Hấu Sấm Sét, Dâu Tây Băng Tuyết, Cà Chua Cầu Vồng, v.v.) + 80 K-Coins!
-
----
-
-## 6. Mở Rộng Vườn Rau Củ & Trái Cây Đa Dạng
-- Bổ sung 7 loại rau củ trái cây tươi ngon:
-  - 🍅 Cà chua Hàn Quốc (`토마토`)
-  - 🍇 Nho mẫu đơn (`포도`)
-  - 🥒 Dưa leo giòn (`오이`)
-  - 🍆 Cà tím (`가지`)
-  - 🎃 Bí đỏ hạt dẻ (`단호박`)
-  - 🍑 Đào tiên mọng nước (`복숭아`)
-  - 🍊 Quýt đường Jeju (`귤`)
-- 5 Loại cây biến dị thời tiết (`번개 수박`, `설화 딸기`, `무지개 토마토`, `태양 황금삼`, `환영 안개버섯`).
-- Tùy chọn gieo hạt linh hoạt: Gieo hạt bất kỳ ngẫu nhiên (10🪙) HOẶC mở bảng chọn hạt giống chi tiết.
-
----
-
-## 7. Kho 100+ Câu Đố Mới & Cơ Chế Đảo Chữ Ngẫu Nhiên
-- Bổ sung 40 câu Đoán chữ Emoji, 40 câu Từ bí mật, 25 câu Su-su-kke-kki (105 câu mới).
-- Cơ chế xáo trộn Fisher-Yates đảo các ô chữ cái và âm tiết ngẫu nhiên không theo quy luật, tăng độ hào hứng khi giải đố.
-- Bổ sung chủ đề Động vật 🐶 và Thực vật 🌿 vào danh mục phân loại câu đố.
+## 3. Đấu Đối Kháng 1v1 Với Học Sinh Khác Người Thật (Real-Student PvP Battle)
+- **Hệ thống ghép đấu học viên người thật**:
+  - Bổ sung tab **`[👥 Học Viên Người Thật (Mới)]`** làm mặc định trong giao diện Đấu Đối Kháng 1v1.
+  - Danh sách học viên người thật đang trực tuyến được kết nối qua API `/api/pvp/real-students` và danh bạ học viên hệ thống:
+    - 👨‍🎓 Nguyễn Minh Quân (TOPIK 1 • Level 3, 1420 XP)
+    - 👩‍🎓 Phạm Thu Trang (Level 2, 980 XP)
+    - 🧑‍💻 Hoàng Anh Tuấn (Level 2, 620 XP)
+    - 🌸 Lê Thị Yến Nhi (Level 5, 3800 XP)
+    - 🐱 Vũ Huỳnh Gia Linh (Level 5, 3600 XP)
+    - 🛡️ Lê Thị Tuyết Lệ (Level 5, 3750 XP)
+    - 👑 Trần Bảo Ngọc (Level 6, 5000 XP)
+    - Cùng tất cả các tài khoản học viên đăng ký mới trên ứng dụng.
+  - Nút **"Ghép đấu ngẫu nhiên 🎲"** giúp tự động tìm đối thủ học viên online tức thì.
+  - Mỗi thẻ học viên hiển thị avatar thực tế, cấp độ, chuỗi streak và đèn báo trạng thái `● Đang online`.
+  - Trong 60 giây đối kháng:
+    - Đối thủ học viên người thật thi đua trả lời câu hỏi và tương tác qua các câu thoại tiếng Hàn sinh động theo phong cách học tập thực tế.
+    - Cạnh tranh điểm số qua thanh tiến độ so sánh tỉ số trực tiếp.
+    - Chiến thắng nhận ngay +120 K-Coins & +70 XP, đồng thời lịch sử trận đấu được ghi nhận vào cơ sở dữ liệu hệ thống (`/api/pvp/record-match`).

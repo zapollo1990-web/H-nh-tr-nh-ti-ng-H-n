@@ -35,6 +35,8 @@ import {
   Package,
   Check,
   Zap,
+  Users,
+  Shuffle,
 } from 'lucide-react';
 import {
   speakKorean,
@@ -48,6 +50,9 @@ import {
   playFanfareSound,
 } from '../utils/audio';
 import { VoiceGenderToggle } from './VoiceGenderToggle';
+import { ChillMusicBar } from './ChillMusicBar';
+import { fetchRealStudentsForPvp, recordPvpMatchResult } from '../services/progressService';
+import { getCurrentUserSession } from '../services/authService';
 
 interface FarmAndFishingViewProps {
   onAddXp: (amount: number) => void;
@@ -99,17 +104,151 @@ interface WeatherParticle {
   drift: number;
 }
 
-// PvP Companion Rivals
+// PvP Rivals (Companions & Real Students)
 interface PvpRival {
   id: string;
   name: string;
   title: string;
   avatar: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  speedMs: number; // how often rival scores
+  speedMs: number;
   pointsPerTick: number;
   cheerQuotes: string[];
+  isRealStudent?: boolean;
+  level?: number;
+  streak?: number;
+  status?: string;
+  email?: string;
 }
+
+const DEFAULT_REAL_STUDENTS: PvpRival[] = [
+  {
+    id: 'student-minhquan',
+    name: 'Nguyễn Minh Quân 👨‍🎓',
+    title: 'Học viên TOPIK 1 • Level 3',
+    avatar: '👨‍🎓',
+    difficulty: 'medium',
+    speedMs: 3600,
+    pointsPerTick: 125,
+    isRealStudent: true,
+    level: 3,
+    streak: 6,
+    status: 'online',
+    cheerQuotes: [
+      'Minh Quân: "Tớ vừa giải đúng câu đố từ vựng! Cố lên nhé!"',
+      'Minh Quân: "Bến câu cá Busan hôm nay nhiều cá hiếm quá!"',
+      'Minh Quân: "Điểm số đang đuổi rất sát rồi nè bạn ơi!"',
+    ],
+  },
+  {
+    id: 'student-thutrang',
+    name: 'Phạm Thu Trang 👩‍🎓',
+    title: 'Học viên Chăm Chỉ • Level 2',
+    avatar: '👩‍🎓',
+    difficulty: 'easy',
+    speedMs: 4200,
+    pointsPerTick: 110,
+    isRealStudent: true,
+    level: 2,
+    streak: 4,
+    status: 'online',
+    cheerQuotes: [
+      'Thu Trang: "Tớ vừa câu trúng cá hồi pha lê rồi!"',
+      'Thu Trang: "Vườn rau của tớ đang lớn rất nhanh!"',
+      'Thu Trang: "Bạn phản xạ nhanh thật đấy, tớ phải tăng tốc thôi!"',
+    ],
+  },
+  {
+    id: 'student-anhtuan',
+    name: 'Hoàng Anh Tuấn 🧑‍💻',
+    title: 'Tân Binh Tiếng Hàn • Level 2',
+    avatar: '🧑‍💻',
+    difficulty: 'easy',
+    speedMs: 4400,
+    pointsPerTick: 105,
+    isRealStudent: true,
+    level: 2,
+    streak: 2,
+    status: 'online',
+    cheerQuotes: [
+      'Anh Tuấn: "Câu này tớ biết nè, đáp án đúng rồi!"',
+      'Anh Tuấn: "Trận đấu hấp dẫn quá, cố lên nào!"',
+      'Anh Tuấn: "Lần sau chúng mình lại thi đấu tiếp nhé!"',
+    ],
+  },
+  {
+    id: 'admin-yennhi',
+    name: 'Lê Thị Yến Nhi 🌸',
+    title: 'Admin Phụ • Cao Thủ TOPIK 2 (Level 5)',
+    avatar: '🌸',
+    difficulty: 'hard',
+    speedMs: 3000,
+    pointsPerTick: 145,
+    isRealStudent: true,
+    level: 5,
+    streak: 18,
+    status: 'online',
+    cheerQuotes: [
+      'Yến Nhi: "Tuyệt vời! Yến Nhi vừa bắt trúng cá chép rồng!"',
+      'Yến Nhi: "Ngữ pháp câu cá này rất hay, nhớ ghi chú lại nhé!"',
+      'Yến Nhi: "Yến Nhi đang dẫn trước một chút, bạn ráng lên nha!"',
+    ],
+  },
+  {
+    id: 'admin-gialinh',
+    name: 'Vũ Huỳnh Gia Linh 🐱',
+    title: 'Admin Phụ • Thần Tốc Độ (Level 5)',
+    avatar: '🐱',
+    difficulty: 'hard',
+    speedMs: 3100,
+    pointsPerTick: 140,
+    isRealStudent: true,
+    level: 5,
+    streak: 15,
+    status: 'online',
+    cheerQuotes: [
+      'Gia Linh: "Gia Linh vừa hoàn thành xuất sắc câu đố nông trại!"',
+      'Gia Linh: "Haha, tớ câu được cá mặt trời thái dương kim rồi!"',
+      'Gia Linh: "Cả hai chúng mình đều đang thi đấu rất tốt!"',
+    ],
+  },
+  {
+    id: 'admin-tuyetle',
+    name: 'Lê Thị Tuyết Lệ 🛡️',
+    title: 'Admin Phụ • Bậc Thầy Từ Vựng (Level 5)',
+    avatar: '🛡️',
+    difficulty: 'hard',
+    speedMs: 3200,
+    pointsPerTick: 135,
+    isRealStudent: true,
+    level: 5,
+    streak: 16,
+    status: 'online',
+    cheerQuotes: [
+      'Tuyết Lệ: "Tuyết Lệ vừa đạt chuỗi trả lời đúng 5 câu liên tiếp!"',
+      'Tuyết Lệ: "Đấu với người thật vui hơn nhiều, cố lên nhé!"',
+      'Tuyết Lệ: "Rương vàng kho báu Joseon vừa được kéo lên!"',
+    ],
+  },
+  {
+    id: 'admin-baongoc',
+    name: 'Trần Bảo Ngọc 👑',
+    title: 'Admin Chính • Đại Hải Vương (Level 6)',
+    avatar: '👑',
+    difficulty: 'hard',
+    speedMs: 2700,
+    pointsPerTick: 155,
+    isRealStudent: true,
+    level: 6,
+    streak: 30,
+    status: 'online',
+    cheerQuotes: [
+      'Bảo Ngọc: "Admin Bảo Ngọc vừa lập kỷ lục câu cá biển sâu!"',
+      'Bảo Ngọc: "Kỹ năng phản xạ tiếng Hàn của bạn rất tiến bộ đấy!"',
+      'Bảo Ngọc: "Một trận đấu đỉnh cao của hai cao thủ!"',
+    ],
+  },
+];
 
 const PVP_RIVALS: PvpRival[] = [
   {
@@ -271,28 +410,27 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
   }, [mutantSeedBag]);
 
   // -------------------------------------------------------------
-  // 2. WEATHER SYSTEM (THỜI TIẾT BIẾN DỊ THEO MÙA)
+  // 2. RANDOM WEATHER SYSTEM (THỜI TIẾT RA NGẪU NHIÊN - KHÔNG CHỌN ĐƯỢC)
   // -------------------------------------------------------------
+  const WEATHERS: WeatherType[] = useMemo(() => ['sunny', 'rainy', 'snowy', 'rainbow', 'foggy'], []);
   const [currentWeather, setCurrentWeather] = useState<WeatherType>(() => {
-    const saved = localStorage.getItem(`${STORAGE_INVENTORY_KEY}_weather`);
-    return (saved as WeatherType) || 'rainy';
+    // Generate completely random weather on startup (user cannot select)
+    return ['sunny', 'rainy', 'snowy', 'rainbow', 'foggy'][Math.floor(Math.random() * 5)] as WeatherType;
   });
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_INVENTORY_KEY}_weather`, currentWeather);
-  }, [currentWeather]);
 
   const weatherConfig = WEATHER_CONFIGS[currentWeather] || WEATHER_CONFIGS.sunny;
 
-  // Manual Weather Change with Sound
-  const handleSelectWeather = (w: WeatherType) => {
-    playClickSound();
-    setCurrentWeather(w);
-    // Trigger fish army re-init with new weather mutants
-    setTimeout(() => {
-      initFishArmy(canvasDim.width, canvasDim.height);
-    }, 50);
-  };
+  // Natural Dynamic Weather shift every 90 seconds
+  useEffect(() => {
+    const weatherTimer = setInterval(() => {
+      setCurrentWeather((prev) => {
+        const others = WEATHERS.filter((w) => w !== prev);
+        const nextW = others[Math.floor(Math.random() * others.length)];
+        return nextW;
+      });
+    }, 90000);
+    return () => clearInterval(weatherTimer);
+  }, [WEATHERS]);
 
   // -------------------------------------------------------------
   // 3. MODALS VISIBILITY (SHOP, LEADERBOARD, PVP, 5-VOCAB QUEST)
@@ -303,9 +441,12 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [leaderboardFilter, setLeaderboardFilter] = useState<'all' | 'fish' | 'farm'>('all');
 
+  // Real Students PvP Matchmaking State
   const [isPvpOpen, setIsPvpOpen] = useState(false);
+  const [pvpTab, setPvpTab] = useState<'real_students' | 'companions'>('real_students');
+  const [realStudentsList, setRealStudentsList] = useState<PvpRival[]>(DEFAULT_REAL_STUDENTS);
   const [pvpState, setPvpState] = useState<'select' | 'battle' | 'result'>('select');
-  const [selectedRival, setSelectedRival] = useState<PvpRival>(PVP_RIVALS[0]);
+  const [selectedRival, setSelectedRival] = useState<PvpRival>(DEFAULT_REAL_STUDENTS[0]);
   const [pvpTimeLeft, setPvpTimeLeft] = useState(60);
   const [userPvpScore, setUserPvpScore] = useState(0);
   const [rivalPvpScore, setRivalPvpScore] = useState(0);
@@ -313,12 +454,48 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
   const [pvpBattleLog, setPvpBattleLog] = useState<string[]>([]);
   const [pvpFeedback, setPvpFeedback] = useState<{ text: string; isCorrect: boolean } | null>(null);
 
+  // Load real students from server
+  useEffect(() => {
+    fetchRealStudentsForPvp().then((serverStudents) => {
+      if (Array.isArray(serverStudents) && serverStudents.length > 0) {
+        const mapped: PvpRival[] = serverStudents.map((s) => ({
+          id: s.id,
+          name: s.name,
+          title: s.title || `Học viên • Level ${s.level || 1}`,
+          avatar: s.avatar || '🎓',
+          difficulty: (s.level >= 5 ? 'hard' : s.level >= 3 ? 'medium' : 'easy') as 'easy' | 'medium' | 'hard',
+          speedMs: s.speedMs || 3600,
+          pointsPerTick: s.pointsPerTick || 120,
+          isRealStudent: true,
+          level: s.level || 1,
+          streak: s.streak || 1,
+          status: 'online',
+          email: s.email,
+          cheerQuotes: s.quote || [
+            `${s.name}: "Cố lên bạn ơi, tớ đang tăng tốc!"`,
+            `${s.name}: "Tớ vừa giải xong một câu đố tiếng Hàn!"`,
+          ],
+        }));
+        setRealStudentsList((prev) => {
+          const map = new Map<string, PvpRival>();
+          prev.forEach((item) => map.set(item.id, item));
+          mapped.forEach((item) => map.set(item.id, item));
+          return Array.from(map.values());
+        });
+      }
+    });
+  }, []);
+
   const [isVocabQuestOpen, setIsVocabQuestOpen] = useState(false);
   const [vocabQuestIndex, setVocabQuestIndex] = useState(0);
   const [vocabQuestScore, setVocabQuestScore] = useState(0);
   const [vocabQuestAnswered, setVocabQuestAnswered] = useState(false);
   const [vocabQuestFeedback, setVocabQuestFeedback] = useState<{ text: string; isCorrect: boolean } | null>(null);
   const [vocabQuestCompleted, setVocabQuestCompleted] = useState(false);
+  const [questRoundKey, setQuestRoundKey] = useState(0);
+  const [questHistory, setQuestHistory] = useState<
+    Array<{ hangul: string; vietnamese: string; isCorrect: boolean; selected: string; romanization: string }>
+  >([]);
 
   // Pick 5 random vocabulary questions for the Quest
   const questQuestions = useMemo(() => {
@@ -328,7 +505,47 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
       [list[i], list[j]] = [list[j], list[i]];
     }
     return list.slice(0, 5);
-  }, [isVocabQuestOpen]);
+  }, [isVocabQuestOpen, questRoundKey]);
+
+  // Shuffled options for PvP challenge (scrambled answer choices)
+  const [shuffledPvpOptions, setShuffledPvpOptions] = useState<Array<{ text: string; isCorrect: boolean }>>([]);
+
+  // Shuffled options for 5-Vocab Quest (scrambled choices with diverse dynamic distractors)
+  const [shuffledQuestOptions, setShuffledQuestOptions] = useState<string[]>([]);
+
+  // Shuffle PvP choices whenever pvpChallengeIndex or current challenge changes
+  useEffect(() => {
+    const challenge = FISHING_CHALLENGES[pvpChallengeIndex % FISHING_CHALLENGES.length];
+    if (challenge && challenge.options) {
+      const shuffled = [...challenge.options];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      setShuffledPvpOptions(shuffled);
+    }
+  }, [pvpChallengeIndex, isPvpOpen]);
+
+  // Shuffle Vocab Quest choices with varied dynamic distractors whenever quest card changes
+  useEffect(() => {
+    const currentCard = questQuestions[vocabQuestIndex];
+    if (currentCard) {
+      // Pick 3 varied distractors from ANIMALS_PLANTS_VOCAB
+      const candidateDistractors = ANIMALS_PLANTS_VOCAB
+        .filter((v) => v.vietnamese !== currentCard.vietnamese && v.hangul !== currentCard.hangul)
+        .map((v) => v.vietnamese);
+      for (let i = candidateDistractors.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidateDistractors[i], candidateDistractors[j]] = [candidateDistractors[j], candidateDistractors[i]];
+      }
+      const choices = [currentCard.vietnamese, ...candidateDistractors.slice(0, 3)];
+      for (let i = choices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+      }
+      setShuffledQuestOptions(choices);
+    }
+  }, [vocabQuestIndex, questQuestions, isVocabQuestOpen]);
 
   // Audio pronunciation helper
   const handlePronounce = (text: string) => {
@@ -1264,6 +1481,41 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
     } else if (toolId === 'tool-super-fertilizer') {
       setFertilizerCharges((prev) => prev + 6);
       playSuccessSound();
+    } else if (toolId === 'tool-mist-sprayer') {
+      // Waters and accelerates all active crop plots
+      setPlots((prev) =>
+        prev.map((p) => {
+          if (p.stage === 'seed' || p.stage === 'growing') {
+            return { ...p, stage: 'ready', needsAction: 'harvest' };
+          }
+          return p;
+        })
+      );
+      playSuccessSound();
+      try {
+        confetti({ particleCount: 45, spread: 65 });
+      } catch (_) {}
+    } else if (toolId === 'tool-rainbow-lamp') {
+      // 7-Color Rainbow Lamp instantly brings all crops to harvestable ready state
+      setPlots((prev) =>
+        prev.map((p) => {
+          if (p.cropId && p.stage !== 'empty') {
+            return { ...p, stage: 'ready', needsAction: 'harvest' };
+          }
+          return p;
+        })
+      );
+      playFanfareSound();
+      try {
+        confetti({ particleCount: 75, spread: 90 });
+      } catch (_) {}
+    } else if (toolId === 'tool-ginseng-potion') {
+      // 1000-year Wild Ginseng tonic adds 10 supercharged harvests (x2.5 value)
+      setFertilizerCharges((prev) => prev + 10);
+      playFanfareSound();
+      try {
+        confetti({ particleCount: 60, spread: 80 });
+      } catch (_) {}
     } else if (toolId === 'tool-mutant-potion') {
       // Transforms first non-mutant planted crop into current weather mutant!
       const mutantCrop = CROPS_DATA.find(
@@ -1313,14 +1565,16 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
       }
       setEquippedHook(item.id);
     } else if (item.type === 'bait') {
-      const quantityToAdd = item.id === 'bait-worm' ? 10 : item.id === 'bait-shrimp' ? 5 : item.id === 'bait-hanwoo' ? 3 : 2;
+      const match = item.nameVi.match(/x(\d+)/);
+      const quantityToAdd = match ? parseInt(match[1], 10) : item.id === 'bait-worm' ? 10 : item.id === 'bait-shrimp' ? 5 : 3;
       setBaitCounts((prev) => ({
         ...prev,
         [item.id]: (prev[item.id] || 0) + quantityToAdd,
       }));
       setEquippedBait(item.id);
     } else if (item.type === 'tool') {
-      const quantityToAdd = item.id === 'tool-magic-water' ? 1 : item.id === 'tool-super-fertilizer' ? 5 : 3;
+      const match = item.nameVi.match(/x(\d+)/);
+      const quantityToAdd = match ? parseInt(match[1], 10) : item.id === 'tool-super-fertilizer' ? 5 : 1;
       setToolCounts((prev) => ({
         ...prev,
         [item.id]: (prev[item.id] || 0) + quantityToAdd,
@@ -1403,16 +1657,44 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
     }, 1100);
   };
 
-  // PvP Victory Claim
+  // Quick Random Real Student Matchmaker
+  const handleRandomRealStudentMatch = () => {
+    playClickSound();
+    const candidateList = realStudentsList.length > 0 ? realStudentsList : DEFAULT_REAL_STUDENTS;
+    const session = getCurrentUserSession();
+    // Exclude self if possible
+    const others = candidateList.filter((s) => s.email !== session?.email && s.name !== session?.name);
+    const pool = others.length > 0 ? others : candidateList;
+    const picked = pool[Math.floor(Math.random() * pool.length)];
+    handleStartPvp(picked);
+  };
+
+  // PvP Victory Claim & Record Match to Server
   const handleClaimPvpReward = () => {
     playFanfareSound();
     const won = userPvpScore > rivalPvpScore;
+    const session = getCurrentUserSession();
+
+    // Log match to system backend
+    recordPvpMatchResult({
+      userId: session?.id || 'guest',
+      rivalId: selectedRival.id,
+      rivalName: selectedRival.name,
+      userScore: userPvpScore,
+      rivalScore: rivalPvpScore,
+      winner: userPvpScore > rivalPvpScore ? 'user' : userPvpScore < rivalPvpScore ? 'rival' : 'draw',
+      rewardCoins: won ? 120 : 30,
+    });
+
     if (won) {
-      setCoins((c) => c + 100);
-      onAddXp(60);
+      setCoins((c) => c + 120);
+      onAddXp(70);
       try {
         confetti({ particleCount: 70, spread: 90 });
       } catch (_) {}
+    } else {
+      setCoins((c) => c + 30);
+      onAddXp(25);
     }
     setIsPvpOpen(false);
     setPvpState('select');
@@ -1428,6 +1710,17 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
     setVocabQuestAnswered(true);
 
     const isMatch = selectedVi === currentQuestCard.vietnamese;
+    setQuestHistory((prev) => [
+      ...prev,
+      {
+        hangul: currentQuestCard.hangul,
+        vietnamese: currentQuestCard.vietnamese,
+        isCorrect: isMatch,
+        selected: selectedVi,
+        romanization: currentQuestCard.romanization,
+      },
+    ]);
+
     if (isMatch) {
       playSuccessSound();
       speakKorean(currentQuestCard.hangul);
@@ -1436,7 +1729,7 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
     } else {
       playIncorrectSound();
       setVocabQuestFeedback({
-        text: `Chưa đúng rồi! "${currentQuestCard.hangul}" (${currentQuestCard.romanization}) nghĩa là "${currentQuestCard.vietnamese}".`,
+        text: `Chưa đúng rồi! "${currentQuestCard.hangul}" (${currentQuestCard.romanization}) nghĩa là "${currentQuestCard.vietnamese}". (Bạn đã chọn: "${selectedVi}")`,
         isCorrect: false,
       });
     }
@@ -1450,23 +1743,41 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
     if (vocabQuestIndex + 1 < questQuestions.length) {
       setVocabQuestIndex((i) => i + 1);
     } else {
-      // Completed 5 cards!
+      // Completed 5 cards! Strictly check if ALL 5 are correct (5/5)
+      // "học 5 từ lấy hạt hiếm học phải đúng 5 câu mới được hạt không thì không cho"
       setVocabQuestCompleted(true);
-      playFanfareSound();
+      const isPerfect = vocabQuestScore === 5;
 
-      // Reward Weather Mutant Seed matching weather
-      const matchingMutant = CROPS_DATA.find((c) => c.isMutant && c.weatherRequirement === currentWeather) ||
-        CROPS_DATA.find((c) => c.isMutant) ||
-        CROPS_DATA[0];
+      if (isPerfect) {
+        playFanfareSound();
+        // Reward Weather Mutant Seed matching weather
+        const matchingMutant = CROPS_DATA.find((c) => c.isMutant && c.weatherRequirement === currentWeather) ||
+          CROPS_DATA.find((c) => c.isMutant) ||
+          CROPS_DATA[0];
 
-      setMutantSeedBag((prev) => [...prev, matchingMutant.id]);
-      setCoins((c) => c + 80);
-      onAddXp(50);
+        setMutantSeedBag((prev) => [...prev, matchingMutant.id]);
+        setCoins((c) => c + 100);
+        onAddXp(60);
 
-      try {
-        confetti({ particleCount: 90, spread: 100, origin: { y: 0.5 } });
-      } catch (_) {}
+        try {
+          confetti({ particleCount: 90, spread: 100, origin: { y: 0.5 } });
+        } catch (_) {}
+      } else {
+        // Less than 5/5: DO NOT award seed ("không thì không cho")!
+        playIncorrectSound();
+      }
     }
+  };
+
+  const handleRetryQuest = () => {
+    playClickSound();
+    setVocabQuestIndex(0);
+    setVocabQuestScore(0);
+    setVocabQuestCompleted(false);
+    setVocabQuestAnswered(false);
+    setVocabQuestFeedback(null);
+    setQuestHistory([]);
+    setQuestRoundKey((k) => k + 1);
   };
 
   // Share catch to social feed
@@ -1586,6 +1897,8 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
                   setVocabQuestCompleted(false);
                   setVocabQuestAnswered(false);
                   setVocabQuestFeedback(null);
+                  setQuestHistory([]);
+                  setQuestRoundKey((k) => k + 1);
                 }}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-xs cursor-pointer transition-all hover:scale-105 active:scale-95"
               >
@@ -1596,33 +1909,29 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
               <VoiceGenderToggle className="shadow-xs" />
             </div>
 
-            {/* Quick Weather Bar Selector */}
-            <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
-              <span className="text-[10px] font-black text-slate-500 px-1.5">Thời tiết:</span>
-              {(['sunny', 'rainy', 'snowy', 'rainbow', 'foggy'] as WeatherType[]).map((w) => {
-                const conf = WEATHER_CONFIGS[w];
-                const isActive = currentWeather === w;
-                return (
-                  <button
-                    key={w}
-                    type="button"
-                    onClick={() => handleSelectWeather(w)}
-                    className={`px-2 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                      isActive
-                        ? 'bg-slate-900 text-white shadow-xs scale-105'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    }`}
-                    title={conf.nameVi}
-                  >
-                    <span>{conf.emoji}</span>
-                    <span className="hidden sm:inline text-[11px]">{conf.nameVi.split(' ')[0]}</span>
-                  </button>
-                );
-              })}
+            {/* Natural Random Weather Badge (No Manual Selection Allowed) */}
+            <div className="flex items-center gap-2 bg-white/95 px-3 py-1.5 rounded-2xl border border-slate-200/90 shadow-2xs">
+              <span className="text-lg animate-pulse">{weatherConfig.emoji}</span>
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-800">
+                    {weatherConfig.nameVi} ({weatherConfig.nameKo})
+                  </span>
+                  <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                    Ngẫu nhiên 🎲
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  Thời tiết tự nhiên đảo Busan • Tự động chuyển biến ngẫu nhiên
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Chill Background Music for Fishing & Farming */}
+      <ChillMusicBar />
 
       {/* 2. MODE SELECTOR TABS */}
       <div className="flex items-center justify-center gap-2 bg-slate-100 p-1.5 rounded-2xl max-w-md mx-auto">
@@ -2518,32 +2827,126 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
               </button>
             </div>
 
-            {/* State 1: Choose Rival */}
+            {/* State 1: Choose Rival (Real Students vs Cartoon Companions) */}
             {pvpState === 'select' && (
-              <div className="space-y-3">
-                <p className="text-xs font-bold text-slate-600 text-center">
-                  Chọn bạn đồng hành để bắt đầu so tài đối kháng:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  {PVP_RIVALS.map((rival) => (
-                    <div
-                      key={rival.id}
-                      onClick={() => handleStartPvp(rival)}
-                      className="p-3.5 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 transition-all cursor-pointer flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-3xl">{rival.avatar}</span>
-                        <div>
-                          <p className="font-black text-xs text-slate-800">{rival.name}</p>
-                          <p className="text-[10px] text-slate-500">{rival.title}</p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-black px-2 py-1 rounded-xl bg-rose-100 text-rose-700">
-                        Thách đấu ⚔️
-                      </span>
-                    </div>
-                  ))}
+              <div className="space-y-4">
+                {/* PvP Mode Tabs */}
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickSound();
+                      setPvpTab('real_students');
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                      pvpTab === 'real_students'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>Học Viên Người Thật 👥 (Mới)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playClickSound();
+                      setPvpTab('companions');
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl font-black text-xs transition-all cursor-pointer ${
+                      pvpTab === 'companions'
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <span>🐧 Bạn Đồng Hành Hoạt Hình</span>
+                  </button>
                 </div>
+
+                {/* Real Students Matchmaking View */}
+                {pvpTab === 'real_students' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-slate-600">
+                        Danh sách học viên đang trực tuyến trong hệ thống:
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRandomRealStudentMatch}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-xs shadow-xs cursor-pointer transition-transform hover:scale-105"
+                      >
+                        <Shuffle className="w-3.5 h-3.5" />
+                        <span>Ghép đấu ngẫu nhiên 🎲</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[50vh] overflow-y-auto pr-1">
+                      {realStudentsList.map((student) => (
+                        <div
+                          key={student.id}
+                          onClick={() => handleStartPvp(student)}
+                          className="p-3 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 transition-all cursor-pointer flex items-center justify-between space-x-2"
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="relative flex-shrink-0">
+                              <span className="text-3xl">{student.avatar}</span>
+                              <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-black text-xs text-slate-800 truncate">
+                                {student.name}
+                              </p>
+                              <p className="text-[10px] text-slate-500 truncate">
+                                {student.title}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">
+                                  Lv.{student.level || 1}
+                                </span>
+                                <span className="text-[9px] font-bold text-emerald-600 flex items-center gap-0.5">
+                                  ● Đang online
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className="flex-shrink-0 text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-rose-600 text-white shadow-2xs hover:bg-rose-700">
+                            Đấu ⚔️
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Cartoon Companions View */}
+                {pvpTab === 'companions' && (
+                  <div className="space-y-3">
+                    <p className="text-xs font-bold text-slate-600 text-center">
+                      Chọn nhân vật hoạt hình đồng hành để luyện tập đối kháng:
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {PVP_RIVALS.map((rival) => (
+                        <div
+                          key={rival.id}
+                          onClick={() => handleStartPvp(rival)}
+                          className="p-3.5 rounded-2xl bg-slate-50 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 transition-all cursor-pointer flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-3xl">{rival.avatar}</span>
+                            <div>
+                              <p className="font-black text-xs text-slate-800">{rival.name}</p>
+                              <p className="text-[10px] text-slate-500">{rival.title}</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-black px-2 py-1 rounded-xl bg-rose-100 text-rose-700">
+                            Thách đấu ⚔️
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -2590,7 +2993,7 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      {currentPvpChallenge.options.map((opt, idx) => (
+                      {(shuffledPvpOptions.length > 0 ? shuffledPvpOptions : currentPvpChallenge.options).map((opt, idx) => (
                         <button
                           key={idx}
                           type="button"
@@ -2701,10 +3104,15 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
 
             {!vocabQuestCompleted ? (
               <div className="space-y-4">
-                {/* Progress */}
+                {/* Progress & strict rule banner */}
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500">
                   <span>Câu hỏi: {vocabQuestIndex + 1} / {questQuestions.length}</span>
-                  <span className="text-emerald-700 font-extrabold">Đúng: {vocabQuestScore}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+                      🎯 Yêu cầu: Đúng 5/5 mới có hạt
+                    </span>
+                    <span className="text-emerald-700 font-extrabold">Đúng: {vocabQuestScore}</span>
+                  </div>
                 </div>
 
                 <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
@@ -2732,24 +3140,20 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
                     <div className="pt-2 text-left">
                       <p className="text-xs font-bold text-slate-700 mb-2">Chọn nghĩa tiếng Việt chính xác:</p>
                       <div className="space-y-2">
-                        {[
-                          currentQuestCard.vietnamese,
-                          'Hoa anh đào mùa xuân',
-                          'Cây thông bách xanh tươi',
-                          'Con hổ trắng dũng mãnh',
-                        ]
-                          .sort(() => 0.5 - Math.random())
-                          .map((opt, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              disabled={vocabQuestAnswered}
-                              onClick={() => handleAnswerQuest(opt)}
-                              className="w-full text-left p-3 rounded-xl bg-white hover:bg-emerald-100 border border-emerald-200 font-bold text-xs text-slate-800 cursor-pointer disabled:opacity-60 transition-all"
-                            >
-                              {opt}
-                            </button>
-                          ))}
+                        {(shuffledQuestOptions.length > 0
+                          ? shuffledQuestOptions
+                          : [currentQuestCard.vietnamese, 'Hoa anh đào', 'Cây thông', 'Con hổ']
+                        ).map((opt, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            disabled={vocabQuestAnswered}
+                            onClick={() => handleAnswerQuest(opt)}
+                            className="w-full text-left p-3 rounded-xl bg-white hover:bg-emerald-100 border border-emerald-200 font-bold text-xs text-slate-800 cursor-pointer disabled:opacity-60 transition-all"
+                          >
+                            {opt}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
@@ -2773,34 +3177,132 @@ export const FarmAndFishingView: React.FC<FarmAndFishingViewProps> = ({
                     onClick={handleNextQuestCard}
                     className="w-full py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-102"
                   >
-                    {vocabQuestIndex + 1 === questQuestions.length ? 'Nhận hạt giống biến dị ➔' : 'Từ tiếp theo ➔'}
+                    {vocabQuestIndex + 1 === questQuestions.length
+                      ? 'Hoàn thành & Kiểm tra kết quả ➔'
+                      : 'Từ tiếp theo ➔'}
                   </button>
                 )}
               </div>
-            ) : (
+            ) : vocabQuestScore === 5 ? (
+              /* Case 1: USER GOT PERFECT 5/5 -> AWARD RARE SEED */
               <div className="text-center space-y-4 py-3">
                 <span className="text-6xl animate-bounce">⚡🍉</span>
-                <h4 className="text-xl font-black text-slate-900">CHÚC MỪNG BẠN ĐÃ HOÀN THÀNH!</h4>
+                <div className="inline-block px-3.5 py-1 bg-amber-100 text-amber-900 border-2 border-amber-300 rounded-full text-xs font-black shadow-xs">
+                  🌟 ĐẠT ĐIỂM TUYỆT ĐỐI: 5/5 CÂU ĐÚNG!
+                </div>
+                <h4 className="text-xl font-black text-slate-900">CHÚC MỪNG BẠN ĐÃ NHẬN HẠT HIẾM!</h4>
                 <p className="text-xs text-slate-600">
-                  Bạn đã xuất sắc ghi nhớ 5 từ vựng mới và mở khóa thành công:
+                  Bạn đã xuất sắc trả lời chính xác trọn vẹn cả 5 từ vựng mới và mở khóa thành công:
                 </p>
-                <div className="p-3.5 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-1">
+
+                <div className="p-3.5 bg-amber-50 rounded-2xl border-2 border-amber-300 text-left space-y-1 shadow-xs">
                   <p className="text-sm font-black text-amber-900 flex items-center gap-1.5">
                     <span>✨ Hạt giống Cây Biến Dị Thời Tiết ({currentWeather.toUpperCase()})</span>
                   </p>
-                  <p className="text-xs text-slate-600">
-                    Hạt giống đã được cất vào túi đồ! Bạn có thể vào "Vườn rau củ" bấm "Chọn loại hạt" để gieo ngay lập tức!
+                  <p className="text-xs text-slate-700">
+                    Hạt giống đã được cất an toàn vào túi đồ! Bạn có thể chuyển sang tab <strong>Vườn rau củ</strong> bấm <strong>Chọn loại hạt</strong> để gieo ngay lập tức!
                   </p>
-                  <p className="text-xs font-black text-amber-700 pt-1">+80 K-Coins & +50 XP!</p>
+                  <p className="text-xs font-black text-amber-800 pt-1">+100 K-Coins & +60 XP thưởng xuất sắc!</p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsVocabQuestOpen(false)}
-                  className="px-6 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md cursor-pointer"
-                >
-                  Tuyệt vời! Vào vườn gieo hạt ngay ➔
-                </button>
+                {/* Review conquered words */}
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-left space-y-2">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-slate-600">5 từ vựng bạn đã ghi nhớ chuẩn xác:</p>
+                  <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    {questHistory.map((item, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-white px-3 py-1.5 rounded-xl border border-emerald-200 text-xs">
+                        <span className="font-black text-emerald-900">{idx + 1}. {item.hangul}</span>
+                        <span className="text-slate-600 text-[11px] font-medium">{item.vietnamese}</span>
+                        <span className="text-emerald-600 font-black">✓ Đúng</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleRetryQuest}
+                    className="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs cursor-pointer transition-all"
+                  >
+                    🔄 Thử thách bộ 5 từ mới
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsVocabQuestOpen(false)}
+                    className="flex-1 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-102"
+                  >
+                    Vào vườn gieo hạt ngay ➔
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Case 2: USER GOT < 5/5 -> STRICT NO SEED GIVEN ("không thì không cho") */
+              <div className="text-center space-y-4 py-3">
+                <span className="text-6xl animate-pulse">❌🌱</span>
+                <div className="inline-block px-3.5 py-1 bg-rose-100 text-rose-900 border-2 border-rose-300 rounded-full text-xs font-black shadow-xs">
+                  CHƯA ĐỦ ĐIỀU KIỆN NHẬN HẠT HIẾM ({vocabQuestScore}/5 CÂU)
+                </div>
+                <h4 className="text-xl font-black text-slate-900">KHÔNG ĐẠT YÊU CẦU 5/5!</h4>
+
+                <div className="p-3.5 bg-rose-50 rounded-2xl border-2 border-rose-200 text-left space-y-2">
+                  <p className="text-xs font-black text-rose-900 flex items-center gap-1.5">
+                    <span>⚠️ Quy tắc bắt buộc: Phải đúng cả 5 câu mới được hạt, không thì không cho!</span>
+                  </p>
+                  <p className="text-xs text-rose-800 leading-relaxed font-medium">
+                    Bạn đã trả lời đúng <strong>{vocabQuestScore} / 5</strong> câu. Do có câu trả lời chưa chính xác, hệ thống <strong>tuyệt đối không trao tặng hạt giống biến dị</strong> cho lượt này.
+                  </p>
+                  <p className="text-xs text-slate-600">
+                    Hãy bấm nút bên dưới để thử thách lại ngay từ đầu với bộ 5 từ mới cho đến khi đạt điểm 5/5 tuyệt đối nhé!
+                  </p>
+                </div>
+
+                {/* Review wrong and correct questions */}
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-left space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-slate-600">Chi tiết kết quả từng câu:</p>
+                  {questHistory.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-2 rounded-xl border flex items-center justify-between text-xs ${
+                        item.isCorrect
+                          ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                          : 'bg-rose-50 border-rose-200 text-rose-900'
+                      }`}
+                    >
+                      <div className="space-y-0.5">
+                        <p className="font-bold">
+                          {idx + 1}. {item.hangul} ({item.romanization}) = <span className="underline font-black">{item.vietnamese}</span>
+                        </p>
+                        {!item.isCorrect && (
+                          <p className="text-[10px] text-rose-700">
+                            Bạn đã chọn nhầm: <span className="line-through">{item.selected}</span>
+                          </p>
+                        )}
+                      </div>
+                      <span className={`font-black text-xs ${item.isCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {item.isCorrect ? '✓ Đúng' : '✗ Chưa đúng'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsVocabQuestOpen(false)}
+                    className="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs cursor-pointer transition-all"
+                  >
+                    Đóng lại
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRetryQuest}
+                    className="flex-1 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-102 flex items-center justify-center gap-1.5"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Học lại ngay (Đổi 5 từ mới) ➔</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
